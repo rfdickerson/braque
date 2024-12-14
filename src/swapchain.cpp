@@ -10,7 +10,7 @@ namespace braque {
 
 Swapchain::Swapchain(Window& window, Renderer& renderer): renderer(renderer) {
 
-    auto surface = window.createSurface(renderer);
+    surface = window.createSurface(renderer);
 
     // get the surface capabilities
     auto surfaceCapabilities = renderer.getPhysicalDevice().getSurfaceCapabilitiesKHR(surface);
@@ -39,7 +39,11 @@ Swapchain::Swapchain(Window& window, Renderer& renderer): renderer(renderer) {
 }
 
 Swapchain::~Swapchain() {
+
     renderer.getDevice().destroySwapchainKHR(swapchain);
+
+    // delete the surface
+    renderer.getInstance().destroySurfaceKHR(surface);
 
     spdlog::info("Destroyed the swapchain");
 }

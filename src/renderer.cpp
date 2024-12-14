@@ -20,6 +20,11 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
+
+    // destroy the device
+    device.destroy();
+    
+
     spdlog::info("Destroying renderer");
 
     instance.destroy();
