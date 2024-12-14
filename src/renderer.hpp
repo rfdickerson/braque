@@ -18,11 +18,17 @@ public:
     vk::Instance getInstance() const { return instance; }
     vk::Device getDevice() const { return device; }
     vk::PhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+    vk::Queue getGraphicsQueue() const { return graphicsQueue; }
+    uint32_t getGraphicsQueueFamilyIndex() const { return graphicsQueueFamilyIndex; }
+
 
 private:
     vk::Instance instance;
     vk::PhysicalDevice physicalDevice;
     vk::Device device;
+    vk::Queue graphicsQueue;
+
+    uint32_t graphicsQueueFamilyIndex;
 
     void createInstance();
     void createPhysicalDevice();

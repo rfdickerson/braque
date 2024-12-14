@@ -4,6 +4,8 @@
 
 #include "engine.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "renderer.hpp"
 #include "window.hpp"
 #include "swapchain.hpp"
@@ -24,8 +26,18 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
+
+    spdlog::info("Starting the engine loop");
+
     while (!window->shouldClose()) {
         window->pollEvents();
+
+        swapchain->waitForFrame();
+        swapchain->acquireNextImage();
+        // do drawing here
+
+        swapchain->submitCommandBuffer();
+        swapchain->presentImage();
     }
 }
 

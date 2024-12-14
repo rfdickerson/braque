@@ -10,15 +10,20 @@
 
 namespace braque {
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 class Swapchain {
 public:
     Swapchain(Window& window, Renderer& renderer);
     ~Swapchain();
 
     vk::SwapchainKHR getSwapchain() const { return swapchain; }
-    vk::Image getSwapchainImage() const { return swapchainImages[0]; }
+    vk::Image getSwapchainImage() const { return swapchainImages[currentImageIndex]; }
+    vk::CommandBuffer getCommandBuffer() const { return commandBuffers[currentImageIndex]; }
 
-    uint32_t acquireNextImage();
+    void waitForFrame();
+    void acquireNextImage();
+    void submitCommandBuffer();
     void presentImage();
 
 private:
@@ -27,11 +32,27 @@ private:
 
     Renderer& renderer;
 
+    uint32_t imageCount = 2;
     uint32_t currentImageIndex = 0;
     uint32_t currentFrameInFlight = 0;
     std::vector<vk::Image> swapchainImages;
 
+    // per swapchain image
+    std::vector<vk::Semaphore> imageAvailableSemaphores;
+    std::vector<vk::Semaphore> renderFinishedSemaphores;
 
+    // per frame in flight
+    std::vector<vk::Fence> inFlightFences;
+    std::vector<vk::Fence> imagesInFlight;
+
+    vk::CommandPool commandPool;
+    std::vector<vk::CommandBuffer> commandBuffers;
+
+    void createSwapchain(Window& window);
+    void createSemaphores();
+    void createFences();
+    void createSwapchainImages();
+    void createCommandBuffers();
 
 
 };

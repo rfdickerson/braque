@@ -81,10 +81,10 @@ void Renderer::createPhysicalDevice() {
     spdlog::info("Physical device found");
 
     // print the physical device properties
-    auto properties = physicalDevice.getProperties();
-    spdlog::info("Physical device properties:");
-    spdlog::info("  Name: {}", std::string(properties.deviceName));
-    spdlog::info("  Type: {}", vk::to_string(properties.deviceType));
+    // auto properties = physicalDevice.getProperties();
+    // spdlog::info("Physical device properties:");
+    // spdlog::info("  Name: {}", vk::to_string(properties.deviceName));
+    // spdlog::info("  Type: {}", vk::to_string(properties.deviceType));
 
 }
 
@@ -101,8 +101,11 @@ void Renderer::createLogicalDevice() {
     deviceCreateInfo.setQueueCreateInfoCount(1);
     deviceCreateInfo.setPQueueCreateInfos(&queueCreateInfo);
 
-    std::vector<const char *> deviceExtensions = {VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME};
-    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    std::vector<const char *> deviceExtensions = {
+        VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+    };
 
     deviceCreateInfo.setEnabledExtensionCount(static_cast<uint32_t>(deviceExtensions.size()));
     deviceCreateInfo.setPpEnabledExtensionNames(deviceExtensions.data());
@@ -119,6 +122,10 @@ void Renderer::createLogicalDevice() {
     }
 
     spdlog::info("Logical device created");
+
+    // set the queue
+    graphicsQueue = device.getQueue(0, 0);
+    graphicsQueueFamilyIndex = 0;
 }
 
 
