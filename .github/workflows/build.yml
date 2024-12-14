@@ -15,7 +15,7 @@ jobs:
     steps:
 
       - name: Install system dependencies
-        run: sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config vulkan-validationlayers-dev spirv-tools vulkan-tools
+        run: sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config vulkan-utility-libraries-dev spirv-tools vulkan-tools
 
       - name: Checkout repository
         uses: actions/checkout@v3
