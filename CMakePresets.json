@@ -1,0 +1,34 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-multi-vcpkg",
+      "displayName": "Ninja Multi-Config with Vcpkg",
+      "description": "Configure with Ninja Multi-Config generator and Vcpkg toolchain",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/builds/${presetName}",
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-vcpkg-debug",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build (Debug)",
+      "description": "Build with Ninja Multi-Config generator in Debug mode",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-vcpkg-release",
+      "configurePreset": "ninja-multi-vcpkg",
+      "displayName": "Build (Release)",
+      "description": "Build with Ninja Multi-Config generator in Release mode",
+      "configuration": "Release"
+    }
+  ]
+}
