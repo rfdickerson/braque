@@ -15,6 +15,11 @@ public:
     Swapchain(Window& window, Renderer& renderer);
     ~Swapchain();
 
+private:
+    vk::SwapchainKHR swapchain;
+
+    Renderer& renderer;
+
 };
 
 } // braque

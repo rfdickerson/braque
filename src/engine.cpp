@@ -17,8 +17,10 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
-    delete window;
+
+    delete swapchain;
     delete renderer;
+    delete window;
 }
 
 void Engine::run() {

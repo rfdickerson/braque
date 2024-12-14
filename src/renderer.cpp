@@ -97,6 +97,8 @@ void Renderer::createLogicalDevice() {
     deviceCreateInfo.setPQueueCreateInfos(&queueCreateInfo);
 
     std::vector<const char *> deviceExtensions = {VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME};
+    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
     deviceCreateInfo.setEnabledExtensionCount(static_cast<uint32_t>(deviceExtensions.size()));
     deviceCreateInfo.setPpEnabledExtensionNames(deviceExtensions.data());
 

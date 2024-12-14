@@ -16,6 +16,8 @@ public:
     ~Renderer();
 
     vk::Instance getInstance() const { return instance; }
+    vk::Device getDevice() const { return device; }
+    vk::PhysicalDevice getPhysicalDevice() const { return physicalDevice; }
 
 private:
     vk::Instance instance;

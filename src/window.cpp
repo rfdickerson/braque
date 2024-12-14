@@ -20,6 +20,8 @@ Window::Window(): window(nullptr) {
         return;
     }
 
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
     // create window
     window = glfwCreateWindow(1280, 720, "Braque", nullptr, nullptr);
     if (!window) {
