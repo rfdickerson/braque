@@ -34,7 +34,12 @@ void Engine::run() {
 
         swapchain->waitForFrame();
         swapchain->acquireNextImage();
+        swapchain->waitForImageInFlight();
         // do drawing here
+
+        auto buffer = swapchain->getCommandBuffer();
+        buffer.begin(vk::CommandBufferBeginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+        buffer.end();
 
         swapchain->submitCommandBuffer();
         swapchain->presentImage();

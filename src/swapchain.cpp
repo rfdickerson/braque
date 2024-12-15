@@ -22,6 +22,9 @@ namespace braque
     Swapchain::~Swapchain()
     {
 
+        // wait for device to be idle
+        renderer.getDevice().waitIdle();
+
         // delete the command pool
         renderer.getDevice().destroyCommandPool(commandPool);
 
@@ -50,13 +53,33 @@ namespace braque
         spdlog::info("Destroyed the swapchain");
     }
 
-    void Swapchain::waitForFrame()
+    void Swapchain::waitForFrame() const
     {
         auto result = renderer.getDevice().waitForFences(1, &inFlightFences[currentFrameInFlight], VK_TRUE, UINT64_MAX);
 
         if (result != vk::Result::eSuccess)
         {
             spdlog::error("Failed to wait for fence");
+        }
+    }
+
+    void Swapchain::waitForImageInFlight()
+    {
+        auto imageFence = imagesInFlight[currentImageIndex];
+        auto inFlightFence = inFlightFences[currentFrameInFlight];
+
+        if (imageFence != VK_NULL_HANDLE) {
+           renderer.getDevice().waitForFences(1, &imageFence, VK_TRUE, UINT64_MAX);
+        }
+
+        imagesInFlight[currentImageIndex] = inFlightFences[currentFrameInFlight];
+
+        // reset the fence
+        auto resetResult = renderer.getDevice().resetFences(1, &inFlightFence);
+
+        if (resetResult != vk::Result::eSuccess)
+        {
+            spdlog::error("Failed to reset fence");
         }
     }
 
@@ -107,7 +130,7 @@ namespace braque
 
         vk::SwapchainCreateInfoKHR swapchainCreateInfo;
         swapchainCreateInfo.setSurface(surface);
-        swapchainCreateInfo.setMinImageCount(surfaceCapabilities.minImageCount);
+        swapchainCreateInfo.setMinImageCount(surfaceCapabilities.minImageCount + 1);
         swapchainCreateInfo.setImageFormat(surfaceFormats[0].format);
         swapchainCreateInfo.setImageColorSpace(surfaceFormats[0].colorSpace);
         swapchainCreateInfo.setImageExtent(surfaceCapabilities.currentExtent);
@@ -116,6 +139,7 @@ namespace braque
         swapchainCreateInfo.setImageSharingMode(vk::SharingMode::eExclusive);
         swapchainCreateInfo.setQueueFamilyIndexCount(0);
         swapchainCreateInfo.setPQueueFamilyIndices(nullptr);
+        swapchainCreateInfo.setPresentMode(presentMode);
 
         auto result = renderer.getDevice().createSwapchainKHR(swapchainCreateInfo);
 
@@ -144,10 +168,13 @@ namespace braque
         vk::FenceCreateInfo fenceCreateInfo{};
         fenceCreateInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
 
+        inFlightFences.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             inFlightFences.push_back(renderer.getDevice().createFence(fenceCreateInfo));
         }
+
+        imagesInFlight.resize(imageCount, VK_NULL_HANDLE);
     }
 
     void Swapchain::createSwapchainImages()
@@ -160,6 +187,7 @@ namespace braque
         // create the command pool
         vk::CommandPoolCreateInfo commandPoolCreateInfo{};
         commandPoolCreateInfo.setQueueFamilyIndex(renderer.getGraphicsQueueFamilyIndex());
+        commandPoolCreateInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
         commandPool = renderer.getDevice().createCommandPool(commandPoolCreateInfo);
 
@@ -184,6 +212,8 @@ namespace braque
         auto signal = renderFinishedSemaphores[currentFrameInFlight];
         auto fence = inFlightFences[currentFrameInFlight];
 
+        auto commandBuffer = commandBuffers[currentImageIndex];
+
         vk::SemaphoreSubmitInfo waitSemaphoreInfo{};
         waitSemaphoreInfo.setSemaphore(wait);
         waitSemaphoreInfo.setStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput);
@@ -193,14 +223,14 @@ namespace braque
         signalSemaphoreInfo.setStageMask(vk::PipelineStageFlagBits2::eColorAttachmentOutput);
 
         vk::CommandBufferSubmitInfo commandBufferSubmitInfo{};
-        commandBufferSubmitInfo.setCommandBuffer(commandBuffers[currentImageIndex]);
+        commandBufferSubmitInfo.setCommandBuffer(commandBuffer);
 
         vk::SubmitInfo2 submitInfo{};
         submitInfo.setWaitSemaphoreInfos(waitSemaphoreInfo);
         submitInfo.setCommandBufferInfos(commandBufferSubmitInfo);
         submitInfo.setSignalSemaphoreInfos(signalSemaphoreInfo);
 
-        renderer.getGraphicsQueue().submit2(submitInfo, fence);
+        renderer.getGraphicsQueue().submit2KHR(submitInfo, fence);
     }
 
 

@@ -21,8 +21,9 @@ public:
     vk::Image getSwapchainImage() const { return swapchainImages[currentImageIndex]; }
     vk::CommandBuffer getCommandBuffer() const { return commandBuffers[currentImageIndex]; }
 
-    void waitForFrame();
+    void waitForFrame() const;
     void acquireNextImage();
+    void waitForImageInFlight();
     void submitCommandBuffer();
     void presentImage();
 

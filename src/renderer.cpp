@@ -81,10 +81,23 @@ void Renderer::createPhysicalDevice() {
     spdlog::info("Physical device found");
 
     // print the physical device properties
-    // auto properties = physicalDevice.getProperties();
-    // spdlog::info("Physical device properties:");
-    // spdlog::info("  Name: {}", vk::to_string(properties.deviceName));
-    // spdlog::info("  Type: {}", vk::to_string(properties.deviceType));
+    auto properties = physicalDevice.getProperties();
+    spdlog::info("Physical device properties:");
+    spdlog::info("  Name: {}", std::string(properties.deviceName));
+    spdlog::info("  Type: {}", vk::to_string(properties.deviceType));
+
+    // double check it supports syncronization 2 and dynamic rendering
+    auto features = physicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeatures, vk::PhysicalDeviceSynchronization2FeaturesKHR>();
+    if (!features.get<vk::PhysicalDeviceDynamicRenderingFeatures>().dynamicRendering) {
+        spdlog::error("Physical device does not support dynamic rendering");
+        throw std::runtime_error("Physical device does not support dynamic rendering");
+    }
+
+    if (!features.get<vk::PhysicalDeviceSynchronization2FeaturesKHR>().synchronization2) {
+        spdlog::error("Physical device does not support synchronization 2");
+        throw std::runtime_error("Physical device does not support synchronization 2");
+    }
+
 
 }
 
@@ -105,6 +118,7 @@ void Renderer::createLogicalDevice() {
         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+        "VK_KHR_portability_subset"
     };
 
     deviceCreateInfo.setEnabledExtensionCount(static_cast<uint32_t>(deviceExtensions.size()));
@@ -112,7 +126,14 @@ void Renderer::createLogicalDevice() {
 
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures;
     dynamicRenderingFeatures.setDynamicRendering(true);
-    deviceCreateInfo.setPNext(&dynamicRenderingFeatures);
+
+
+    // synchronization 2 features
+    vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features;
+    synchronization2Features.setSynchronization2(true);
+    synchronization2Features.setPNext(&dynamicRenderingFeatures);
+
+    deviceCreateInfo.setPNext(&synchronization2Features);
 
     device = physicalDevice.createDevice(deviceCreateInfo);
 
