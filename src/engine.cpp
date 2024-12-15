@@ -9,6 +9,7 @@
 #include "renderer.hpp"
 #include "window.hpp"
 #include "swapchain.hpp"
+#include "rendering_stage.hpp"
 
 namespace braque {
 
@@ -16,10 +17,12 @@ Engine::Engine() {
     window = new Window();
     renderer = new Renderer();
     swapchain = new Swapchain(*window, *renderer);
+    renderingStage = new RenderingStage(*renderer, *swapchain);
 }
 
 Engine::~Engine() {
 
+    delete renderingStage;
     delete swapchain;
     delete renderer;
     delete window;
@@ -37,9 +40,7 @@ void Engine::run() {
         swapchain->waitForImageInFlight();
         // do drawing here
 
-        auto buffer = swapchain->getCommandBuffer();
-        buffer.begin(vk::CommandBufferBeginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
-        buffer.end();
+        renderingStage->render();
 
         swapchain->submitCommandBuffer();
         swapchain->presentImage();

@@ -24,6 +24,8 @@ add_executable(braque src/main.cpp
         src/window.cpp
         src/window.hpp
         src/swapchain.cpp
-        src/swapchain.hpp)
+        src/swapchain.hpp
+        src/rendering_stage.cpp
+        src/rendering_stage.hpp)
 
 target_link_libraries(braque PRIVATE glfw glm::glm Vulkan::Vulkan Vulkan::Headers spdlog::spdlog)

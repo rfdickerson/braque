@@ -69,7 +69,11 @@ namespace braque
         auto inFlightFence = inFlightFences[currentFrameInFlight];
 
         if (imageFence != VK_NULL_HANDLE) {
-           renderer.getDevice().waitForFences(1, &imageFence, VK_TRUE, UINT64_MAX);
+            auto result = renderer.getDevice().waitForFences(1, &imageFence, VK_TRUE, UINT64_MAX);
+            if (result != vk::Result::eSuccess)
+            {
+                spdlog::error("Failed to wait for image in flight fence");
+            }
         }
 
         imagesInFlight[currentImageIndex] = inFlightFences[currentFrameInFlight];

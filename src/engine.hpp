@@ -6,6 +6,10 @@
 #define ENGINE_HPP
 
 namespace braque {
+class RenderingStage;
+}
+
+namespace braque {
 
 class Window;
 class Renderer;
@@ -22,6 +26,7 @@ private:
     Window *window;
     Renderer *renderer;
     Swapchain *swapchain;
+    RenderingStage *renderingStage;
 };
 
 } // braque
