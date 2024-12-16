@@ -14,6 +14,7 @@ find_package(Vulkan REQUIRED)
 find_package(VulkanHeaders REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
 add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 
@@ -29,6 +30,9 @@ add_executable(braque src/main.cpp
         src/rendering_stage.cpp
         src/rendering_stage.hpp
         src/debug_window.cpp
-        src/debug_window.hpp)
+        src/debug_window.hpp
+        src/memory_allocator.cpp
+        src/memory_allocator.hpp)
 
-target_link_libraries(braque PRIVATE  glm::glm Vulkan::Vulkan Vulkan::Headers spdlog::spdlog imgui::imgui)
+target_link_libraries(braque PRIVATE
+        glfw glm::glm Vulkan::Vulkan Vulkan::Headers spdlog::spdlog imgui::imgui GPUOpen::VulkanMemoryAllocator)

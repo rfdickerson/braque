@@ -13,6 +13,7 @@ class Window;
 class Swapchain;
 class RenderingStage;
 class DebugWindow;
+class MemoryAllocator;
 
 class Engine {
 public:
@@ -32,6 +33,7 @@ private:
     Swapchain *swapchain;
     RenderingStage *renderingStage;
     DebugWindow *debugWindow;
+    MemoryAllocator *memoryAllocator;
 };
 
 } // braque
