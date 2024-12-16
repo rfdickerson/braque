@@ -91,7 +91,7 @@ void RenderingStage::prepareImageForDisplay(vk::CommandBuffer buffer) {
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,          // srcStageMask
         vk::AccessFlagBits2::eColorAttachmentWrite,                      // srcAccessMask
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,       // dstStageMask
-        vk::AccessFlagBits2::eColorAttachmentWrite,                // dstAccessMask
+        vk::AccessFlagBits2::eNone,                // dstAccessMask
         vk::ImageLayout::eColorAttachmentOptimal,                     // oldLayout
         vk::ImageLayout::ePresentSrcKHR,                 // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
