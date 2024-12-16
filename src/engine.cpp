@@ -24,6 +24,7 @@ Engine::Engine() {
 
 Engine::~Engine() {
 
+    renderer->waitIdle();
     delete debugWindow;
     delete renderingStage;
     delete swapchain;

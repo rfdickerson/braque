@@ -15,6 +15,8 @@ public:
     Renderer();
     ~Renderer();
 
+    void waitIdle();
+
     vk::Instance getInstance() const { return instance; }
     vk::Device getDevice() const { return device; }
     vk::PhysicalDevice getPhysicalDevice() const { return physicalDevice; }
@@ -33,6 +35,10 @@ private:
     void createInstance();
     void createPhysicalDevice();
     void createLogicalDevice();
+
+    static std::vector<const char*> getInstanceExtensions();
+    static std::vector<const char*> getDeviceExtensions();
+    static vk::InstanceCreateFlags getInstanceFlags();
 };
 
 } // braque
