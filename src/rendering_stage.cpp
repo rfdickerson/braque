@@ -32,7 +32,7 @@ void RenderingStage::begin(vk::CommandBuffer buffer) {
 void RenderingStage::beginRenderingPass(vk::CommandBuffer buffer) {
 
     vk::ClearColorValue clearColor;
-    clearColor.setFloat32({1.0f, 0.0f, 0.0f, 1.0f});
+    clearColor.setFloat32({0.0f, 0.0f, 0.0f, 0.0f});
 
      vk::RenderingAttachmentInfo renderingAttachmentInfo{};
     renderingAttachmentInfo.setClearValue(clearColor);
