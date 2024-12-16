@@ -15,6 +15,7 @@ namespace braque
         createFences();
         createSwapchainImages();
         createCommandBuffers();
+        createImageViews();
 
         spdlog::info("Created the swapchain");
     }
@@ -236,6 +237,28 @@ namespace braque
 
         renderer.getGraphicsQueue().submit2KHR(submitInfo, fence);
     }
+
+    void Swapchain::createImageViews() {
+        // for every image, create a swapchain image
+        for (auto image : swapchainImages)
+        {
+            vk::ImageViewCreateInfo imageViewCreateInfo{};
+            imageViewCreateInfo.setImage(image);
+            imageViewCreateInfo.setViewType(vk::ImageViewType::e2D);
+            imageViewCreateInfo.setFormat(vk::Format::eB8G8R8A8Unorm);
+            imageViewCreateInfo.setComponents(vk::ComponentMapping{});
+            imageViewCreateInfo.setSubresourceRange(vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+
+            auto imageView = renderer.getDevice().createImageView(imageViewCreateInfo);
+
+            swapchainImageViews.push_back(imageView);
+        }
+
+        // set the extent
+        swapchainExtent = vk::Rect2D{{0, 0}, {800,600}};
+
+    }
+
 
 
 

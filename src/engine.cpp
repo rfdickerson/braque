@@ -6,10 +6,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include "renderer.hpp"
 #include "window.hpp"
+#include "renderer.hpp"
 #include "swapchain.hpp"
 #include "rendering_stage.hpp"
+#include "debug_window.hpp"
 
 namespace braque {
 
@@ -18,10 +19,12 @@ Engine::Engine() {
     renderer = new Renderer();
     swapchain = new Swapchain(*window, *renderer);
     renderingStage = new RenderingStage(*renderer, *swapchain);
+    debugWindow = new DebugWindow(*this);
 }
 
 Engine::~Engine() {
 
+    delete debugWindow;
     delete renderingStage;
     delete swapchain;
     delete renderer;
@@ -40,7 +43,16 @@ void Engine::run() {
         swapchain->waitForImageInFlight();
         // do drawing here
 
-        renderingStage->render();
+        debugWindow->createFrame();
+
+        auto commandBuffer = swapchain->getCommandBuffer();
+        renderingStage->begin(commandBuffer);
+        renderingStage->prepareImageForColorAttachment(commandBuffer);
+        renderingStage->beginRenderingPass(commandBuffer);
+        debugWindow->renderFrame(commandBuffer);
+        renderingStage->endRenderingPass(commandBuffer);
+        renderingStage->prepareImageForDisplay(commandBuffer);
+        renderingStage->end(commandBuffer);
 
         swapchain->submitCommandBuffer();
         swapchain->presentImage();

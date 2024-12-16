@@ -20,6 +20,9 @@ public:
     vk::SwapchainKHR getSwapchain() const { return swapchain; }
     vk::Image getSwapchainImage() const { return swapchainImages[currentImageIndex]; }
     vk::CommandBuffer getCommandBuffer() const { return commandBuffers[currentImageIndex]; }
+    uint32_t getImageCount() const { return imageCount; }
+    vk::ImageView getImageView() const { return swapchainImageViews[currentImageIndex]; }
+    vk::Rect2D getExtent() const { return swapchainExtent; }
 
     void waitForFrame() const;
     void acquireNextImage();
@@ -37,6 +40,8 @@ private:
     uint32_t currentImageIndex = 0;
     uint32_t currentFrameInFlight = 0;
     std::vector<vk::Image> swapchainImages;
+    std::vector<vk::ImageView> swapchainImageViews;
+    vk::Rect2D swapchainExtent;
 
     // per swapchain image
     std::vector<vk::Semaphore> imageAvailableSemaphores;
@@ -54,6 +59,7 @@ private:
     void createFences();
     void createSwapchainImages();
     void createCommandBuffers();
+    void createImageViews();
 
 
 };

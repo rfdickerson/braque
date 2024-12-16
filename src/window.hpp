@@ -20,6 +20,7 @@ public:
     bool shouldClose();
     void pollEvents();
     vk::SurfaceKHR createSurface(Renderer& renderer);
+    GLFWwindow* getNativeWindow() const { return window; }
 
 private:
     GLFWwindow *window;

@@ -6,19 +6,23 @@
 #define ENGINE_HPP
 
 namespace braque {
-class RenderingStage;
-}
 
-namespace braque {
-
-class Window;
+// forward declarations
 class Renderer;
+class Window;
 class Swapchain;
+class RenderingStage;
+class DebugWindow;
 
 class Engine {
 public:
     Engine();
     ~Engine();
+
+    Renderer* getRenderer() const { return renderer; }
+    Window* getWindow() const { return window; }
+    Swapchain* getSwapchain() const { return swapchain; }
+    RenderingStage* getRenderingStage() const { return renderingStage; }
 
     void run();
 
@@ -27,6 +31,7 @@ private:
     Renderer *renderer;
     Swapchain *swapchain;
     RenderingStage *renderingStage;
+    DebugWindow *debugWindow;
 };
 
 } // braque
