@@ -62,8 +62,8 @@ void RenderingStage::prepareImageForColorAttachment(vk::CommandBuffer buffer) {
 
     // Define the image memory barrier using synchronization2
     vk::ImageMemoryBarrier2 imageBarrier{
-        vk::PipelineStageFlagBits2::eTopOfPipe,          // srcStageMask
-        vk::AccessFlagBits2::eNone,                      // srcAccessMask
+        vk::PipelineStageFlagBits2::eColorAttachmentOutput,          // srcStageMask
+        vk::AccessFlagBits2::eColorAttachmentRead,                      // srcAccessMask
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,       // dstStageMask
         vk::AccessFlagBits2::eColorAttachmentWrite,                // dstAccessMask
         vk::ImageLayout::eUndefined,                     // oldLayout
