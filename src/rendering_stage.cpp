@@ -18,6 +18,10 @@ RenderingStage::RenderingStage(Renderer &renderer, Swapchain &swapchain): render
 }
 
 RenderingStage::~RenderingStage() {
+
+    // destroy the descriptor pool
+    renderer.getDevice().destroyDescriptorPool(descriptorPool);
+
     spdlog::info("Destroying rendering stage");
 }
 

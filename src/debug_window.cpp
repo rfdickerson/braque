@@ -24,7 +24,7 @@ DebugWindow::DebugWindow(Engine& engine): engine(engine) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    auto format = vk::Format::eR8G8B8A8Unorm;
+    auto format = engine.getSwapchain()->getFormat();
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
     pipelineRenderingCreateInfo.setColorAttachmentCount(1);

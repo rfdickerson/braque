@@ -29,6 +29,12 @@ namespace braque
         // delete the command pool
         renderer.getDevice().destroyCommandPool(commandPool);
 
+        // delete the image views
+        for (auto imageView : swapchainImageViews)
+        {
+            renderer.getDevice().destroyImageView(imageView);
+        }
+
         // delete the semaphores
         for (auto semaphore : imageAvailableSemaphores)
         {
@@ -130,14 +136,26 @@ namespace braque
         auto surfaceFormats = renderer.getPhysicalDevice().getSurfaceFormatsKHR(surface);
         auto presentModes = renderer.getPhysicalDevice().getSurfacePresentModesKHR(surface);
 
+        vk::SurfaceFormatKHR surfaceFormat;
+
+        // find the surface format with SRGB
+        for (auto format : surfaceFormats)
+        {
+            if (format.format == vk::Format::eB8G8R8A8Srgb)
+            {
+                surfaceFormat = format;
+                break;
+            }
+        }
+
         // check for FIFO present mode
         auto presentMode = vk::PresentModeKHR::eFifo;
 
         vk::SwapchainCreateInfoKHR swapchainCreateInfo;
         swapchainCreateInfo.setSurface(surface);
         swapchainCreateInfo.setMinImageCount(surfaceCapabilities.minImageCount + 1);
-        swapchainCreateInfo.setImageFormat(surfaceFormats[0].format);
-        swapchainCreateInfo.setImageColorSpace(surfaceFormats[0].colorSpace);
+        swapchainCreateInfo.setImageFormat(surfaceFormat.format);
+        swapchainCreateInfo.setImageColorSpace(surfaceFormat.colorSpace);
         swapchainCreateInfo.setImageExtent(surfaceCapabilities.currentExtent);
         swapchainCreateInfo.setImageArrayLayers(1);
         swapchainCreateInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
@@ -152,6 +170,10 @@ namespace braque
 
         // get the image count
         imageCount = renderer.getDevice().getSwapchainImagesKHR(swapchain).size();
+
+        // set the extent
+        swapchainExtent = vk::Rect2D(vk::Offset2D{0, 0}, surfaceCapabilities.currentExtent);
+        swapchainFormat = surfaceFormat.format;
 
     }
 
@@ -245,7 +267,7 @@ namespace braque
             vk::ImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.setImage(image);
             imageViewCreateInfo.setViewType(vk::ImageViewType::e2D);
-            imageViewCreateInfo.setFormat(vk::Format::eB8G8R8A8Unorm);
+            imageViewCreateInfo.setFormat(swapchainFormat);
             imageViewCreateInfo.setComponents(vk::ComponentMapping{});
             imageViewCreateInfo.setSubresourceRange(vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
 
@@ -254,8 +276,6 @@ namespace braque
             swapchainImageViews.push_back(imageView);
         }
 
-        // set the extent
-        swapchainExtent = vk::Rect2D{{0, 0}, {800,600}};
 
     }
 

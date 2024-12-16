@@ -23,6 +23,7 @@ public:
     uint32_t getImageCount() const { return imageCount; }
     vk::ImageView getImageView() const { return swapchainImageViews[currentImageIndex]; }
     vk::Rect2D getExtent() const { return swapchainExtent; }
+    vk::Format getFormat() const { return swapchainFormat; }
 
     void waitForFrame() const;
     void acquireNextImage();
@@ -42,6 +43,7 @@ private:
     std::vector<vk::Image> swapchainImages;
     std::vector<vk::ImageView> swapchainImageViews;
     vk::Rect2D swapchainExtent;
+    vk::Format swapchainFormat;
 
     // per swapchain image
     std::vector<vk::Semaphore> imageAvailableSemaphores;
