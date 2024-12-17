@@ -7,10 +7,9 @@
 
 #include <memory>
 
-#include "Engine.hpp"
-#include "Renderer.hpp" // Make sure to include the headers for the classes
-#include "Window.hpp"
-#include "Swapchain.hpp"
+#include "renderer.hpp"
+#include "window.hpp"
+#include "swapchain.hpp"
 #include "rendering_stage.hpp"
 #include "debug_window.hpp"
 #include "memory_allocator.hpp"
