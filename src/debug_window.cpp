@@ -24,27 +24,27 @@ DebugWindow::DebugWindow(Engine& engine): engine(engine) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    auto format = engine.getSwapchain()->getFormat();
+    auto format = engine.getSwapchain().getFormat();
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
     pipelineRenderingCreateInfo.setColorAttachmentCount(1);
     pipelineRenderingCreateInfo.setPColorAttachmentFormats(&format);
 
-    ImGui_ImplGlfw_InitForVulkan(engine.getWindow()->getNativeWindow(), true);
+    ImGui_ImplGlfw_InitForVulkan(engine.getWindow().getNativeWindow(), true);
 
-    const auto renderer = engine.getRenderer();
+    auto& renderer = engine.getRenderer();
 
     ImGui_ImplVulkan_InitInfo initInfo{};
-    initInfo.Instance = renderer->getInstance();
-    initInfo.PhysicalDevice = renderer->getPhysicalDevice();
-    initInfo.Device = renderer->getDevice();
-    initInfo.QueueFamily = renderer->getGraphicsQueueFamilyIndex();
-    initInfo.Queue = renderer->getGraphicsQueue();
+    initInfo.Instance = renderer.getInstance();
+    initInfo.PhysicalDevice = renderer.getPhysicalDevice();
+    initInfo.Device = renderer.getDevice();
+    initInfo.QueueFamily = renderer.getGraphicsQueueFamilyIndex();
+    initInfo.Queue = renderer.getGraphicsQueue();
     initInfo.PipelineCache = nullptr;
-    initInfo.DescriptorPool = engine.getRenderingStage()->getDescriptorPool();
+    initInfo.DescriptorPool = engine.getRenderingStage().getDescriptorPool();
     initInfo.Allocator = nullptr;
     initInfo.MinImageCount = 2;
-    initInfo.ImageCount = engine.getSwapchain()->getImageCount();
+    initInfo.ImageCount = engine.getSwapchain().getImageCount();
     initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     initInfo.CheckVkResultFn = nullptr;
     initInfo.UseDynamicRendering = true;
@@ -70,7 +70,7 @@ void DebugWindow::createFrame() {
     ImGui::ShowDemoWindow();
 }
 
-void DebugWindow::renderFrame(vk::CommandBuffer commandBuffer) {
+void DebugWindow::renderFrame(vk::CommandBuffer& commandBuffer) {
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }

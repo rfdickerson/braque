@@ -62,7 +62,8 @@ namespace braque
 
     void Swapchain::waitForFrame() const
     {
-        auto result = renderer.getDevice().waitForFences(1, &inFlightFences[currentFrameInFlight], VK_TRUE, UINT64_MAX);
+        const auto fence = inFlightFences[currentFrameInFlight];
+        auto result = renderer.getDevice().waitForFences(1, &fence, VK_TRUE, UINT64_MAX);
 
         if (result != vk::Result::eSuccess)
         {
@@ -195,10 +196,10 @@ namespace braque
         vk::FenceCreateInfo fenceCreateInfo{};
         fenceCreateInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
 
-        inFlightFences.reserve(MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
-            inFlightFences.push_back(renderer.getDevice().createFence(fenceCreateInfo));
+            const auto fence = renderer.getDevice().createFence(fenceCreateInfo);
+            inFlightFences.push_back(fence);
         }
 
         imagesInFlight.resize(imageCount, VK_NULL_HANDLE);

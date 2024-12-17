@@ -17,6 +17,13 @@ public:
     Swapchain(Window& window, Renderer& renderer);
     ~Swapchain();
 
+    // make sure copy and move are deleted
+    Swapchain(const Swapchain&) = delete;
+    Swapchain& operator=(const Swapchain&) = delete;
+    Swapchain(Swapchain&&) = delete;
+    Swapchain& operator=(Swapchain&&) = delete;
+
+
     vk::SwapchainKHR getSwapchain() const { return swapchain; }
     vk::Image getSwapchainImage() const { return swapchainImages[currentImageIndex]; }
     vk::CommandBuffer getCommandBuffer() const { return commandBuffers[currentImageIndex]; }

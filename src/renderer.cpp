@@ -22,12 +22,12 @@ Renderer::Renderer() {
 Renderer::~Renderer() {
 
     // destroy the device
-    device.destroy();
+    m_device.destroy();
     
 
     spdlog::info("Destroying renderer");
 
-    instance.destroy();
+    m_instance.destroy();
 }
 
 void Renderer::createInstance() {
@@ -50,14 +50,14 @@ void Renderer::createInstance() {
     instanceInfo.setPApplicationInfo(&applicationInfo);
     instanceInfo.setFlags(flags);
 
-    instance = vk::createInstance(instanceInfo);
+    m_instance = vk::createInstance(instanceInfo);
 
-    if (!instance) {
+    if (!m_instance) {
         spdlog::error("Failed to create Vulkan instance");
         throw std::runtime_error("Failed to create Vulkan instance");
     }
 
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(m_instance);
 
     spdlog::info("Vulkan instance created");
 
@@ -66,23 +66,23 @@ void Renderer::createInstance() {
 
 void Renderer::createPhysicalDevice() {
     // get the physical device
-    auto physicalDevices = instance.enumeratePhysicalDevices();
+    auto physicalDevices = m_instance.enumeratePhysicalDevices();
     if (physicalDevices.empty()) {
         spdlog::error("No physical devices found");
         throw std::runtime_error("No physical devices found");
     }
 
-    physicalDevice = physicalDevices[0];
+    m_physicalDevice = physicalDevices[0];
     spdlog::info("Physical device found");
 
     // print the physical device properties
-    auto properties = physicalDevice.getProperties();
+    auto properties = m_physicalDevice.getProperties();
     spdlog::info("Physical device properties:");
-    spdlog::info("  Name: {}", std::string(properties.deviceName));
+    spdlog::info("  Name: {}", std::string(properties.deviceName.data()));
     spdlog::info("  Type: {}", vk::to_string(properties.deviceType));
 
     // double check it supports syncronization 2 and dynamic rendering
-    auto features = physicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeatures, vk::PhysicalDeviceSynchronization2FeaturesKHR>();
+    auto features = m_physicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeatures, vk::PhysicalDeviceSynchronization2FeaturesKHR>();
     if (!features.get<vk::PhysicalDeviceDynamicRenderingFeatures>().dynamicRendering) {
         spdlog::error("Physical device does not support dynamic rendering");
         throw std::runtime_error("Physical device does not support dynamic rendering");
@@ -117,31 +117,39 @@ void Renderer::createLogicalDevice() {
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures;
     dynamicRenderingFeatures.setDynamicRendering(true);
 
-
     // synchronization 2 features
     vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features;
     synchronization2Features.setSynchronization2(true);
     synchronization2Features.setPNext(&dynamicRenderingFeatures);
 
-    deviceCreateInfo.setPNext(&synchronization2Features);
+    // float16 int8 features
+    vk::PhysicalDeviceFloat16Int8FeaturesKHR float16Int8Features;
+    float16Int8Features.setShaderFloat16(true);
+    float16Int8Features.setShaderInt8(true);
+    float16Int8Features.setPNext(&synchronization2Features);
 
-    device = physicalDevice.createDevice(deviceCreateInfo);
+    deviceCreateInfo.setPNext(&float16Int8Features);
 
-    if (!device) {
+    m_device = m_physicalDevice.createDevice(deviceCreateInfo);
+
+    if (!m_device) {
         spdlog::error("Failed to create logical device");
         throw std::runtime_error("Failed to create logical device");
     }
 
     spdlog::info("Logical device created");
 
+    // make it not need to look up the dynamic dispatcher each time
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(m_device);
+
     // set the queue
-    graphicsQueue = device.getQueue(0, 0);
+    m_graphicsQueue = m_device.getQueue(0, 0);
     graphicsQueueFamilyIndex = 0;
 }
 
 
 void Renderer::waitIdle() {
-    device.waitIdle();
+    m_device.waitIdle();
 }
 
 std::vector<char const *> Renderer::getInstanceExtensions() {

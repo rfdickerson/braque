@@ -15,51 +15,47 @@
 
 namespace braque {
 
-Engine::Engine() {
-    window = new Window();
-    renderer = new Renderer();
-    memoryAllocator = new MemoryAllocator(*renderer);
-    swapchain = new Swapchain(*window, *renderer);
-    renderingStage = new RenderingStage(*renderer, *swapchain);
-    debugWindow = new DebugWindow(*this);
-}
+    Engine::Engine() :
+        window(Window()),
+        renderer(Renderer()),
+        swapchain(Swapchain(window, renderer)),
+        memoryAllocator(MemoryAllocator(renderer)),
+        renderingStage(RenderingStage(*this)),
+        debugWindow(DebugWindow(*this))
+    {
+        // Any other initialization after all members are constructed
+    }
 
 Engine::~Engine() {
 
-    renderer->waitIdle();
-    delete debugWindow;
-    delete renderingStage;
-    delete swapchain;
-    delete memoryAllocator;
-    delete renderer;
-    delete window;
+    renderer.waitIdle();
 }
 
 void Engine::run() {
 
     spdlog::info("Starting the engine loop");
 
-    while (!window->shouldClose()) {
-        window->pollEvents();
+    while (!window.shouldClose()) {
+        window.pollEvents();
 
-        swapchain->waitForFrame();
-        swapchain->acquireNextImage();
-        swapchain->waitForImageInFlight();
+        swapchain.waitForFrame();
+        swapchain.acquireNextImage();
+        swapchain.waitForImageInFlight();
         // do drawing here
 
-        debugWindow->createFrame();
+        debugWindow.createFrame();
 
-        auto commandBuffer = swapchain->getCommandBuffer();
-        renderingStage->begin(commandBuffer);
-        renderingStage->prepareImageForColorAttachment(commandBuffer);
-        renderingStage->beginRenderingPass(commandBuffer);
-        debugWindow->renderFrame(commandBuffer);
-        renderingStage->endRenderingPass(commandBuffer);
-        renderingStage->prepareImageForDisplay(commandBuffer);
-        renderingStage->end(commandBuffer);
+        auto& commandBuffer = swapchain.getCommandBuffer();
+        renderingStage.begin(commandBuffer);
+        renderingStage.prepareImageForColorAttachment(commandBuffer);
+        renderingStage.beginRenderingPass(commandBuffer);
+        debugWindow.renderFrame(commandBuffer);
+        renderingStage.endRenderingPass(commandBuffer);
+        renderingStage.prepareImageForDisplay(commandBuffer);
+        renderingStage.end(commandBuffer);
 
-        swapchain->submitCommandBuffer();
-        swapchain->presentImage();
+        swapchain.submitCommandBuffer();
+        swapchain.presentImage();
     }
 }
 

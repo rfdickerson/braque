@@ -9,12 +9,12 @@
 
 namespace braque {
 
-class Renderer;
-class Swapchain;
+class Engine;
+    class Image;
 
 class RenderingStage {
 public:
-    RenderingStage(Renderer &renderer, Swapchain &swapchain);
+    RenderingStage(Engine& engine);
     ~RenderingStage();
 
     vk::DescriptorPool getDescriptorPool() const { return descriptorPool; }
@@ -29,10 +29,10 @@ public:
     // void render();
 
 private:
-    Renderer& renderer;
-    Swapchain& swapchain;
+    Engine& engine;
 
     vk::DescriptorPool descriptorPool;
+    Image* offscreenImage;
 
     void createDescriptorPool();
 

@@ -5,35 +5,39 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-namespace braque {
+#include <memory>
 
-// forward declarations
-class Renderer;
-class Window;
-class Swapchain;
-class RenderingStage;
-class DebugWindow;
-class MemoryAllocator;
+#include "Engine.hpp"
+#include "Renderer.hpp" // Make sure to include the headers for the classes
+#include "Window.hpp"
+#include "Swapchain.hpp"
+#include "rendering_stage.hpp"
+#include "debug_window.hpp"
+#include "memory_allocator.hpp"
+
+namespace braque {
 
 class Engine {
 public:
     Engine();
     ~Engine();
 
-    Renderer* getRenderer() const { return renderer; }
-    Window* getWindow() const { return window; }
-    Swapchain* getSwapchain() const { return swapchain; }
-    RenderingStage* getRenderingStage() const { return renderingStage; }
+    Renderer& getRenderer() { return renderer; }
+    Window& getWindow() { return window; }
+    Swapchain& getSwapchain() { return swapchain; }
+    RenderingStage& getRenderingStage() { return renderingStage; }
+    MemoryAllocator& getMemoryAllocator() { return memoryAllocator; }
 
     void run();
 
 private:
-    Window *window;
-    Renderer *renderer;
-    Swapchain *swapchain;
-    RenderingStage *renderingStage;
-    DebugWindow *debugWindow;
-    MemoryAllocator *memoryAllocator;
+    Window window;
+    Renderer renderer;
+    Swapchain swapchain;
+    MemoryAllocator memoryAllocator;
+    RenderingStage renderingStage;
+    DebugWindow debugWindow;
+
 };
 
 } // braque

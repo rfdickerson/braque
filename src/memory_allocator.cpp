@@ -41,11 +41,33 @@ MemoryAllocator::MemoryAllocator(Renderer &renderer): renderer(renderer){
     // get some stats from the allocator
     VmaTotalStatistics stats{};
     vmaCalculateStatistics(allocator, &stats);
-    spdlog::info("Memory allocator stats: {}", stats.memoryHeap->allocationSizeMin);
+    spdlog::info("Memory allocator stats: {}", stats.total.statistics.allocationCount);
 }
 
 MemoryAllocator::~MemoryAllocator() {
     vmaDestroyAllocator(allocator);
 }
+
+    AllocatedImage MemoryAllocator::createImage(const vk::ImageCreateInfo &createInfo, const VmaAllocationCreateInfo &allocInfo) {
+        AllocatedImage allocatedImage{};
+
+        vk::Image image;
+        VmaAllocation allocation;
+
+        auto result = vmaCreateImage(allocator, reinterpret_cast<const VkImageCreateInfo*>(&createInfo), &allocInfo, reinterpret_cast<VkImage*>(&image), &allocation, nullptr);
+        if (result != VK_SUCCESS) {
+            spdlog::error("Failed to create image");
+            throw std::runtime_error("Failed to create image");
+        }
+
+        allocatedImage.image = image;
+        allocatedImage.allocation = allocation;
+
+        return allocatedImage;
+    }
+
+    void MemoryAllocator::destroyImage(AllocatedImage &image) {
+        vmaDestroyImage(allocator, image.image, image.allocation);
+    }
 
 } // braque

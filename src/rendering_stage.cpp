@@ -6,21 +6,28 @@
 
 #include "renderer.hpp"
 #include "swapchain.hpp"
+#include "image.hpp"
 
 #include <spdlog/spdlog.h>
 
 namespace braque {
 
-RenderingStage::RenderingStage(Renderer &renderer, Swapchain &swapchain): renderer(renderer), swapchain(swapchain) {
+RenderingStage::RenderingStage(Engine &engine): engine(engine) {
     spdlog::info("Creating rendering stage");
 
     createDescriptorPool();
+
+    auto screenExtent = engine.getSwapchain().getExtent();
+
+    //offscreenImage = new Image(engine, {1280, 720, 1}, vk::Format::eR16G16B16A16Sfloat);
 }
 
 RenderingStage::~RenderingStage() {
 
+    //delete offscreenImage;
+
     // destroy the descriptor pool
-    renderer.getDevice().destroyDescriptorPool(descriptorPool);
+    engine.getRenderer().getDevice().destroyDescriptorPool(descriptorPool);
 
     spdlog::info("Destroying rendering stage");
 }
@@ -30,6 +37,8 @@ void RenderingStage::begin(vk::CommandBuffer buffer) {
 }
 
 void RenderingStage::beginRenderingPass(vk::CommandBuffer buffer) {
+
+    auto& swapchain = engine.getSwapchain();
 
     vk::ClearColorValue clearColor;
     clearColor.setFloat32({0.0f, 0.0f, 0.0f, 0.0f});
@@ -70,7 +79,7 @@ void RenderingStage::prepareImageForColorAttachment(vk::CommandBuffer buffer) {
         vk::ImageLayout::eColorAttachmentOptimal,        // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
-        swapchain.getSwapchainImage(),                   // image
+        engine.getSwapchain().getSwapchainImage(),                   // image
         {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}    // subresourceRange
     };
 
@@ -96,7 +105,7 @@ void RenderingStage::prepareImageForDisplay(vk::CommandBuffer buffer) {
         vk::ImageLayout::ePresentSrcKHR,                 // newLayout
         VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
         VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
-        swapchain.getSwapchainImage(),                   // image
+        engine.getSwapchain().getSwapchainImage(),                   // image
         {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}    // subresourceRange
     };
 
@@ -133,7 +142,7 @@ void RenderingStage::createDescriptorPool() {
     .setMaxSets(descriptorCount)
     .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 
-    descriptorPool = renderer.getDevice().createDescriptorPool(poolInfo, nullptr);
+    descriptorPool = engine.getRenderer().getDevice().createDescriptorPool(poolInfo, nullptr);
 
 }
 

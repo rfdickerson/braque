@@ -32,7 +32,9 @@ add_executable(braque src/main.cpp
         src/debug_window.cpp
         src/debug_window.hpp
         src/memory_allocator.cpp
-        src/memory_allocator.hpp)
+        src/memory_allocator.hpp
+        src/image.cpp
+        src/image.hpp)
 
 target_link_libraries(braque PRIVATE
         glfw glm::glm Vulkan::Vulkan Vulkan::Headers spdlog::spdlog imgui::imgui GPUOpen::VulkanMemoryAllocator)

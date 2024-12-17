@@ -15,8 +15,14 @@ public:
     DebugWindow(Engine& engine);
     ~DebugWindow();
 
+    // remove copy and move
+    DebugWindow(const DebugWindow&) = delete;
+    DebugWindow& operator=(const DebugWindow&) = delete;
+    DebugWindow(DebugWindow&&) = delete;
+    DebugWindow& operator=(DebugWindow&&) = delete;
+
     void createFrame();
-    void renderFrame(vk::CommandBuffer commandBuffer);
+    void renderFrame(vk::CommandBuffer& commandBuffer);
 
 private:
     Engine& engine;

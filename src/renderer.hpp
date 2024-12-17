@@ -15,20 +15,26 @@ public:
     Renderer();
     ~Renderer();
 
+    // make sure copy and move are deleted
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
+
     void waitIdle();
 
-    vk::Instance getInstance() const { return instance; }
-    vk::Device getDevice() const { return device; }
-    vk::PhysicalDevice getPhysicalDevice() const { return physicalDevice; }
-    vk::Queue getGraphicsQueue() const { return graphicsQueue; }
+    vk::Instance getInstance() const { return m_instance; }
+    vk::Device getDevice() { return m_device; }
+    vk::PhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
+    vk::Queue getGraphicsQueue() const { return m_graphicsQueue; }
     uint32_t getGraphicsQueueFamilyIndex() const { return graphicsQueueFamilyIndex; }
 
 
 private:
-    vk::Instance instance;
-    vk::PhysicalDevice physicalDevice;
-    vk::Device device;
-    vk::Queue graphicsQueue;
+    vk::Instance m_instance;
+    vk::PhysicalDevice m_physicalDevice;
+    vk::Device m_device;
+    vk::Queue m_graphicsQueue;
 
     uint32_t graphicsQueueFamilyIndex;
 
