@@ -23,6 +23,12 @@ public:
     MemoryAllocator(Renderer& renderer);
     ~MemoryAllocator();
 
+    // make sure copy and move are deleted
+    MemoryAllocator(const MemoryAllocator&) = delete;
+    MemoryAllocator& operator=(const MemoryAllocator&) = delete;
+    MemoryAllocator(MemoryAllocator&&) = delete;
+    MemoryAllocator& operator=(MemoryAllocator&&) = delete;
+
     AllocatedImage createImage(const vk::ImageCreateInfo& createInfo, const VmaAllocationCreateInfo& allocInfo);
     void destroyImage(AllocatedImage& image);
 

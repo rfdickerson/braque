@@ -17,6 +17,12 @@ public:
     Window();
     ~Window();
 
+    // copy and move are deleted
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+    Window(Window&&) = delete;
+    Window& operator=(Window&&) = delete;
+
     bool shouldClose();
     void pollEvents();
     vk::SurfaceKHR createSurface(Renderer& renderer);
