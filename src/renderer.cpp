@@ -34,10 +34,6 @@ void Renderer::createInstance() {
 
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 
-    // initialize the instance
-    uint32_t glfwExtensionCount = 0;
-    const auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
     vk::ApplicationInfo applicationInfo;
     applicationInfo.setPApplicationName("Braque");
     applicationInfo.setApplicationVersion(1);
@@ -45,15 +41,14 @@ void Renderer::createInstance() {
     applicationInfo.setEngineVersion(1);
     applicationInfo.setApiVersion(VK_API_VERSION_1_2);
 
-    // create a vector of extensions and add portability extension
-    std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    extensions.push_back(vk::KHRPortabilityEnumerationExtensionName);
+    auto extensions = getInstanceExtensions();
+    auto flags = getInstanceFlags();
 
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo.setEnabledExtensionCount(static_cast<uint32_t>(extensions.size()));
     instanceInfo.setPpEnabledExtensionNames(extensions.data());
     instanceInfo.setPApplicationInfo(&applicationInfo);
-    instanceInfo.setFlags(vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR);
+    instanceInfo.setFlags(flags);
 
     instance = vk::createInstance(instanceInfo);
 
@@ -114,12 +109,7 @@ void Renderer::createLogicalDevice() {
     deviceCreateInfo.setQueueCreateInfoCount(1);
     deviceCreateInfo.setPQueueCreateInfos(&queueCreateInfo);
 
-    std::vector<const char *> deviceExtensions = {
-        VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
-        "VK_KHR_portability_subset"
-    };
+    auto deviceExtensions = getDeviceExtensions();
 
     deviceCreateInfo.setEnabledExtensionCount(static_cast<uint32_t>(deviceExtensions.size()));
     deviceCreateInfo.setPpEnabledExtensionNames(deviceExtensions.data());
@@ -147,6 +137,48 @@ void Renderer::createLogicalDevice() {
     // set the queue
     graphicsQueue = device.getQueue(0, 0);
     graphicsQueueFamilyIndex = 0;
+}
+
+
+void Renderer::waitIdle() {
+    device.waitIdle();
+}
+
+std::vector<char const *> Renderer::getInstanceExtensions() {
+    uint32_t glfwExtensionCount = 0;
+    const auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+#if __APPLE__
+    extensions.push_back(vk::KHRPortabilityEnumerationExtensionName);
+#endif
+
+    return extensions;
+}
+
+std::vector<const char *> Renderer::getDeviceExtensions() {
+    std::vector deviceExtensions = {
+        VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+    };
+
+#ifdef __APPLE__
+    deviceExtensions.push_back("VK_KHR_portability_subset");
+#endif
+
+    return deviceExtensions;
+}
+
+vk::InstanceCreateFlags Renderer::getInstanceFlags() {
+    vk::InstanceCreateFlags flags {};
+
+#ifdef __APPLE__
+    flags |= vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+#endif
+
+    return flags;
 }
 
 

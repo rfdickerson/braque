@@ -11,12 +11,14 @@
 #include "swapchain.hpp"
 #include "rendering_stage.hpp"
 #include "debug_window.hpp"
+#include "memory_allocator.hpp"
 
 namespace braque {
 
 Engine::Engine() {
     window = new Window();
     renderer = new Renderer();
+    memoryAllocator = new MemoryAllocator(*renderer);
     swapchain = new Swapchain(*window, *renderer);
     renderingStage = new RenderingStage(*renderer, *swapchain);
     debugWindow = new DebugWindow(*this);
@@ -24,9 +26,11 @@ Engine::Engine() {
 
 Engine::~Engine() {
 
+    renderer->waitIdle();
     delete debugWindow;
     delete renderingStage;
     delete swapchain;
+    delete memoryAllocator;
     delete renderer;
     delete window;
 }
