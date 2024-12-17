@@ -45,7 +45,7 @@ void Engine::run() {
 
         debugWindow.createFrame();
 
-        auto& commandBuffer = swapchain.getCommandBuffer();
+        auto commandBuffer = swapchain.getCommandBuffer();
         renderingStage.begin(commandBuffer);
         renderingStage.prepareImageForColorAttachment(commandBuffer);
         renderingStage.beginRenderingPass(commandBuffer);
