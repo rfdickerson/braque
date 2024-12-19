@@ -2,7 +2,7 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "renderer.hpp"
+#include "braque/renderer.hpp"
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
