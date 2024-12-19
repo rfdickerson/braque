@@ -2,20 +2,21 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "window.hpp"
+#include "braque/window.hpp"
 
 #include <spdlog/spdlog.h>
 
-#include "renderer.hpp"
+#include "braque/renderer.hpp"
 
 namespace braque {
 
-Window::Window(): window(nullptr) {
+Window::Window(const int width, const int height, const std::string &title) :
+    window(nullptr), width(width), height(height) {
 
     glfwInit();
 
     // check for Vulkan support
-    if (!glfwVulkanSupported()) {
+    if (glfwVulkanSupported() == 0) {
         spdlog::error("Vulkan not supported");
         return;
     }
@@ -23,19 +24,18 @@ Window::Window(): window(nullptr) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     // create window
-    window = glfwCreateWindow(1280, 720, "Braque", nullptr, nullptr);
-    if (!window) {
+    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    if (window == nullptr) {
         spdlog::error("Failed to create window");
         return;
     }
 
     spdlog::info("Window created");
-
 }
 
 Window::~Window() {
 
-    if (window) {
+    if (window != nullptr) {
         glfwDestroyWindow(window);
     }
 
@@ -44,16 +44,12 @@ Window::~Window() {
     spdlog::info("Window destroyed");
 }
 
-bool Window::shouldClose() {
-    return glfwWindowShouldClose(window);
-}
+auto Window::shouldClose() const -> bool { return glfwWindowShouldClose(window) != 0; }
 
-void Window::pollEvents() {
-    glfwPollEvents();
-}
+void Window::pollEvents() { glfwPollEvents(); }
 
-vk::SurfaceKHR Window::createSurface(Renderer& renderer) {
-    VkSurfaceKHR surface;
+auto Window::createSurface(const Renderer &renderer) const -> vk::SurfaceKHR {
+    VkSurfaceKHR surface = nullptr;
 
     auto result = glfwCreateWindowSurface(renderer.getInstance(), window, nullptr, &surface);
     if (result != VK_SUCCESS) {
@@ -61,8 +57,8 @@ vk::SurfaceKHR Window::createSurface(Renderer& renderer) {
         throw std::runtime_error("Failed to create window surface");
     }
 
-    return vk::SurfaceKHR(surface);
+    return {surface};
 }
 
 
-} // braque
+} // namespace braque

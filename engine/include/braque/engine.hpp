@@ -7,12 +7,12 @@
 
 #include <memory>
 
-#include "renderer.hpp"
-#include "window.hpp"
-#include "swapchain.hpp"
-#include "rendering_stage.hpp"
 #include "debug_window.hpp"
 #include "memory_allocator.hpp"
+#include "renderer.hpp"
+#include "rendering_stage.hpp"
+#include "swapchain.hpp"
+#include "window.hpp"
 
 namespace braque {
 
@@ -21,11 +21,11 @@ public:
     Engine();
     ~Engine();
 
-    Renderer& getRenderer() { return renderer; }
-    Window& getWindow() { return window; }
-    Swapchain& getSwapchain() { return swapchain; }
-    RenderingStage& getRenderingStage() { return renderingStage; }
-    MemoryAllocator& getMemoryAllocator() { return memoryAllocator; }
+    Renderer &getRenderer() { return renderer; }
+    Window &getWindow() { return window; }
+    Swapchain &getSwapchain() { return swapchain; }
+    RenderingStage &getRenderingStage() { return renderingStage; }
+    MemoryAllocator &getMemoryAllocator() { return memoryAllocator; }
 
     void run();
 
@@ -36,9 +36,8 @@ private:
     MemoryAllocator memoryAllocator;
     RenderingStage renderingStage;
     DebugWindow debugWindow;
-
 };
 
-} // braque
+} // namespace braque
 
-#endif //ENGINE_HPP
+#endif // ENGINE_HPP

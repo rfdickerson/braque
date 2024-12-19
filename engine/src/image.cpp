@@ -2,9 +2,9 @@
 // Created by rfdic on 12/17/2024.
 //
 
-#include "image.hpp"
+#include "braque/image.hpp"
 
-#include "renderer.hpp"
+#include "braque/renderer.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -65,10 +65,10 @@ engine(engine), extent(extent), format(format), layout(vk::ImageLayout::eUndefin
         spdlog::info("Created image view");
     }
 
-    void Image::transitionLayout(vk::ImageLayout newLayout, vk::CommandBuffer buffer, SyncBarriers barriers)
+    void Image::transitionLayout(const vk::ImageLayout newLayout, const vk::CommandBuffer commandBuffer, const SyncBarriers &barriers)
     {
         // create a barrier to transition the image layout
-        // use the pipelineBarrier2KHR
+        // use the pipelineBarrier2KHRs to use synchronization2
         vk::ImageMemoryBarrier2KHR barrier;
         barrier.srcStageMask = barriers.srcStage;
         barrier.srcAccessMask = barriers.srcAccess;
@@ -85,7 +85,7 @@ engine(engine), extent(extent), format(format), layout(vk::ImageLayout::eUndefin
         dependencyInfo.imageMemoryBarrierCount = 1;
         dependencyInfo.pImageMemoryBarriers = &barrier;
 
-        buffer.pipelineBarrier2KHR(dependencyInfo);
+        commandBuffer.pipelineBarrier2KHR(dependencyInfo);
 
         layout = newLayout;
 

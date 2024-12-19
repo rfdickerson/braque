@@ -2,12 +2,12 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "swapchain.hpp"
+#include "braque/swapchain.hpp"
 
 #include <spdlog/spdlog.h>
 
 namespace braque {
-Swapchain::Swapchain(Window &window, Renderer &renderer): renderer(renderer) {
+Swapchain::Swapchain(Window &window, Renderer &renderer) : renderer(renderer), swapchainFormat(vk::Format::eUndefined) {
     createSwapchain(window);
     createSemaphores();
     createFences();
@@ -87,7 +87,8 @@ void Swapchain::acquireNextImage() {
     acquireNextImageInfo.setSwapchain(swapchain);
     acquireNextImageInfo.setTimeout(UINT64_MAX);
     acquireNextImageInfo.setSemaphore(imageAvailableSemaphores[currentFrameInFlight]);
-    acquireNextImageInfo.setDeviceMask(1);;
+    acquireNextImageInfo.setDeviceMask(1);
+    ;
 
     auto result = renderer.getDevice().acquireNextImage2KHR(acquireNextImageInfo);
 
@@ -180,9 +181,7 @@ void Swapchain::createFences() {
     imagesInFlight.resize(imageCount, VK_NULL_HANDLE);
 }
 
-void Swapchain::createSwapchainImages() {
-    swapchainImages = renderer.getDevice().getSwapchainImagesKHR(swapchain);
-}
+void Swapchain::createSwapchainImages() { swapchainImages = renderer.getDevice().getSwapchainImagesKHR(swapchain); }
 
 void Swapchain::createCommandBuffers() {
     // create the command pool
@@ -254,4 +253,4 @@ void Swapchain::recordFrameLatency() {
     // get the duration
 }
 
-} // braque
+} // namespace braque

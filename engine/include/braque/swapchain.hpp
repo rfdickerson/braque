@@ -10,7 +10,7 @@
 
 namespace braque {
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 class Swapchain {
 public:
@@ -19,18 +19,18 @@ public:
 
     // make sure copy and move are deleted
     Swapchain(const Swapchain&) = delete;
-    Swapchain& operator=(const Swapchain&) = delete;
+    auto operator=(const Swapchain&) -> Swapchain& = delete;
     Swapchain(Swapchain&&) = delete;
-    Swapchain& operator=(Swapchain&&) = delete;
+    auto operator=(Swapchain&&) -> Swapchain& = delete;
 
 
-    vk::SwapchainKHR getSwapchain() const { return swapchain; }
-    vk::Image getSwapchainImage() const { return swapchainImages[currentImageIndex]; }
-    vk::CommandBuffer getCommandBuffer() const { return commandBuffers[currentImageIndex]; }
-    uint32_t getImageCount() const { return imageCount; }
-    vk::ImageView getImageView() const { return swapchainImageViews[currentImageIndex]; }
-    vk::Extent2D getExtent() const { return swapchainExtent; }
-    vk::Format getFormat() const { return swapchainFormat; }
+    [[nodiscard]] auto getSwapchain() const -> vk::SwapchainKHR { return swapchain; }
+    [[nodiscard]] auto getSwapchainImage() const -> vk::Image { return swapchainImages[currentImageIndex]; }
+    [[nodiscard]] auto getCommandBuffer() const -> vk::CommandBuffer { return commandBuffers[currentImageIndex]; }
+    [[nodiscard]] auto getImageCount() const -> uint32_t { return imageCount; }
+    [[nodiscard]] auto getImageView() const -> vk::ImageView { return swapchainImageViews[currentImageIndex]; }
+    [[nodiscard]] auto getExtent() const -> vk::Extent2D { return swapchainExtent; }
+    [[nodiscard]] auto getFormat() const -> vk::Format { return swapchainFormat; }
 
     void waitForFrame() const;
     void acquireNextImage();
@@ -66,7 +66,7 @@ private:
 
     // frame latencies
     std::vector<float> frameLatencies;
-    float lastTime = 0.0f;
+    float lastTime = 0.0F;
 
     void createSwapchain(Window& window);
     void createSemaphores();

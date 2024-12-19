@@ -5,6 +5,8 @@
 #ifndef RENDERING_STAGE_HPP
 #define RENDERING_STAGE_HPP
 
+#include <memory>
+
 #include <vulkan/vulkan.hpp>
 
 namespace braque {
@@ -14,10 +16,16 @@ class Engine;
 
 class RenderingStage {
 public:
-    RenderingStage(Engine& engine);
+    explicit RenderingStage(Engine& engine);
     ~RenderingStage();
 
-    vk::DescriptorPool getDescriptorPool() const { return descriptorPool; }
+    // make sure copy and move are deleted
+    RenderingStage(const RenderingStage&) = delete;
+    auto operator=(const RenderingStage&) -> RenderingStage& = delete;
+    RenderingStage(RenderingStage&&) = delete;
+    auto operator=(RenderingStage&&) -> RenderingStage& = delete;
+
+    [[nodiscard]] auto getDescriptorPool() const -> vk::DescriptorPool { return descriptorPool; }
 
     void begin(vk::CommandBuffer buffer);
     void beginRenderingPass(vk::CommandBuffer buffer);

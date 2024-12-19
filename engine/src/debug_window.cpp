@@ -2,29 +2,26 @@
 // Created by Robert F. Dickerson on 12/15/24.
 //
 
-#include "debug_window.hpp"
+#include "braque/debug_window.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "spdlog/spdlog.h"
 
-#include "engine.hpp"
-#include "window.hpp"
-#include "renderer.hpp"
-#include "swapchain.hpp"
-#include "rendering_stage.hpp"
+#include "braque/engine.hpp"
+#include "braque/window.hpp"
+#include "braque/renderer.hpp"
+#include "braque/swapchain.hpp"
+#include "braque/rendering_stage.hpp"
 
 namespace braque {
 
 DebugWindow::DebugWindow(Engine& engine): engine(engine) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    auto format = engine.getSwapchain().getFormat();
+    const auto format = engine.getSwapchain().getFormat();
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
     pipelineRenderingCreateInfo.setColorAttachmentCount(1);
@@ -32,7 +29,7 @@ DebugWindow::DebugWindow(Engine& engine): engine(engine) {
 
     ImGui_ImplGlfw_InitForVulkan(engine.getWindow().getNativeWindow(), true);
 
-    auto& renderer = engine.getRenderer();
+    const auto& renderer = engine.getRenderer();
 
     ImGui_ImplVulkan_InitInfo initInfo{};
     initInfo.Instance = renderer.getInstance();
@@ -63,23 +60,23 @@ DebugWindow::~DebugWindow() {
     ImGui::DestroyContext();
 }
 
-void DebugWindow::createFrame() {
+void DebugWindow::createFrame() const {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     // ImGui::ShowDemoWindow();
 
     // show memory stats
-    auto report = engine.getMemoryAllocator().getReport();
+    const auto report = engine.getMemoryAllocator().getReport();
     ImGui::Begin("Memory Stats");
     ImGui::Text("Allocations: %d", report.allocations);
-    ImGui::Text("Total memory: %f", report.totalMemory);
-    ImGui::Text("Used memory: %f", report.usedMemory);
+    ImGui::Text("Total memory: %llu", report.totalMemory);
+    ImGui::Text("Used memory: %llu", report.usedMemory);
     ImGui::Separator();
     ImGui::End();
 }
 
-void DebugWindow::renderFrame(vk::CommandBuffer& commandBuffer) {
+void DebugWindow::renderFrame(const vk::CommandBuffer& commandBuffer) {
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }

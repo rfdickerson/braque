@@ -21,13 +21,13 @@ public:
     DebugWindow(DebugWindow&&) = delete;
     DebugWindow& operator=(DebugWindow&&) = delete;
 
-    void createFrame();
-    void renderFrame(vk::CommandBuffer& commandBuffer);
+    void createFrame() const;
+    static void renderFrame(const vk::CommandBuffer& commandBuffer);
 
 private:
     Engine& engine;
 
-    void initAssets();
+    static void initAssets();
 };
 
 } // braque
