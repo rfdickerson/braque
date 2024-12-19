@@ -8,6 +8,7 @@
     "vulkan-memory-allocator",
     "vulkan-headers",
     "spdlog",
+    "gtest",
     {
       "name": "imgui",
       "features": [
