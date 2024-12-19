@@ -49,11 +49,12 @@ auto MemoryAllocator::createImage(const vk::ImageCreateInfo &createInfo, const V
         -> AllocatedImage {
     AllocatedImage allocatedImage{};
 
-    vk::Image image;
+    VkImage image = nullptr;
     VmaAllocation allocation = nullptr;
+    const VkImageCreateInfo vkCreateInfo = createInfo;
 
-    const auto result = vmaCreateImage(allocator, reinterpret_cast<const VkImageCreateInfo *>(&createInfo), &allocInfo,
-                                 reinterpret_cast<VkImage *>(&image), &allocation, nullptr);
+    const auto result = vmaCreateImage(allocator, &vkCreateInfo, &allocInfo,
+                                 &image, &allocation, nullptr);
     if (result != VK_SUCCESS) {
         spdlog::error("Failed to create image");
         throw std::runtime_error("Failed to create image");

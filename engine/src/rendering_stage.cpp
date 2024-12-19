@@ -17,7 +17,7 @@ RenderingStage::RenderingStage(Engine &engine): engine(engine) {
 
     createDescriptorPool();
 
-    auto extent = vk::Extent3D{1280, 720, 1};
+    const auto extent = vk::Extent3D{engine.getSwapchain().getExtent(), 1};
 
     offscreenImage = std::make_unique<Image>(engine, extent, vk::Format::eR16G16B16A16Sfloat);
 }
@@ -30,16 +30,15 @@ RenderingStage::~RenderingStage() {
     spdlog::info("Destroying rendering stage");
 }
 
-void RenderingStage::begin(vk::CommandBuffer buffer) {
+void RenderingStage::begin(const vk::CommandBuffer buffer) {
     buffer.begin(vk::CommandBufferBeginInfo{vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
 }
 
-void RenderingStage::beginRenderingPass(vk::CommandBuffer buffer) {
+void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
 
-    auto& swapchain = engine.getSwapchain();
+    const auto &swapchain = engine.getSwapchain();
 
-    vk::ClearColorValue clearColor;
-    clearColor.setFloat32({0.0f, 0.0f, 0.0f, 0.0f});
+    constexpr vk::ClearColorValue clearColor {0.0F, 0.0F, 0.0F, 0.0F};
 
      vk::RenderingAttachmentInfo renderingAttachmentInfo{};
     renderingAttachmentInfo.setClearValue(clearColor);
@@ -48,31 +47,28 @@ void RenderingStage::beginRenderingPass(vk::CommandBuffer buffer) {
     renderingAttachmentInfo.setImageLayout(vk::ImageLayout::eColorAttachmentOptimal);
     renderingAttachmentInfo.setImageView(swapchain.getImageView());
 
-    auto renderArea = vk::Rect2D{};
-    renderArea.setOffset({0, 0});
-    renderArea.setExtent(swapchain.getExtent());
+    const auto renderArea = vk::Rect2D{{0, 0}, swapchain.getExtent()};
 
     vk::RenderingInfo renderingInfo{};
-    renderingInfo.setColorAttachmentCount(1);
-    renderingInfo.setPColorAttachments(&renderingAttachmentInfo);
+    renderingInfo.setColorAttachments(renderingAttachmentInfo);
     renderingInfo.setLayerCount(1);
     renderingInfo.setRenderArea(renderArea);
 
     buffer.beginRenderingKHR(renderingInfo);
 }
 
-void RenderingStage::endRenderingPass(vk::CommandBuffer buffer) {
+void RenderingStage::endRenderingPass(const vk::CommandBuffer buffer) {
     buffer.endRenderingKHR();
 }
 
-void RenderingStage::end(vk::CommandBuffer buffer) {
+void RenderingStage::end(const vk::CommandBuffer buffer) {
     buffer.end();
 }
 
-void RenderingStage::prepareImageForColorAttachment(vk::CommandBuffer buffer) {
+void RenderingStage::prepareImageForColorAttachment(const vk::CommandBuffer buffer) const {
 
     // Define the image memory barrier using synchronization2
-    vk::ImageMemoryBarrier2 imageBarrier{
+    const vk::ImageMemoryBarrier2 imageBarrier{
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,          // srcStageMask
         vk::AccessFlagBits2::eColorAttachmentRead,                      // srcAccessMask
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,       // dstStageMask
@@ -87,18 +83,17 @@ void RenderingStage::prepareImageForColorAttachment(vk::CommandBuffer buffer) {
 
     // Encapsulate the barrier in a dependency info object
     vk::DependencyInfo dependencyInfo{};
-    dependencyInfo.setImageMemoryBarrierCount(1);
-    dependencyInfo.setPImageMemoryBarriers(&imageBarrier);
+    dependencyInfo.setImageMemoryBarriers(imageBarrier);
 
     // Issue the pipeline barrier with synchronization2
     buffer.pipelineBarrier2KHR(dependencyInfo);
 
 }
 
-void RenderingStage::prepareImageForDisplay(vk::CommandBuffer buffer) {
+void RenderingStage::prepareImageForDisplay(const vk::CommandBuffer buffer) const {
 
     // Define the image memory barrier using synchronization2
-    vk::ImageMemoryBarrier2 imageBarrier{
+    const vk::ImageMemoryBarrier2 imageBarrier{
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,          // srcStageMask
         vk::AccessFlagBits2::eColorAttachmentWrite,                      // srcAccessMask
         vk::PipelineStageFlagBits2::eColorAttachmentOutput,       // dstStageMask
@@ -124,7 +119,7 @@ void RenderingStage::prepareImageForDisplay(vk::CommandBuffer buffer) {
 void RenderingStage::createDescriptorPool() {
     constexpr auto descriptorCount = 1000;
 
-    constexpr std::array<vk::DescriptorPoolSize, 11> poolSizes = {
+    constexpr std::array poolSizes = {
         vk::DescriptorPoolSize{vk::DescriptorType::eSampler, descriptorCount},
         vk::DescriptorPoolSize{vk::DescriptorType::eCombinedImageSampler, descriptorCount},
         vk::DescriptorPoolSize{vk::DescriptorType::eSampledImage, descriptorCount},
@@ -139,10 +134,10 @@ void RenderingStage::createDescriptorPool() {
     };
 
     const vk::DescriptorPoolCreateInfo poolInfo = vk::DescriptorPoolCreateInfo{}
-    .setPoolSizeCount(poolSizes.size())
-    .setPPoolSizes(poolSizes.data())
+    .setPoolSizes(poolSizes)
     .setMaxSets(descriptorCount)
     .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
+
 
     descriptorPool = engine.getRenderer().getDevice().createDescriptorPool(poolInfo, nullptr);
 

@@ -27,12 +27,12 @@ public:
 
     [[nodiscard]] auto getDescriptorPool() const -> vk::DescriptorPool { return descriptorPool; }
 
-    void begin(vk::CommandBuffer buffer);
-    void beginRenderingPass(vk::CommandBuffer buffer);
-    void prepareImageForColorAttachment(vk::CommandBuffer buffer);
-    void prepareImageForDisplay(vk::CommandBuffer buffer);
-    void endRenderingPass(vk::CommandBuffer buffer);
-    void end(vk::CommandBuffer buffer);
+    static void begin(vk::CommandBuffer buffer);
+    void beginRenderingPass(vk::CommandBuffer buffer) const;
+    void prepareImageForColorAttachment(vk::CommandBuffer buffer) const;
+    void prepareImageForDisplay(vk::CommandBuffer buffer) const;
+    static void endRenderingPass(vk::CommandBuffer buffer);
+    static void end(vk::CommandBuffer buffer);
 
     // void render();
 
