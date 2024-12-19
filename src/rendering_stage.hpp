@@ -32,7 +32,7 @@ private:
     Engine& engine;
 
     vk::DescriptorPool descriptorPool;
-    Image* offscreenImage;
+    std::unique_ptr<Image> offscreenImage;
 
     void createDescriptorPool();
 

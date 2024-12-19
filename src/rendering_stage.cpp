@@ -17,14 +17,12 @@ RenderingStage::RenderingStage(Engine &engine): engine(engine) {
 
     createDescriptorPool();
 
-    auto screenExtent = engine.getSwapchain().getExtent();
+    auto extent = vk::Extent3D{1280, 720, 1};
 
-    //offscreenImage = new Image(engine, {1280, 720, 1}, vk::Format::eR16G16B16A16Sfloat);
+    offscreenImage = std::make_unique<Image>(engine, extent, vk::Format::eR16G16B16A16Sfloat);
 }
 
 RenderingStage::~RenderingStage() {
-
-    //delete offscreenImage;
 
     // destroy the descriptor pool
     engine.getRenderer().getDevice().destroyDescriptorPool(descriptorPool);
@@ -50,11 +48,15 @@ void RenderingStage::beginRenderingPass(vk::CommandBuffer buffer) {
     renderingAttachmentInfo.setImageLayout(vk::ImageLayout::eColorAttachmentOptimal);
     renderingAttachmentInfo.setImageView(swapchain.getImageView());
 
+    auto renderArea = vk::Rect2D{};
+    renderArea.setOffset({0, 0});
+    renderArea.setExtent(swapchain.getExtent());
+
     vk::RenderingInfo renderingInfo{};
     renderingInfo.setColorAttachmentCount(1);
     renderingInfo.setPColorAttachments(&renderingAttachmentInfo);
     renderingInfo.setLayerCount(1);
-    renderingInfo.setRenderArea(swapchain.getExtent());
+    renderingInfo.setRenderArea(renderArea);
 
     buffer.beginRenderingKHR(renderingInfo);
 }

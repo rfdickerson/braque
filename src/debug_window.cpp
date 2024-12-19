@@ -67,7 +67,16 @@ void DebugWindow::createFrame() {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
+
+    // show memory stats
+    auto report = engine.getMemoryAllocator().getReport();
+    ImGui::Begin("Memory Stats");
+    ImGui::Text("Allocations: %d", report.allocations);
+    ImGui::Text("Total memory: %f", report.totalMemory);
+    ImGui::Text("Used memory: %f", report.usedMemory);
+    ImGui::Separator();
+    ImGui::End();
 }
 
 void DebugWindow::renderFrame(vk::CommandBuffer& commandBuffer) {

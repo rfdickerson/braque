@@ -16,7 +16,7 @@
 
 namespace braque {
 
-MemoryAllocator::MemoryAllocator(Renderer &renderer): renderer(renderer){
+MemoryAllocator::MemoryAllocator(Renderer &renderer) {
     VmaVulkanFunctions vulkanFunctions{};
     vulkanFunctions.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr;
     vulkanFunctions.vkGetPhysicalDeviceProperties = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceProperties;
@@ -68,6 +68,16 @@ MemoryAllocator::~MemoryAllocator() {
 
     void MemoryAllocator::destroyImage(AllocatedImage &image) {
         vmaDestroyImage(allocator, image.image, image.allocation);
+    }
+
+    MemoryReport MemoryAllocator::getReport() {
+        MemoryReport report{};
+        VmaBudget budgets[VK_MAX_MEMORY_HEAPS];
+        vmaGetHeapBudgets(allocator, budgets);
+        report.allocations = budgets[0].statistics.allocationCount;
+        report.totalMemory = budgets[0].statistics.allocationBytes;
+        report.usedMemory = budgets[0].usage;
+        return report;
     }
 
 } // braque

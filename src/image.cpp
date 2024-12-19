@@ -10,10 +10,13 @@
 
 namespace braque {
 
-    Image::Image(Engine& engine, vk::Extent3D extent, vk::Format format): engine(engine), extent(extent), format(format) {
+    Image::Image(Engine& engine, vk::Extent3D extent, vk::Format format):
+engine(engine), extent(extent), format(format), layout(vk::ImageLayout::eUndefined) {
 
         allocateImage();
         createImageView();
+
+        spdlog::info("Created image");
 
     }
 
@@ -21,8 +24,10 @@ namespace braque {
 
         // destroy image view
         engine.getRenderer().getDevice().destroyImageView(imageView);
+        spdlog::info("Destroyed image view");
 
         engine.getMemoryAllocator().destroyImage(allocatedImage);
+        spdlog::info("Destroyed image memory");
     }
 
     void Image::allocateImage()
@@ -59,6 +64,33 @@ namespace braque {
 
         spdlog::info("Created image view");
     }
+
+    void Image::transitionLayout(vk::ImageLayout newLayout, vk::CommandBuffer buffer, SyncBarriers barriers)
+    {
+        // create a barrier to transition the image layout
+        // use the pipelineBarrier2KHR
+        vk::ImageMemoryBarrier2KHR barrier;
+        barrier.srcStageMask = barriers.srcStage;
+        barrier.srcAccessMask = barriers.srcAccess;
+        barrier.dstStageMask = barriers.dstStage;
+        barrier.dstAccessMask = barriers.dstAccess;
+        barrier.oldLayout = layout;
+        barrier.newLayout = newLayout;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.image = allocatedImage.image;
+        barrier.subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
+
+        vk::DependencyInfoKHR dependencyInfo;
+        dependencyInfo.imageMemoryBarrierCount = 1;
+        dependencyInfo.pImageMemoryBarriers = &barrier;
+
+        buffer.pipelineBarrier2KHR(dependencyInfo);
+
+        layout = newLayout;
+
+    }
+
 
 
 

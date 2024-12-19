@@ -29,7 +29,7 @@ public:
     vk::CommandBuffer getCommandBuffer() const { return commandBuffers[currentImageIndex]; }
     uint32_t getImageCount() const { return imageCount; }
     vk::ImageView getImageView() const { return swapchainImageViews[currentImageIndex]; }
-    vk::Rect2D getExtent() const { return swapchainExtent; }
+    vk::Extent2D getExtent() const { return swapchainExtent; }
     vk::Format getFormat() const { return swapchainFormat; }
 
     void waitForFrame() const;
@@ -37,6 +37,7 @@ public:
     void waitForImageInFlight();
     void submitCommandBuffer();
     void presentImage();
+    void recordFrameLatency();
 
 private:
     vk::SwapchainKHR swapchain;
@@ -49,7 +50,7 @@ private:
     uint32_t currentFrameInFlight = 0;
     std::vector<vk::Image> swapchainImages;
     std::vector<vk::ImageView> swapchainImageViews;
-    vk::Rect2D swapchainExtent;
+    vk::Extent2D swapchainExtent;
     vk::Format swapchainFormat;
 
     // per swapchain image
@@ -63,13 +64,16 @@ private:
     vk::CommandPool commandPool;
     std::vector<vk::CommandBuffer> commandBuffers;
 
+    // frame latencies
+    std::vector<float> frameLatencies;
+    float lastTime = 0.0f;
+
     void createSwapchain(Window& window);
     void createSemaphores();
     void createFences();
     void createSwapchainImages();
     void createCommandBuffers();
     void createImageViews();
-
 
 };
 
