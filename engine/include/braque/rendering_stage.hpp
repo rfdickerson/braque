@@ -5,6 +5,8 @@
 #ifndef RENDERING_STAGE_HPP
 #define RENDERING_STAGE_HPP
 
+#include <memory>
+
 #include <vulkan/vulkan.hpp>
 
 namespace braque {
