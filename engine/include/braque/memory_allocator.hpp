@@ -17,35 +17,31 @@ struct AllocatedImage {
 
 struct MemoryReport {
     uint32_t allocations;
-    float totalMemory;
-    float usedMemory;
-    float freeMemory;
+    vk::DeviceSize totalMemory;
+    vk::DeviceSize usedMemory;
+    vk::DeviceSize freeMemory;
 };
 
 class MemoryAllocator {
 public:
-    MemoryAllocator(Renderer &renderer);
-
+    explicit MemoryAllocator(const Renderer &renderer);
     ~MemoryAllocator();
 
     // make sure copy and move are deleted
     MemoryAllocator(const MemoryAllocator &) = delete;
-
-    MemoryAllocator &operator=(const MemoryAllocator &) = delete;
-
+    auto operator=(const MemoryAllocator &) -> MemoryAllocator & = delete;
     MemoryAllocator(MemoryAllocator &&) = delete;
+    auto operator=(MemoryAllocator &&) -> MemoryAllocator & = delete;
 
-    MemoryAllocator &operator=(MemoryAllocator &&) = delete;
+    auto getReport() const -> MemoryReport;
 
-    MemoryReport getReport();
+    [[nodiscard]] auto createImage(const vk::ImageCreateInfo &createInfo, const VmaAllocationCreateInfo &allocInfo) const -> AllocatedImage;
 
-    AllocatedImage createImage(const vk::ImageCreateInfo &createInfo, const VmaAllocationCreateInfo &allocInfo);
-
-    void destroyImage(AllocatedImage &image);
+    void destroyImage(const AllocatedImage &image) const;
 
 private:
     VmaAllocator allocator;
 };
-} // braque
+} // namespace braque
 
-#endif //MEMORY_ALLOCATOR_HPP
+#endif // MEMORY_ALLOCATOR_HPP

@@ -16,8 +16,6 @@
 namespace braque {
 
     Engine::Engine() :
-        window(Window()),
-        renderer(Renderer()),
         swapchain(Swapchain(window, renderer)),
         memoryAllocator(MemoryAllocator(renderer)),
         renderingStage(RenderingStage(*this)),
@@ -36,7 +34,7 @@ void Engine::run() {
     spdlog::info("Starting the engine loop");
 
     while (!window.shouldClose()) {
-        window.pollEvents();
+        Window::pollEvents();
 
         swapchain.waitForFrame();
         swapchain.acquireNextImage();
@@ -49,7 +47,7 @@ void Engine::run() {
         renderingStage.begin(commandBuffer);
         renderingStage.prepareImageForColorAttachment(commandBuffer);
         renderingStage.beginRenderingPass(commandBuffer);
-        debugWindow.renderFrame(commandBuffer);
+        DebugWindow::renderFrame(commandBuffer);
         renderingStage.endRenderingPass(commandBuffer);
         renderingStage.prepareImageForDisplay(commandBuffer);
         renderingStage.end(commandBuffer);

@@ -12,24 +12,30 @@ namespace braque {
 
 class Renderer;
 
+constexpr int DEFAULT_WIDTH = 1280;
+constexpr int DEFAULT_HEIGHT = 720;
+
 class Window {
 public:
-    Window();
+    explicit Window(int width=DEFAULT_WIDTH, int height=DEFAULT_HEIGHT, const std::string& title="Braque");
     ~Window();
 
     // copy and move are deleted
     Window(const Window &) = delete;
-    Window &operator=(const Window &) = delete;
+    auto operator=(const Window &) -> Window & = delete;
     Window(Window &&) = delete;
-    Window &operator=(Window &&) = delete;
+    auto operator=(Window &&) -> Window & = delete;
 
-    bool shouldClose() const;
-    void pollEvents();
-    vk::SurfaceKHR createSurface(Renderer &renderer);
-    GLFWwindow *getNativeWindow() const { return window; }
+    [[nodiscard]] auto shouldClose() const -> bool;
+    static void pollEvents();
+    [[nodiscard]] auto createSurface(const Renderer &renderer) const -> vk::SurfaceKHR;
+    [[nodiscard]] auto getNativeWindow() const -> GLFWwindow * { return window; }
 
 private:
     GLFWwindow *window;
+
+    int width;
+    int height;
 };
 
 } // namespace braque

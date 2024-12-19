@@ -20,11 +20,8 @@ namespace braque {
 DebugWindow::DebugWindow(Engine& engine): engine(engine) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    auto format = engine.getSwapchain().getFormat();
+    const auto format = engine.getSwapchain().getFormat();
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
     pipelineRenderingCreateInfo.setColorAttachmentCount(1);
@@ -63,23 +60,23 @@ DebugWindow::~DebugWindow() {
     ImGui::DestroyContext();
 }
 
-void DebugWindow::createFrame() {
+void DebugWindow::createFrame() const {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     // ImGui::ShowDemoWindow();
 
     // show memory stats
-    auto report = engine.getMemoryAllocator().getReport();
+    const auto report = engine.getMemoryAllocator().getReport();
     ImGui::Begin("Memory Stats");
     ImGui::Text("Allocations: %d", report.allocations);
-    ImGui::Text("Total memory: %f", report.totalMemory);
-    ImGui::Text("Used memory: %f", report.usedMemory);
+    ImGui::Text("Total memory: %llu", report.totalMemory);
+    ImGui::Text("Used memory: %llu", report.usedMemory);
     ImGui::Separator();
     ImGui::End();
 }
 
-void DebugWindow::renderFrame(vk::CommandBuffer& commandBuffer) {
+void DebugWindow::renderFrame(const vk::CommandBuffer& commandBuffer) {
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }

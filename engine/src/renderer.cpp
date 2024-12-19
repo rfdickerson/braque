@@ -11,7 +11,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE;
 
 namespace braque {
 
-Renderer::Renderer() {
+Renderer::Renderer(): graphicsQueueFamilyIndex(0) {
     spdlog::info("Creating renderer");
 
     createInstance();
@@ -152,9 +152,9 @@ void Renderer::waitIdle() {
     m_device.waitIdle();
 }
 
-std::vector<char const *> Renderer::getInstanceExtensions() {
+auto Renderer::getInstanceExtensions() -> std::vector<char const *> {
     uint32_t glfwExtensionCount = 0;
-    const auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    auto const* glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
@@ -165,7 +165,7 @@ std::vector<char const *> Renderer::getInstanceExtensions() {
     return extensions;
 }
 
-std::vector<const char *> Renderer::getDeviceExtensions() {
+auto Renderer::getDeviceExtensions() -> std::vector<const char *> {
     std::vector deviceExtensions = {
         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,

@@ -10,6 +10,8 @@
 
 namespace braque {
 
+using VulkanString = const char*;
+
 class Renderer {
 public:
     Renderer();
@@ -17,17 +19,17 @@ public:
 
     // make sure copy and move are deleted
     Renderer(const Renderer&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
+    auto operator=(const Renderer&) -> Renderer& = delete;
     Renderer(Renderer&&) = delete;
-    Renderer& operator=(Renderer&&) = delete;
+    auto operator=(Renderer&&) -> Renderer& = delete;
 
     void waitIdle();
 
-    vk::Instance getInstance() const { return m_instance; }
-    vk::Device getDevice() const { return m_device; }
-    vk::PhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
-    vk::Queue getGraphicsQueue() const { return m_graphicsQueue; }
-    uint32_t getGraphicsQueueFamilyIndex() const { return graphicsQueueFamilyIndex; }
+    [[nodiscard]] auto getInstance() const -> vk::Instance { return m_instance; }
+    [[nodiscard]] auto getDevice() const -> vk::Device { return m_device; }
+    [[nodiscard]] auto getPhysicalDevice() const -> vk::PhysicalDevice { return m_physicalDevice; }
+    [[nodiscard]] auto getGraphicsQueue() const -> vk::Queue { return m_graphicsQueue; }
+    [[nodiscard]] auto getGraphicsQueueFamilyIndex() const -> uint32_t { return graphicsQueueFamilyIndex; }
 
 
 private:
@@ -42,9 +44,9 @@ private:
     void createPhysicalDevice();
     void createLogicalDevice();
 
-    static std::vector<const char*> getInstanceExtensions();
-    static std::vector<const char*> getDeviceExtensions();
-    static vk::InstanceCreateFlags getInstanceFlags();
+    static auto getInstanceExtensions() -> std::vector<VulkanString>;
+    static auto getDeviceExtensions() -> std::vector<VulkanString>;
+    static auto getInstanceFlags() -> vk::InstanceCreateFlags;
 };
 
 } // braque
