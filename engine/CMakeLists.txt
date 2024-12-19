@@ -16,6 +16,7 @@ add_library(braque STATIC
 target_include_directories(braque PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+        ${VULKAN_SDK}/include
 )
 
 target_link_libraries(braque

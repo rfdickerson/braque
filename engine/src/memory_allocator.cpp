@@ -16,7 +16,7 @@
 
 namespace braque {
 
-MemoryAllocator::MemoryAllocator(Renderer &renderer) {
+MemoryAllocator::MemoryAllocator(Renderer &renderer): allocator(VK_NULL_HANDLE) {
     VmaVulkanFunctions vulkanFunctions{};
     vulkanFunctions.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr;
     vulkanFunctions.vkGetPhysicalDeviceProperties = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetPhysicalDeviceProperties;

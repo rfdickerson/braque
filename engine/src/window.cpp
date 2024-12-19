@@ -10,7 +10,7 @@
 
 namespace braque {
 
-Window::Window(): window(nullptr) {
+Window::Window() : window(nullptr) {
 
     glfwInit();
 
@@ -30,7 +30,6 @@ Window::Window(): window(nullptr) {
     }
 
     spdlog::info("Window created");
-
 }
 
 Window::~Window() {
@@ -44,15 +43,11 @@ Window::~Window() {
     spdlog::info("Window destroyed");
 }
 
-bool Window::shouldClose() {
-    return glfwWindowShouldClose(window);
-}
+bool Window::shouldClose() const { return glfwWindowShouldClose(window); }
 
-void Window::pollEvents() {
-    glfwPollEvents();
-}
+void Window::pollEvents() { glfwPollEvents(); }
 
-vk::SurfaceKHR Window::createSurface(Renderer& renderer) {
+vk::SurfaceKHR Window::createSurface(Renderer &renderer) {
     VkSurfaceKHR surface;
 
     auto result = glfwCreateWindowSurface(renderer.getInstance(), window, nullptr, &surface);
@@ -65,4 +60,4 @@ vk::SurfaceKHR Window::createSurface(Renderer& renderer) {
 }
 
 
-} // braque
+} // namespace braque

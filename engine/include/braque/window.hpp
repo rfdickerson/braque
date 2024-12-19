@@ -18,20 +18,20 @@ public:
     ~Window();
 
     // copy and move are deleted
-    Window(const Window&) = delete;
-    Window& operator=(const Window&) = delete;
-    Window(Window&&) = delete;
-    Window& operator=(Window&&) = delete;
+    Window(const Window &) = delete;
+    Window &operator=(const Window &) = delete;
+    Window(Window &&) = delete;
+    Window &operator=(Window &&) = delete;
 
-    bool shouldClose();
+    bool shouldClose() const;
     void pollEvents();
-    vk::SurfaceKHR createSurface(Renderer& renderer);
-    GLFWwindow* getNativeWindow() const { return window; }
+    vk::SurfaceKHR createSurface(Renderer &renderer);
+    GLFWwindow *getNativeWindow() const { return window; }
 
 private:
     GLFWwindow *window;
 };
 
-} // braque
+} // namespace braque
 
-#endif //WINDOW_HPP
+#endif // WINDOW_HPP
