@@ -2,9 +2,9 @@
 // Created by rfdic on 12/17/2024.
 //
 
-#include "image.hpp"
+#include "braque/image.hpp"
 
-#include "renderer.hpp"
+#include "braque/renderer.hpp"
 
 #include <spdlog/spdlog.h>
 

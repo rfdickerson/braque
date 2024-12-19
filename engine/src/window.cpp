@@ -2,11 +2,11 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "window.hpp"
+#include "braque/window.hpp"
 
 #include <spdlog/spdlog.h>
 
-#include "renderer.hpp"
+#include "braque/renderer.hpp"
 
 namespace braque {
 

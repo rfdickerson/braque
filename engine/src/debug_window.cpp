@@ -2,18 +2,18 @@
 // Created by Robert F. Dickerson on 12/15/24.
 //
 
-#include "debug_window.hpp"
+#include "braque/debug_window.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "spdlog/spdlog.h"
 
-#include "engine.hpp"
-#include "window.hpp"
-#include "renderer.hpp"
-#include "swapchain.hpp"
-#include "rendering_stage.hpp"
+#include "braque/engine.hpp"
+#include "braque/window.hpp"
+#include "braque/renderer.hpp"
+#include "braque/swapchain.hpp"
+#include "braque/rendering_stage.hpp"
 
 namespace braque {
 

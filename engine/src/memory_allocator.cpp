@@ -2,7 +2,7 @@
 // Created by Robert F. Dickerson on 12/16/24.
 //
 
-#include "memory_allocator.hpp"
+#include "braque/memory_allocator.hpp"
 
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
@@ -10,7 +10,7 @@
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
-#include "renderer.hpp"
+#include "braque/renderer.hpp"
 
 #include <spdlog/spdlog.h>
 

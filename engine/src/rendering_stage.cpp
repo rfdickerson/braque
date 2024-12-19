@@ -2,11 +2,11 @@
 // Created by Robert F. Dickerson on 12/15/24.
 //
 
-#include "rendering_stage.hpp"
+#include "braque/rendering_stage.hpp"
 
-#include "renderer.hpp"
-#include "swapchain.hpp"
-#include "image.hpp"
+#include "braque/renderer.hpp"
+#include "braque/swapchain.hpp"
+#include "braque/image.hpp"
 
 #include <spdlog/spdlog.h>
 

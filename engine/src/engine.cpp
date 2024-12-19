@@ -2,16 +2,16 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "engine.hpp"
+#include "braque/engine.hpp"
 
 #include <spdlog/spdlog.h>
 
-#include "window.hpp"
-#include "renderer.hpp"
-#include "swapchain.hpp"
-#include "rendering_stage.hpp"
-#include "debug_window.hpp"
-#include "memory_allocator.hpp"
+#include "braque/window.hpp"
+#include "braque/renderer.hpp"
+#include "braque/swapchain.hpp"
+#include "braque/rendering_stage.hpp"
+#include "braque/debug_window.hpp"
+#include "braque/memory_allocator.hpp"
 
 namespace braque {
 
