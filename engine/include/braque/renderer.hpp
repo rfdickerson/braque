@@ -24,7 +24,7 @@ public:
     void waitIdle();
 
     vk::Instance getInstance() const { return m_instance; }
-    vk::Device getDevice() { return m_device; }
+    vk::Device getDevice() const { return m_device; }
     vk::PhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
     vk::Queue getGraphicsQueue() const { return m_graphicsQueue; }
     uint32_t getGraphicsQueueFamilyIndex() const { return graphicsQueueFamilyIndex; }

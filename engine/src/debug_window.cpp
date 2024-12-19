@@ -32,7 +32,7 @@ DebugWindow::DebugWindow(Engine& engine): engine(engine) {
 
     ImGui_ImplGlfw_InitForVulkan(engine.getWindow().getNativeWindow(), true);
 
-    auto& renderer = engine.getRenderer();
+    const auto& renderer = engine.getRenderer();
 
     ImGui_ImplVulkan_InitInfo initInfo{};
     initInfo.Instance = renderer.getInstance();
