@@ -9,6 +9,7 @@ add_library(braque STATIC
         src/debug_window.cpp
         src/memory_allocator.cpp
         src/image.cpp
+        src/shader.cpp
         )
 
 target_include_directories(braque PUBLIC

@@ -1,1 +1,21 @@
-Checks: '-*,bugprone-*,modernize-*,readability-*,performance-*,cppcoreguidelines-*'
+Checks: >
+  -*,
+  bugprone-*,
+  modernize-*,
+  readability-*,
+  performance-*,
+  cppcoreguidelines-*,
+  misc-*,
+  portability-*,
+  llvm-*,
+  clang-analyzer-*,
+  -cert-err33-c # Allow c-style string
+
+WarningsAsErrors: 'modernize-*,performance-*'  # Treat modernize and performance warnings as errors
+FormatStyle: file  # Use the project's .clang-format file for consistent code formatting
+
+CheckOptions:
+ - key: readability-function-cognitive-complexity.Threshold
+   value: 15            # Threshold for function complexity warning
+ - key: cppcoreguidelines-pro-type-vararg.NeverAllowPrintf
+   value: 'false'

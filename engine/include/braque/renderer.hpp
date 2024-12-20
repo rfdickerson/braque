@@ -23,7 +23,7 @@ public:
     Renderer(Renderer&&) = delete;
     auto operator=(Renderer&&) -> Renderer& = delete;
 
-    void waitIdle();
+    void waitIdle() const;
 
     [[nodiscard]] auto getInstance() const -> vk::Instance { return m_instance; }
     [[nodiscard]] auto getDevice() const -> vk::Device { return m_device; }

@@ -11,8 +11,9 @@
 
 namespace braque {
 
-class Engine;
+    class Engine;
     class Image;
+    class Shader;
 
 class RenderingStage {
 public:
@@ -41,11 +42,12 @@ private:
 
     vk::DescriptorPool descriptorPool;
     std::unique_ptr<Image> offscreenImage;
+    std::unique_ptr<Shader> shader;
 
     void createDescriptorPool();
 
 };
 
-} // braque
+} // namespace braque
 
 #endif //RENDERING_STAGE_HPP

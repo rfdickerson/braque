@@ -5,8 +5,6 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include <memory>
-
 #include "debug_window.hpp"
 #include "memory_allocator.hpp"
 #include "renderer.hpp"
@@ -14,30 +12,57 @@
 #include "swapchain.hpp"
 #include "window.hpp"
 
-namespace braque {
+namespace braque
+{
 
-class Engine {
-public:
+  class Engine
+  {
+  public:
     Engine();
     ~Engine();
 
-    Renderer &getRenderer() { return renderer; }
-    Window &getWindow() { return window; }
-    Swapchain &getSwapchain() { return swapchain; }
-    RenderingStage &getRenderingStage() { return renderingStage; }
-    MemoryAllocator &getMemoryAllocator() { return memoryAllocator; }
+    // Make sure copy and move are deleted
+    Engine( const Engine & other )                         = delete;
+    Engine( Engine && other ) noexcept                     = delete;
+    auto operator=( const Engine & other ) -> Engine &     = delete;
+    auto operator=( Engine && other ) noexcept -> Engine & = delete;
+
+    auto getRenderer() -> Renderer &
+    {
+      return renderer;
+    }
+
+    auto getWindow() -> Window &
+    {
+      return window;
+    }
+
+    auto getSwapchain() -> Swapchain &
+    {
+      return swapchain;
+    }
+
+    auto getRenderingStage() -> RenderingStage &
+    {
+      return renderingStage;
+    }
+
+    auto getMemoryAllocator() -> MemoryAllocator &
+    {
+      return memoryAllocator;
+    }
 
     void run();
 
-private:
-    Window window;
-    Renderer renderer;
-    Swapchain swapchain;
+  private:
+    Window          window;
+    Renderer        renderer;
+    Swapchain       swapchain;
     MemoryAllocator memoryAllocator;
-    RenderingStage renderingStage;
-    DebugWindow debugWindow;
-};
+    RenderingStage  renderingStage;
+    DebugWindow     debugWindow;
+  };
 
-} // namespace braque
+}  // namespace braque
 
-#endif // ENGINE_HPP
+#endif  // ENGINE_HPP
