@@ -23,6 +23,7 @@ namespace braque
     const auto extent = vk::Extent3D{ engine.getSwapchain().getExtent(), 1 };
 
     offscreenImage = std::make_unique<Image>( engine, extent, vk::Format::eR16G16B16A16Sfloat );
+    shader         = std::make_unique<Shader>( engine.getRenderer().getDevice(), "assets/shaders/triangle.vert.spv", "assets/shaders/triangle.frag.spv" );
   }
 
   RenderingStage::~RenderingStage()
