@@ -6,48 +6,51 @@
 #define RENDERING_STAGE_HPP
 
 #include <memory>
-
 #include <vulkan/vulkan.hpp>
 
-namespace braque {
+namespace braque
+{
+  // Forward declarations
+  class Engine;
+  class Image;
+  class Shader;
 
-    class Engine;
-    class Image;
-    class Shader;
-
-class RenderingStage {
-public:
-    explicit RenderingStage(Engine& engine);
+  class RenderingStage
+  {
+  public:
+    explicit RenderingStage( Engine & engine );
     ~RenderingStage();
 
     // make sure copy and move are deleted
-    RenderingStage(const RenderingStage&) = delete;
-    auto operator=(const RenderingStage&) -> RenderingStage& = delete;
-    RenderingStage(RenderingStage&&) = delete;
-    auto operator=(RenderingStage&&) -> RenderingStage& = delete;
+    RenderingStage( const RenderingStage & )                     = delete;
+    auto operator=( const RenderingStage & ) -> RenderingStage & = delete;
+    RenderingStage( RenderingStage && )                          = delete;
+    auto operator=( RenderingStage && ) -> RenderingStage &      = delete;
 
-    [[nodiscard]] auto getDescriptorPool() const -> vk::DescriptorPool { return descriptorPool; }
+    [[nodiscard]] auto getDescriptorPool() const -> vk::DescriptorPool
+    {
+      return descriptorPool;
+    }
 
-    static void begin(vk::CommandBuffer buffer);
-    void beginRenderingPass(vk::CommandBuffer buffer) const;
-    void prepareImageForColorAttachment(vk::CommandBuffer buffer) const;
-    void prepareImageForDisplay(vk::CommandBuffer buffer) const;
-    static void endRenderingPass(vk::CommandBuffer buffer);
-    static void end(vk::CommandBuffer buffer);
+    static void begin( vk::CommandBuffer buffer );
+    void        beginRenderingPass( vk::CommandBuffer buffer ) const;
+    void        prepareImageForColorAttachment( vk::CommandBuffer buffer ) const;
+    void        prepareImageForDisplay( vk::CommandBuffer buffer ) const;
+    static void endRenderingPass( vk::CommandBuffer buffer );
+    static void end( vk::CommandBuffer buffer );
 
     // void render();
 
-private:
-    Engine& engine;
+  private:
+    Engine & engine;
 
-    vk::DescriptorPool descriptorPool;
-    std::unique_ptr<Image> offscreenImage;
+    vk::DescriptorPool      descriptorPool;
+    std::unique_ptr<Image>  offscreenImage;
     std::unique_ptr<Shader> shader;
 
     void createDescriptorPool();
+  };
 
-};
+}  // namespace braque
 
-} // namespace braque
-
-#endif //RENDERING_STAGE_HPP
+#endif  // RENDERING_STAGE_HPP

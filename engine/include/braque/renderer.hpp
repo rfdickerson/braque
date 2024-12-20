@@ -8,35 +8,55 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include "vulkan/vulkan.hpp"
 
-namespace braque {
+namespace braque
+{
 
-using VulkanString = const char*;
+  using VulkanString = const char *;
 
-class Renderer {
-public:
+  class Renderer
+  {
+  public:
     Renderer();
     ~Renderer();
 
     // make sure copy and move are deleted
-    Renderer(const Renderer&) = delete;
-    auto operator=(const Renderer&) -> Renderer& = delete;
-    Renderer(Renderer&&) = delete;
-    auto operator=(Renderer&&) -> Renderer& = delete;
+    Renderer( const Renderer & )                     = delete;
+    auto operator=( const Renderer & ) -> Renderer & = delete;
+    Renderer( Renderer && )                          = delete;
+    auto operator=( Renderer && ) -> Renderer &      = delete;
 
     void waitIdle() const;
 
-    [[nodiscard]] auto getInstance() const -> vk::Instance { return m_instance; }
-    [[nodiscard]] auto getDevice() const -> vk::Device { return m_device; }
-    [[nodiscard]] auto getPhysicalDevice() const -> vk::PhysicalDevice { return m_physicalDevice; }
-    [[nodiscard]] auto getGraphicsQueue() const -> vk::Queue { return m_graphicsQueue; }
-    [[nodiscard]] auto getGraphicsQueueFamilyIndex() const -> uint32_t { return graphicsQueueFamilyIndex; }
+    [[nodiscard]] auto getInstance() const -> vk::Instance
+    {
+      return m_instance;
+    }
 
+    [[nodiscard]] auto getDevice() const -> vk::Device
+    {
+      return m_device;
+    }
 
-private:
-    vk::Instance m_instance;
+    [[nodiscard]] auto getPhysicalDevice() const -> vk::PhysicalDevice
+    {
+      return m_physicalDevice;
+    }
+
+    [[nodiscard]] auto getGraphicsQueue() const -> vk::Queue
+    {
+      return m_graphicsQueue;
+    }
+
+    [[nodiscard]] auto getGraphicsQueueFamilyIndex() const -> uint32_t
+    {
+      return graphicsQueueFamilyIndex;
+    }
+
+  private:
+    vk::Instance       m_instance;
     vk::PhysicalDevice m_physicalDevice;
-    vk::Device m_device;
-    vk::Queue m_graphicsQueue;
+    vk::Device         m_device;
+    vk::Queue          m_graphicsQueue;
 
     uint32_t graphicsQueueFamilyIndex;
 
@@ -47,8 +67,8 @@ private:
     static auto getInstanceExtensions() -> std::vector<VulkanString>;
     static auto getDeviceExtensions() -> std::vector<VulkanString>;
     static auto getInstanceFlags() -> vk::InstanceCreateFlags;
-};
+  };
 
-} // braque
+}  // namespace braque
 
-#endif //RENDERER_HPP
+#endif  // RENDERER_HPP

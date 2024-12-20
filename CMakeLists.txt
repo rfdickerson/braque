@@ -25,6 +25,11 @@ find_package(imgui CONFIG REQUIRED)
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
 add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
+add_definitions(-DGLFW_INCLUDE_VULKAN)
+add_definitions(-DVMA_STATIC_VULKAN_FUNCTIONS=0)
+add_definitions(-DVMA_DYNAMIC_VULKAN_FUNCTIONS=1)
+add_definitions(-DGLM_FORCE_RADIANS)
+add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 
 # make sure warnings are enabled
 if (MSVC)

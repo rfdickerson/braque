@@ -5,47 +5,48 @@
 #ifndef MEMORY_ALLOCATOR_HPP
 #define MEMORY_ALLOCATOR_HPP
 
-#define VMA_STATIC_VULKAN_FUNCTIONS 0
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
-
-#include <vk_mem_alloc.h>
-
-#include <vulkan/vulkan.hpp>
 #include "renderer.hpp"
 
-namespace braque {
-struct AllocatedImage {
-    vk::Image image;
-    VmaAllocation allocation;
-};
+#include <vk_mem_alloc.h>
+#include <vulkan/vulkan.hpp>
 
-struct MemoryReport {
-    uint32_t allocations;
+namespace braque
+{
+  struct AllocatedImage
+  {
+    vk::Image     image;
+    VmaAllocation allocation;
+  };
+
+  struct MemoryReport
+  {
+    uint32_t       allocations;
     vk::DeviceSize totalMemory;
     vk::DeviceSize usedMemory;
     vk::DeviceSize freeMemory;
-};
+  };
 
-class MemoryAllocator {
-public:
-    explicit MemoryAllocator(const Renderer &renderer);
+  class MemoryAllocator
+  {
+  public:
+    explicit MemoryAllocator( const Renderer & renderer );
     ~MemoryAllocator();
 
     // make sure copy and move are deleted
-    MemoryAllocator(const MemoryAllocator &) = delete;
-    auto operator=(const MemoryAllocator &) -> MemoryAllocator & = delete;
-    MemoryAllocator(MemoryAllocator &&) = delete;
-    auto operator=(MemoryAllocator &&) -> MemoryAllocator & = delete;
+    MemoryAllocator( const MemoryAllocator & )                     = delete;
+    auto operator=( const MemoryAllocator & ) -> MemoryAllocator & = delete;
+    MemoryAllocator( MemoryAllocator && )                          = delete;
+    auto operator=( MemoryAllocator && ) -> MemoryAllocator &      = delete;
 
-    auto getReport() const -> MemoryReport;
+    [[nodiscard]] auto getReport() const -> MemoryReport;
 
-    [[nodiscard]] auto createImage(const vk::ImageCreateInfo &createInfo, const VmaAllocationCreateInfo &allocInfo) const -> AllocatedImage;
+    [[nodiscard]] auto createImage( const vk::ImageCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedImage;
 
-    void destroyImage(const AllocatedImage &image) const;
+    void destroyImage( const AllocatedImage & image ) const;
 
-private:
+  private:
     VmaAllocator allocator;
-};
-} // namespace braque
+  };
+}  // namespace braque
 
-#endif // MEMORY_ALLOCATOR_HPP
+#endif  // MEMORY_ALLOCATOR_HPP

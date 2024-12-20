@@ -10,6 +10,7 @@ Checks: >
   llvm-*,
   clang-analyzer-*,
   -cert-err33-c # Allow c-style string
+  -cppcoreguidelines-macro-usage,
 
 WarningsAsErrors: 'modernize-*,performance-*'  # Treat modernize and performance warnings as errors
 FormatStyle: file  # Use the project's .clang-format file for consistent code formatting
