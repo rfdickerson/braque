@@ -38,6 +38,8 @@ else ()
     add_compile_options(-Wall -Wextra -pedantic)
 endif ()
 
+include(cmake/build-shaders.cmake)
+
 add_subdirectory(engine)
 add_subdirectory(editor)
 add_subdirectory(tests)
