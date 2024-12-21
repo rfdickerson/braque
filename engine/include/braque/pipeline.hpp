@@ -17,9 +17,9 @@ public:
   ~Pipeline();
 
   void Bind(vk::CommandBuffer buffer);
-  void SetScissor(vk::CommandBuffer buffer, vk::Rect2D);
-  void SetViewport(vk::CommandBuffer buffer, vk::Viewport viewport);
-  void Draw(vk::CommandBuffer buffer);
+  static void SetScissor(vk::CommandBuffer buffer, vk::Rect2D);
+  static void SetViewport(vk::CommandBuffer buffer, const vk::Viewport & viewport );
+  static void Draw(vk::CommandBuffer buffer);
 
 private:
   vk::Device device;

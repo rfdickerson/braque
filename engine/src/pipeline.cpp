@@ -11,18 +11,21 @@ namespace braque
 
   Pipeline::Pipeline( vk::Device device, Shader & shader ) : device( device )
   {
-    vk::PipelineLayoutCreateInfo layoutInfo{};
-    layout = device.createPipelineLayout( layoutInfo );
+
+    constexpr uint32_t width = 800;
+    constexpr uint32_t height = 600;
+
+    layout = device.createPipelineLayout( {} );
 
     auto shaderStages = shader.getPipelineShaderStageCreateInfos();
 
-    vk::PipelineVertexInputStateCreateInfo const vertexInputInfo{};
+    constexpr vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
     vk::PipelineInputAssemblyStateCreateInfo     inputAssembly{};
     inputAssembly.setTopology( vk::PrimitiveTopology::eTriangleList );
     inputAssembly.setPrimitiveRestartEnable( vk::False );
 
-    vk::Viewport viewport{ 0, 0, 800, 600, 0, 1 };
-    vk::Rect2D   scissor{ { 0, 0 }, { 800, 600 } };
+    vk::Viewport viewport{ 0, 0, width, height, 0, 1 };
+    vk::Rect2D   scissor{ { 0, 0 }, { width, height } };
 
     vk::PipelineViewportStateCreateInfo viewportState{};
     viewportState.setViewports( viewport );
@@ -57,7 +60,7 @@ namespace braque
     vk::PipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.setDynamicStates( dynamicStates );
 
-    const auto                      colorFormat = vk::Format::eB8G8R8A8Srgb;
+    constexpr auto                      colorFormat = vk::Format::eB8G8R8A8Srgb;
     vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo;
     pipelineRenderingCreateInfo.setColorAttachmentCount( 1 );
     pipelineRenderingCreateInfo.setPColorAttachmentFormats( &colorFormat );
@@ -100,17 +103,17 @@ namespace braque
     buffer.bindPipeline( vk::PipelineBindPoint::eGraphics, pipeline );
   }
 
-  void Pipeline::SetViewport( vk::CommandBuffer buffer, vk::Viewport viewport )
+  void Pipeline::SetViewport( const vk::CommandBuffer buffer, const vk::Viewport & viewport )
   {
     buffer.setViewport( 0, viewport );
   }
 
-  void Pipeline::SetScissor( vk::CommandBuffer buffer, vk::Rect2D scissor )
+  void Pipeline::SetScissor( const vk::CommandBuffer buffer, const vk::Rect2D scissor )
   {
     buffer.setScissor( 0, scissor );
   }
 
-  void Pipeline::Draw( vk::CommandBuffer buffer )
+  void Pipeline::Draw( const vk::CommandBuffer buffer )
   {
     buffer.draw( 3, 1, 0, 0 );
   }
