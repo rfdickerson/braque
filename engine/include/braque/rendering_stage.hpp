@@ -14,6 +14,7 @@ namespace braque
   class Engine;
   class Image;
   class Shader;
+  class Pipeline;
 
   class RenderingStage
   {
@@ -39,14 +40,16 @@ namespace braque
     static void endRenderingPass( vk::CommandBuffer buffer );
     static void end( vk::CommandBuffer buffer );
 
+    void        renderTriangle( vk::CommandBuffer buffer ) const;
     // void render();
 
   private:
     Engine & engine;
 
-    vk::DescriptorPool      descriptorPool;
-    std::unique_ptr<Image>  offscreenImage;
-    std::unique_ptr<Shader> shader;
+    vk::DescriptorPool        descriptorPool;
+    std::unique_ptr<Image>    offscreenImage;
+    std::unique_ptr<Shader>   shader;
+    std::unique_ptr<Pipeline> pipeline;
 
     void createDescriptorPool();
   };

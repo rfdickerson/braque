@@ -5,6 +5,7 @@
 #include "braque/rendering_stage.hpp"
 
 #include "braque/image.hpp"
+#include "braque/pipeline.hpp"
 #include "braque/renderer.hpp"
 #include "braque/shader.hpp"
 #include "braque/swapchain.hpp"
@@ -24,6 +25,7 @@ namespace braque
 
     offscreenImage = std::make_unique<Image>( engine, extent, vk::Format::eR16G16B16A16Sfloat );
     shader         = std::make_unique<Shader>( engine.getRenderer().getDevice(), "assets/shaders/triangle.vert.spv", "assets/shaders/triangle.frag.spv" );
+    pipeline       = std::make_unique<Pipeline>( engine.getRenderer().getDevice(), *shader );
   }
 
   RenderingStage::~RenderingStage()
@@ -140,6 +142,21 @@ namespace braque
       vk::DescriptorPoolCreateInfo{}.setPoolSizes( poolSizes ).setMaxSets( descriptorCount ).setFlags( vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet );
 
     descriptorPool = engine.getRenderer().getDevice().createDescriptorPool( poolInfo, nullptr );
+  }
+
+  void RenderingStage::renderTriangle( const vk::CommandBuffer buffer ) const
+  {
+    pipeline->Bind( buffer );
+
+    const auto viewport =
+      vk::Viewport{ 0.0F, 0.0F, static_cast<float>( engine.getSwapchain().getExtent().width ), static_cast<float>( engine.getSwapchain().getExtent().height ),
+                    0.0F, 1.0F };
+    pipeline->SetViewport( buffer, viewport );
+
+    const auto scissor = vk::Rect2D{ { 0, 0 }, engine.getSwapchain().getExtent() };
+    pipeline->SetScissor( buffer, scissor );
+
+    buffer.draw( 3, 1, 0, 0 );
   }
 
 }  // namespace braque

@@ -49,6 +49,7 @@ namespace braque
       RenderingStage::begin( commandBuffer );
       renderingStage.prepareImageForColorAttachment( commandBuffer );
       renderingStage.beginRenderingPass( commandBuffer );
+        renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );
       RenderingStage::endRenderingPass( commandBuffer );
       renderingStage.prepareImageForDisplay( commandBuffer );

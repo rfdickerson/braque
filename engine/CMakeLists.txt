@@ -10,7 +10,8 @@ add_library(braque STATIC
         src/memory_allocator.cpp
         src/image.cpp
         src/shader.cpp
-        )
+        src/pipeline.cpp
+)
 
 target_include_directories(braque PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
