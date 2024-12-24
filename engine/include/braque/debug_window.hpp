@@ -5,33 +5,34 @@
 #ifndef DEBUG_WINDOW_HPP
 #define DEBUG_WINDOW_HPP
 
-#include "frame_stats.hpp"
-
 #include <vulkan/vulkan.hpp>
 
-namespace braque {
-class Engine;
+namespace braque
+{
+  class Engine;
+  class FrameStats;
 
-class DebugWindow {
-public:
-    DebugWindow(Engine& engine);
+  class DebugWindow
+  {
+  public:
+    explicit DebugWindow( Engine & engine );
     ~DebugWindow();
 
     // remove copy and move
-    DebugWindow(const DebugWindow&) = delete;
-    DebugWindow& operator=(const DebugWindow&) = delete;
-    DebugWindow(DebugWindow&&) = delete;
-    DebugWindow& operator=(DebugWindow&&) = delete;
+    DebugWindow( const DebugWindow & )                     = delete;
+    auto operator=( const DebugWindow & ) -> DebugWindow & = delete;
+    DebugWindow( DebugWindow && )                          = delete;
+    auto operator=( DebugWindow && ) -> DebugWindow &      = delete;
 
-    void createFrame(FrameStats& frameStats) const;
-    static void renderFrame(const vk::CommandBuffer& commandBuffer);
+    void        createFrame( FrameStats & frameStats ) const;
+    static void renderFrame( const vk::CommandBuffer & commandBuffer );
 
-private:
-    Engine& engine;
+  private:
+    Engine & engine;
 
     static void initAssets();
-};
+  };
 
-} // braque
+}  // namespace braque
 
-#endif //DEBUG_WINDOW_HPP
+#endif  // DEBUG_WINDOW_HPP
