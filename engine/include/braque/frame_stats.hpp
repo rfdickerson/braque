@@ -6,18 +6,13 @@
 #define FRAME_STATS_HPP
 
 #include <array>
+#include <chrono>
 
 namespace braque
 {
   using Timestamp                   = std::chrono::time_point<std::chrono::high_resolution_clock>;
   constexpr int MAX_FRAME_LATENCIES = 100;
   using FrameLatencies              = std::array<float, MAX_FRAME_LATENCIES>;
-
-  struct FrameInfo
-  {
-    FrameLatencies & frameLatencies;
-    int              currentFrameLatencyIndex;
-  };
 
   class FrameStats
   {
@@ -27,10 +22,8 @@ namespace braque
     void               update();
 
     // get all frame latencies
-    [[nodiscard]] auto getFrameLatencies() -> FrameInfo
-    {
-      return { .frameLatencies=frameLatencies, .currentFrameLatencyIndex=currentFrameLatencyIndex };
-    }
+    [[nodiscard]] auto getLatencyData() const -> const FrameLatencies & { return frameLatencies; }
+    [[nodiscard]] auto getLatencyDataOffset() const -> int { return currentFrameLatencyIndex; }
 
   private:
     // frame latencies
