@@ -80,6 +80,8 @@ void Swapchain::waitForImageInFlight() {
     if (resetResult != vk::Result::eSuccess) {
         spdlog::error("Failed to reset fence");
     }
+
+  frameStats.update();
 }
 
 void Swapchain::acquireNextImage() {
@@ -246,11 +248,5 @@ void Swapchain::createImageViews() {
     }
 }
 
-void Swapchain::recordFrameLatency() {
-    // get the current time
-    auto currentTime = std::chrono::high_resolution_clock::now();
-
-    // get the duration
-}
 
 } // namespace braque

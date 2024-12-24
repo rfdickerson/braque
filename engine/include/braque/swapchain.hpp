@@ -7,6 +7,7 @@
 
 #include "renderer.hpp"
 #include "window.hpp"
+#include "frame_stats.hpp"
 
 namespace braque
 {
@@ -60,6 +61,11 @@ namespace braque
       return swapchainFormat;
     }
 
+    [[nodiscard]] auto getFrameStats() -> FrameStats&
+    {
+      return frameStats;
+    }
+
     void waitForFrame() const;
     void acquireNextImage();
     void waitForImageInFlight();
@@ -92,9 +98,7 @@ namespace braque
     vk::CommandPool                commandPool;
     std::vector<vk::CommandBuffer> commandBuffers;
 
-    // frame latencies
-    std::vector<float> frameLatencies;
-    float              lastTime = 0.0F;
+    FrameStats frameStats;
 
     void createSwapchain( Window & window );
     void createSemaphores();

@@ -43,7 +43,7 @@ namespace braque
       swapchain.waitForImageInFlight();
       // do drawing here
 
-      debugWindow.createFrame();
+      debugWindow.createFrame(swapchain.getFrameStats());
 
       auto commandBuffer = swapchain.getCommandBuffer();
       RenderingStage::begin( commandBuffer );

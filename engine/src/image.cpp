@@ -89,4 +89,38 @@ namespace braque
     layout = newLayout;
   }
 
+  void Image::blitImage( const vk::CommandBuffer buffer, const Image & destImage ) const
+  {
+    // check that source is in a transfer source layout
+    if ( layout != vk::ImageLayout::eTransferSrcOptimal )
+    {
+      spdlog::error( "Source image is not in transfer source optimal layout" );
+      throw std::runtime_error( "Source image is not in transfer source optimal layout" );
+    }
+
+    // check that destination is in a transfer destination layout
+    if ( destImage.getLayout() != vk::ImageLayout::eTransferDstOptimal )
+    {
+      spdlog::error( "Destination image is not in transfer destination optimal layout" );
+      throw std::runtime_error( "Destination image is not in transfer destination optimal layout" );
+    }
+
+    vk::ImageBlit2KHR regions;
+    regions.srcOffsets[0]  = vk::Offset3D{ 0, 0, 0 };
+    regions.dstOffsets[0]  = vk::Offset3D{ 0, 0, 0 };
+    regions.srcOffsets[1]  = vk::Offset3D{ static_cast<int32_t>( extent.width ), static_cast<int32_t>( extent.height ), 1 };
+    regions.dstOffsets[1]  = vk::Offset3D{ static_cast<int32_t>( destImage.getExtent().width ), static_cast<int32_t>( destImage.getExtent().height ), 1 };
+    regions.srcSubresource = { vk::ImageAspectFlagBits::eColor, 0, 0, 1 };
+
+    // do the blit
+    vk::BlitImageInfo2KHR blitInfo;
+    blitInfo.setSrcImage( allocatedImage.image );
+    blitInfo.setSrcImageLayout( layout );
+    blitInfo.setDstImage( destImage.allocatedImage.image );
+    blitInfo.setRegions( regions );
+    blitInfo.setFilter( vk::Filter::eLinear );
+
+    buffer.blitImage2KHR( blitInfo );
+  }
+
 }  // namespace braque

@@ -11,6 +11,7 @@ add_library(braque STATIC
         src/image.cpp
         src/shader.cpp
         src/pipeline.cpp
+        src/frame_stats.cpp
 )
 
 target_include_directories(braque PUBLIC

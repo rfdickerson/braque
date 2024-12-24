@@ -62,7 +62,7 @@ namespace braque
     ImGui::DestroyContext();
   }
 
-  void DebugWindow::createFrame() const
+  void DebugWindow::createFrame(FrameStats& stats) const
   {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -71,7 +71,14 @@ namespace braque
 
     // show memory stats
     const auto report = engine.getMemoryAllocator().getReport();
-    ImGui::Begin( "Memory Stats" );
+    ImGui::Begin( "Engine" );
+
+    ImGui::PlotLines( "Frame Latencies",
+      stats.getFrameLatencies().frameLatencies.data(),
+      stats.getFrameLatencies().frameLatencies.size(),
+      stats.getFrameLatencies().currentFrameLatencyIndex,
+      nullptr, 0.0F, 0.1F, ImVec2( 0, 80 ) );
+
     ImGui::Text( "Allocations: %d", report.allocations );
     ImGui::Text( "Total memory: %llu", report.totalMemory );
     ImGui::Text( "Used memory: %llu", report.usedMemory );

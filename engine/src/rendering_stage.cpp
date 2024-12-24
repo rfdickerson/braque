@@ -151,10 +151,10 @@ namespace braque
     const auto viewport =
       vk::Viewport{ 0.0F, 0.0F, static_cast<float>( engine.getSwapchain().getExtent().width ), static_cast<float>( engine.getSwapchain().getExtent().height ),
                     0.0F, 1.0F };
-    pipeline->SetViewport( buffer, viewport );
+    Pipeline::SetViewport( buffer, viewport );
 
     const auto scissor = vk::Rect2D{ { 0, 0 }, engine.getSwapchain().getExtent() };
-    pipeline->SetScissor( buffer, scissor );
+    Pipeline::SetScissor( buffer, scissor );
 
     buffer.draw( 3, 1, 0, 0 );
   }

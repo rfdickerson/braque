@@ -5,6 +5,8 @@
 #ifndef DEBUG_WINDOW_HPP
 #define DEBUG_WINDOW_HPP
 
+#include "frame_stats.hpp"
+
 #include <vulkan/vulkan.hpp>
 
 namespace braque {
@@ -21,7 +23,7 @@ public:
     DebugWindow(DebugWindow&&) = delete;
     DebugWindow& operator=(DebugWindow&&) = delete;
 
-    void createFrame() const;
+    void createFrame(FrameStats& frameStats) const;
     static void renderFrame(const vk::CommandBuffer& commandBuffer);
 
 private:

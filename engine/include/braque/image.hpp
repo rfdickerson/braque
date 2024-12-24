@@ -31,6 +31,8 @@ namespace braque
     Image( Image && )                          = delete;
     auto operator=( Image && ) -> Image &      = delete;
 
+    [[nodiscard]] auto getVulkanImage() const -> vk::ImageView;
+
     [[nodiscard]] auto getImageView() const -> vk::ImageView
     {
       return imageView;
@@ -53,9 +55,14 @@ namespace braque
 
     void transitionLayout( vk::ImageLayout newLayout, vk::CommandBuffer commandBuffer, const SyncBarriers & barriers = {} );
 
+    void blitImage(vk::CommandBuffer buffer, const Image & destImage) const;
+
+  protected:
+    AllocatedImage  allocatedImage;
+
   private:
     Engine &        engine;
-    AllocatedImage  allocatedImage;
+
     vk::ImageView   imageView;
     vk::Extent3D    extent;
     vk::Format      format;
