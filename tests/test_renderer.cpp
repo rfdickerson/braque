@@ -4,8 +4,7 @@
 
 // tests/test_renderer.cpp
 #include "gtest/gtest.h"
-#include "braque/renderer.hpp"
-#include "braque/window.hpp"
+#include "braque/braque.h"
 
 TEST(RendererTest, Initialization) {
     braque::Renderer renderer;

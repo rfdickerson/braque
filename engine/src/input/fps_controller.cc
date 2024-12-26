@@ -6,11 +6,21 @@
 
 #include <GLFW/glfw3.h>
 
+#include <algorithm>
+
 namespace braque
 {
+
+  constexpr float PI_2 = M_PI_2 - 0.001;
+
   void FirstPersonController::OnMouseMoved(float xoffset, float yoffset) {
 
     if (camera_ == nullptr) {
+      return;
+    }
+
+    // validate xoffset and yoffset
+    if (xoffset == 0 && yoffset == 0) {
       return;
     }
 
@@ -20,11 +30,8 @@ namespace braque
     camera_->yaw_ += xoffset;
     camera_->pitch_ += yoffset;
 
-
-    if ( camera_->pitch_ > 89.0f )
-    camera_->pitch_ = 89.0f;
-    if ( camera_->pitch_ < -89.0f )
-    camera_->pitch_ = -89.0f;
+    camera_->pitch_ = std::min(camera_->pitch_, PI_2);
+    camera_->pitch_ = std::max(camera_->pitch_, -PI_2);
 
     camera_->UpdateCameraVectors();
   }
@@ -34,19 +41,17 @@ void FirstPersonController::OnKeyPressed(int key) {
     return;
   }
 
-  const auto velocity = 2.5f * 0.1f;
-
   if (key == GLFW_KEY_W) {
-    camera_->position_ += camera_->front_ * velocity;
+    camera_->position_ += camera_->front_ * movement_speed_;
   }
   if (key == GLFW_KEY_S) {
-    camera_->position_ -= camera_->front_ * velocity;
+    camera_->position_ -= camera_->front_ * movement_speed_;
   }
   if (key == GLFW_KEY_A) {
-    camera_->position_ -= camera_->right_ * velocity;
+    camera_->position_ -= camera_->right_ * movement_speed_;
   }
   if (key == GLFW_KEY_D) {
-    camera_->position_ += camera_->right_ * velocity;
+    camera_->position_ += camera_->right_ * movement_speed_;
   }
 }
 

@@ -15,6 +15,7 @@ set (braque-headers
         include/braque/camera.h
         include/braque/input/input_controller.h
         include/braque/input/fps_controller.h
+        include/braque/input/event_controller.h
 )
 
 add_library(braque STATIC

@@ -19,56 +19,22 @@ namespace braque
 
   void Camera::UpdateCameraVectors() {
     glm::vec3 newFront;
-    newFront.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
-    newFront.y = sin(glm::radians(pitch_));
-    newFront.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+    newFront.x = cos(yaw_) * cos(pitch_);
+    newFront.y = sin(pitch_);
+    newFront.z = sin(yaw_) * cos(pitch_);
     front_ = normalize(newFront);
-    right_ = glm::normalize(glm::cross(front_, up_));
-    up_ = glm::normalize(glm::cross(right_, front_));
+    right_ = normalize(cross(front_, up_));
+    up_ = normalize(cross(right_, front_));
     }
 
-    glm::mat4 Camera::ViewMatrix() const
+    auto Camera::ViewMatrix() const -> glm::mat4
     {
-      return glm::lookAt( position_, position_ + front_, up_ );
+      return lookAt( position_, position_ + front_, up_ );
     }
 
-    glm::mat4 Camera::ProjectionMatrix() const
+    auto Camera::ProjectionMatrix() const -> glm::mat4
     {
       return glm::perspective( glm::radians( fov_ ), aspectRatio_, nearPlane_, farPlane_ );
     }
-
-    // void Camera::ProcessKeyboard( CameraMovement direction, float deltaTime )
-    // {
-    //   const auto velocity = 2.5f * deltaTime;
-    //
-    //   if ( direction == FORWARD )
-    //   position_ += front_ * velocity;
-    //   if ( direction == BACKWARD )
-    //   position_ -= front_ * velocity;
-    //   if ( direction == LEFT )
-    //   position_ -= right_ * velocity;
-    //   if ( direction == RIGHT )
-    //   position_ += right_ * velocity;
-    // }
-
-    // void Camera::ProcessMouseMovement( float xoffset, float yoffset, bool constrainPitch )
-    // {
-    //   xoffset *= 0.1f;
-    //   yoffset *= 0.1f;
-    //
-    //   yaw_ += xoffset;
-    //   pitch_ += yoffset;
-    //
-    //   if ( constrainPitch )
-    //   {
-    //     if ( pitch_ > 89.0f )
-    //     pitch_ = 89.0f;
-    //     if ( pitch_ < -89.0f )
-    //     pitch_ = -89.0f;
-    //   }
-    //
-    //   UpdateCameraVectors();
-    // }
-
 
 } // namespace braque
