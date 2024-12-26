@@ -8,13 +8,14 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
+#include "braque/pipeline.hpp"
+
 namespace braque
 {
   // Forward declarations
   class Engine;
   class Image;
   class Shader;
-  class Pipeline;
 
   class RenderingStage
   {
@@ -32,6 +33,9 @@ namespace braque
     {
       return descriptorPool;
     }
+
+    // get PipelineLayout
+    [[nodiscard]] auto GetPipeline() const -> Pipeline & { return *pipeline; }
 
     static void begin( vk::CommandBuffer buffer );
     void        beginRenderingPass( vk::CommandBuffer buffer ) const;

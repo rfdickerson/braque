@@ -2,37 +2,40 @@
 
 #include "braque/memory_allocator.hpp"
 
-#include <vector>
 #include <glm/glm.hpp>
+#include <vector>
 
-namespace braque
-{
+namespace braque {
 
-  class Engine;
+class Engine;
 
-  class Uniforms
-  {
-  public:
-    Uniforms( Engine & engine );
-    ~Uniforms();
+class Uniforms {
+ public:
+  Uniforms(Engine& engine);
+  ~Uniforms();
 
-    // remove copy and move
-        Uniforms( const Uniforms & )                     = delete;
+  // remove copy and move
+  Uniforms(const Uniforms&) = delete;
 
-    // void SetCameraData(Camera& camera);
+  void SetCameraData(const Camera& camera) const;
 
-  private:
-    Engine & engine_;
+ // bind descriptor sets
+  void Bind(vk::CommandBuffer buffer) const;
 
-    std::vector<AllocatedBuffer> cameraBuffers;
-    std::vector<vk::DescriptorSet> descriptorSets;
+  vk::DescriptorSetLayout GetDescriptorSetLayout() const { return descriptor_set_layout_; }
 
-    vk::DescriptorSetLayout      descriptorSetLayout;
-    vk::DescriptorPool          descriptorPool;
+ private:
+  Engine& engine_;
 
-    void createUniformBuffers();
-    void createDescriptorSetLayout();
-    void createDescriptorPool();
-    void createDescriptorSets();
-  };
+  std::vector<AllocatedBuffer> camera_buffers_;
+  std::vector<vk::DescriptorSet> descriptor_sets_;
+
+  vk::DescriptorSetLayout descriptor_set_layout_;
+  vk::DescriptorPool descriptor_pool_;
+
+  void CreateUniformBuffers();
+  void createDescriptorSetLayout();
+  void createDescriptorPool();
+  void createDescriptorSets();
+};
 }  // namespace braque

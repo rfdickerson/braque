@@ -19,9 +19,9 @@ namespace braque
   Engine::Engine()
     : swapchain( Swapchain( window, renderer ) )
     , memoryAllocator( MemoryAllocator( renderer ) )
-    , renderingStage( RenderingStage( *this ) )
-    , debugWindow( DebugWindow( *this ) )
     , uniforms_( Uniforms( *this ) )
+    , renderingStage( RenderingStage( *this ) )
+, debugWindow( DebugWindow( *this ) )
   {
     // Any other initialization after all members are constructed
   }
@@ -44,12 +44,17 @@ namespace braque
       swapchain.waitForImageInFlight();
       // do drawing here
 
+      // update the camera
+        camera_.UpdateCameraVectors();
+      uniforms_.SetCameraData(camera_);
+
       debugWindow.createFrame( swapchain.getFrameStats() );
 
       auto commandBuffer = swapchain.getCommandBuffer();
       RenderingStage::begin( commandBuffer );
       renderingStage.prepareImageForColorAttachment( commandBuffer );
       renderingStage.beginRenderingPass( commandBuffer );
+      uniforms_.Bind( commandBuffer );
       renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );
       RenderingStage::endRenderingPass( commandBuffer );

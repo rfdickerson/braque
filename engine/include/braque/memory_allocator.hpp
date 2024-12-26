@@ -16,6 +16,8 @@ namespace braque
   {
     vk::Buffer    buffer;
     VmaAllocation allocation;
+    // mapped data
+    void* mappedData;
   };
 
   struct AllocatedImage

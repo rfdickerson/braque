@@ -9,13 +9,16 @@
 namespace braque
 {
 
-  Pipeline::Pipeline( vk::Device device, Shader & shader ) : device( device )
+  Pipeline::Pipeline( vk::Device device, Shader & shader, vk::DescriptorSetLayout descriptor_set_layout ) : device( device )
   {
 
     constexpr uint32_t width = 800;
     constexpr uint32_t height = 600;
 
-    layout = device.createPipelineLayout( {} );
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.setSetLayouts(descriptor_set_layout);
+
+    layout_ = device.createPipelineLayout( pipelineLayoutInfo );
 
     auto shaderStages = shader.getPipelineShaderStageCreateInfos();
 
@@ -75,7 +78,7 @@ namespace braque
     pipelineInfo.setPMultisampleState( &multisampling );
     pipelineInfo.setPColorBlendState( &colorBlending );
     pipelineInfo.setPDynamicState( &dynamicState );
-    pipelineInfo.setLayout( layout );
+    pipelineInfo.setLayout( layout_ );
     pipelineInfo.setRenderPass( nullptr );
     pipelineInfo.setSubpass( 0 );
     pipelineInfo.setPNext( &pipelineRenderingCreateInfo );
@@ -95,7 +98,7 @@ namespace braque
   Pipeline::~Pipeline()
   {
     device.destroyPipeline( pipeline );
-    device.destroyPipelineLayout( layout );
+    device.destroyPipelineLayout( layout_ );
   }
 
   void Pipeline::Bind( vk::CommandBuffer buffer )
@@ -117,5 +120,10 @@ namespace braque
   {
     buffer.draw( 3, 1, 0, 0 );
   }
+
+  vk::PipelineLayout Pipeline::VulkanLayout() const {
+    return layout_;
+  }
+
 
 }  // namespace braque

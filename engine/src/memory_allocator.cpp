@@ -75,6 +75,12 @@ namespace braque
 
   void MemoryAllocator::destroyBuffer( const braque::AllocatedBuffer & buffer ) const
   {
+
+    if ( buffer.mappedData )
+    {
+      vmaUnmapMemory( allocator, buffer.allocation );
+    }
+
     vmaDestroyBuffer( allocator, buffer.buffer, buffer.allocation );
   }
 
@@ -107,6 +113,9 @@ namespace braque
 
     allocatedBuffer.buffer     = buffer;
     allocatedBuffer.allocation = allocation;
+
+    // map the buffer
+    vmaMapMemory( allocator, allocation, &allocatedBuffer.mappedData );
 
     return allocatedBuffer;
   }

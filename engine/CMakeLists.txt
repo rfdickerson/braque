@@ -12,7 +12,8 @@ add_library(braque STATIC
         src/shader.cpp
         src/pipeline.cpp
         src/frame_stats.cpp
-        src/uniforms.cpp
+        src/uniforms.cc
+        src/camera.cc
 )
 
 target_include_directories(braque PUBLIC

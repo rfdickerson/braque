@@ -13,17 +13,23 @@ namespace braque {
 
 class Pipeline {
 public:
-  explicit Pipeline(vk::Device device, Shader& shader);
+  explicit Pipeline(vk::Device device, Shader& shader, vk::DescriptorSetLayout descriptor_set_layout);
   ~Pipeline();
+
+  // make sure copy and move are deleted
+    Pipeline(const Pipeline&) = delete;
+  Pipeline& operator=(const Pipeline&) = delete;
 
   void Bind(vk::CommandBuffer buffer);
   static void SetScissor(vk::CommandBuffer buffer, vk::Rect2D);
   static void SetViewport(vk::CommandBuffer buffer, const vk::Viewport & viewport );
   static void Draw(vk::CommandBuffer buffer);
 
+    vk::PipelineLayout VulkanLayout() const;
+
 private:
   vk::Device device;
-  vk::PipelineLayout layout;
+  vk::PipelineLayout layout_;
   vk::Pipeline pipeline;
 };
 
