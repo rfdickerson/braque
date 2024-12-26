@@ -2,7 +2,7 @@
 // Created by Robert F. Dickerson on 12/24/24.
 //
 
-#include <braque/frame_stats.hpp>
+#include <braque/frame_stats.h>
 
 namespace braque
 {

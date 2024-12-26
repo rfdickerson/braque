@@ -6,6 +6,7 @@
 #include "event.h"
 
 #include <deque>
+#include <vector>
 
 namespace braque {
 class Window;

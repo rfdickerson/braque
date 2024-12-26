@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <braque/shader.hpp>
+#include <braque/shader.h>
 
 namespace braque {
 

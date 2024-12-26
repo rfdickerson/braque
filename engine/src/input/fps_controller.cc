@@ -4,6 +4,8 @@
 
 #include "braque/input/fps_controller.h"
 
+#include <GLFW/glfw3.h>
+
 namespace braque
 {
   void FirstPersonController::OnMouseMoved(float xoffset, float yoffset) {
@@ -12,8 +14,8 @@ namespace braque
       return;
     }
 
-    xoffset *= 0.1f;
-    yoffset *= 0.1f;
+    xoffset *= mouse_sensitivity_;
+    yoffset *= mouse_sensitivity_;
 
     camera_->yaw_ += xoffset;
     camera_->pitch_ += yoffset;
@@ -26,5 +28,26 @@ namespace braque
 
     camera_->UpdateCameraVectors();
   }
+
+void FirstPersonController::OnKeyPressed(int key) {
+  if (camera_ == nullptr) {
+    return;
+  }
+
+  const auto velocity = 2.5f * 0.1f;
+
+  if (key == GLFW_KEY_W) {
+    camera_->position_ += camera_->front_ * velocity;
+  }
+  if (key == GLFW_KEY_S) {
+    camera_->position_ -= camera_->front_ * velocity;
+  }
+  if (key == GLFW_KEY_A) {
+    camera_->position_ -= camera_->right_ * velocity;
+  }
+  if (key == GLFW_KEY_D) {
+    camera_->position_ += camera_->right_ * velocity;
+  }
+}
 
 } // namespace braque

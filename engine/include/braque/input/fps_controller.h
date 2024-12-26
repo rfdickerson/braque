@@ -5,7 +5,7 @@
 #ifndef FPS_CONTROLLER_H
 #define FPS_CONTROLLER_H
 
-#include "braque/camera.hpp"
+#include "braque/camera.h"
 #include "braque/input/event_controller.h"
 
 namespace braque {
@@ -16,6 +16,7 @@ class FirstPersonController : public EventController {
   void SetCamera(Camera* camera) { camera_ = camera; }
 
   void OnMouseMoved(float x, float y) override;
+  void OnKeyPressed(int key) override;
 
  private:
   Camera* camera_ = nullptr;

@@ -2,11 +2,11 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "braque/window.hpp"
+#include "braque/window.h"
 
 #include <spdlog/spdlog.h>
 
-#include "braque/renderer.hpp"
+#include "braque/renderer.h"
 
 namespace braque {
 
@@ -78,6 +78,17 @@ glm::vec2 Window::GetMouseChange() {
   last_mouse_position_ = glm::vec2(xpos, ypos);
 
   return mouse_change;
+}
+
+std::vector<int> Window::GetPressedKeys() const {
+  std::vector<int> keys;
+  for (int i = 0; i < GLFW_KEY_LAST; i++) {
+    if (glfwGetKey(window, i) == GLFW_PRESS) {
+      keys.push_back(i);
+    }
+  }
+
+  return keys;
 }
 
 }  // namespace braque

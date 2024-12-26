@@ -2,7 +2,7 @@
 // Created by Robert F. Dickerson on 12/13/24.
 //
 
-#include "braque/swapchain.hpp"
+#include "braque/swapchain.h"
 
 #include <spdlog/spdlog.h>
 

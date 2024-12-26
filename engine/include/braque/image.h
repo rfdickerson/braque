@@ -5,8 +5,8 @@
 #ifndef IMAGE_HPP
 #define IMAGE_HPP
 
-#include "engine.hpp"
-#include "memory_allocator.hpp"
+#include "engine.h"
+#include "memory_allocator.h"
 
 namespace braque
 {

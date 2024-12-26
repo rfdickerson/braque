@@ -1,4 +1,4 @@
-#include <braque/camera.hpp>
+#include <braque/camera.h>
 
 namespace braque
 {

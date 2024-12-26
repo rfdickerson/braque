@@ -1,6 +1,6 @@
 #include <spdlog/spdlog.h>
-#include <braque/engine.hpp>
-#include <braque/uniforms.hpp>
+#include <braque/engine.h>
+#include <braque/uniforms.h>
 
 namespace braque {
 

@@ -2,10 +2,10 @@
 // Created by Robert F. Dickerson on 12/16/24.
 //
 
-#include "braque/memory_allocator.hpp"
+#include "braque/memory_allocator.h"
 
 #define VMA_IMPLEMENTATION
-#include "braque/renderer.hpp"
+#include "braque/renderer.h"
 
 #include <spdlog/spdlog.h>
 #include <vk_mem_alloc.h>

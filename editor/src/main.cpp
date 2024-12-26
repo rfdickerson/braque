@@ -1,6 +1,4 @@
-#include <iostream>
-
-#include "braque/engine.hpp"
+#include "braque/braque.h"
 
 int main() {
     braque::Engine engine;

@@ -1,7 +1,7 @@
 //
 // Created by Robert F. Dickerson on 12/19/24.
 //
-#include "braque/shader.hpp"
+#include "braque/shader.h"
 
 #include <fstream>
 #include <spdlog/spdlog.h>

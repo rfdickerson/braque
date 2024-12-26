@@ -2,7 +2,7 @@
 // Created by Robert F. Dickerson on 12/20/24.
 //
 
-#include "braque/pipeline.hpp"
+#include "braque/pipeline.h"
 
 #include <spdlog/spdlog.h>
 

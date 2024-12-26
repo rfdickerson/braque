@@ -1,6 +1,6 @@
 #pragma once
 
-#include "braque/memory_allocator.hpp"
+#include "braque/memory_allocator.h"
 
 #include <glm/glm.hpp>
 #include <vector>

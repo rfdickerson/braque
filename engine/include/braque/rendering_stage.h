@@ -8,7 +8,7 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-#include "braque/pipeline.hpp"
+#include "braque/pipeline.h"
 
 namespace braque
 {

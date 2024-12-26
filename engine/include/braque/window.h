@@ -31,6 +31,7 @@ public:
     [[nodiscard]] auto CreateSurface(const Renderer &renderer) const -> vk::SurfaceKHR;
     [[nodiscard]] auto GetNativeWindow() const -> GLFWwindow * { return window; }
     [[nodiscard]] glm::vec2 GetMouseChange();
+    [[nodiscard]] std::vector<int> GetPressedKeys() const;
 
 private:
     GLFWwindow *window;

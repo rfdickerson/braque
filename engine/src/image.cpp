@@ -2,9 +2,9 @@
 // Created by rfdic on 12/17/2024.
 //
 
-#include "braque/image.hpp"
+#include "braque/image.h"
 
-#include "braque/renderer.hpp"
+#include "braque/renderer.h"
 
 #include <spdlog/spdlog.h>
 

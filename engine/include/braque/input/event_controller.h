@@ -10,12 +10,12 @@ class EventController {
 public:
    virtual ~EventController() = default;
 
-  virtual void OnMouseMoved(float x, float y) {};
-  virtual void OnMouseButtonPressed(int button, int action, int mods) {};
-  virtual void OnMouseButtonReleased(int button, int action, int mods) {};
-  virtual void OnMouseScrolled(float x, float y) {};
-  virtual void OnKeyPressed(int key, int action, int mods) {};
-  virtual void OnKeyReleased(int key, int action, int mods) {};
+  virtual void OnMouseMoved(float, float) {};
+//  virtual void OnMouseButtonPressed(int button, int action, int mods) {};
+//  virtual void OnMouseButtonReleased(int button, int action, int mods) {};
+//  virtual void OnMouseScrolled(float x, float y) {};
+  virtual void OnKeyPressed(int) {};
+//  virtual void OnKeyReleased(int key, int action, int mods) {};
 
   };
 }

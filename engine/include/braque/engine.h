@@ -5,16 +5,16 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "camera.hpp"
-#include "debug_window.hpp"
+#include "camera.h"
+#include "debug_window.h"
 #include "input/fps_controller.h"
 #include "input/input_controller.h"
-#include "memory_allocator.hpp"
-#include "renderer.hpp"
-#include "rendering_stage.hpp"
-#include "swapchain.hpp"
-#include "uniforms.hpp"
-#include "window.hpp"
+#include "memory_allocator.h"
+#include "renderer.h"
+#include "rendering_stage.h"
+#include "swapchain.h"
+#include "uniforms.h"
+#include "window.h"
 
 namespace braque {
 

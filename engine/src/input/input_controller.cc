@@ -1,5 +1,5 @@
 #include <braque/input/input_controller.h>
-#include <braque/window.hpp>
+#include <braque/window.h>
 
 #include <spdlog/spdlog.h>
 
@@ -29,12 +29,20 @@ void InputController::PollEvents() {
   event.mouse_position_y = mouseChange.y;
   events_.push_back(event);
 
+  for (const auto& key : window_->GetPressedKeys()) {
+    event.type = EventType::KeyPressed;
+    event.key = key;
+    events_.push_back(event);
+  }
+
   for (const auto& observer : observers_) {
     for (const auto& event : events_) {
       switch (event.type) {
         case EventType::MouseMoved:
           observer->OnMouseMoved(event.mouse_position_x, event.mouse_position_y);
           break;
+        case EventType::KeyPressed:
+          observer->OnKeyPressed(event.key);
         default:
           spdlog::warn("Could not handle event type");
       }

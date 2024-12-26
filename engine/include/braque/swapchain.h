@@ -5,9 +5,9 @@
 #ifndef SWAPCHAIN_HPP
 #define SWAPCHAIN_HPP
 
-#include "frame_stats.hpp"
-#include "renderer.hpp"
-#include "window.hpp"
+#include "frame_stats.h"
+#include "renderer.h"
+#include "window.h"
 
 namespace braque {
 

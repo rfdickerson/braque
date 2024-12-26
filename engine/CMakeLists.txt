@@ -1,6 +1,24 @@
 
+set (braque-headers
+        include/braque/engine.h
+        include/braque/renderer.h
+        include/braque/window.h
+        include/braque/swapchain.h
+        include/braque/rendering_stage.h
+        include/braque/debug_window.h
+        include/braque/memory_allocator.h
+        include/braque/image.h
+        include/braque/shader.h
+        include/braque/pipeline.h
+        include/braque/frame_stats.h
+        include/braque/uniforms.h
+        include/braque/camera.h
+        include/braque/input/input_controller.h
+        include/braque/input/fps_controller.h
+)
 
 add_library(braque STATIC
+        ${braque-headers}
         src/engine.cpp
         src/renderer.cpp
         src/window.cpp
