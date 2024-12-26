@@ -46,6 +46,11 @@ namespace braque
       return imageCount;
     }
 
+    [[nodiscard]] auto getFramesInFlightCount() const -> uint32_t
+    {
+      return MAX_FRAMES_IN_FLIGHT;
+    }
+
     [[nodiscard]] auto getImageView() const -> vk::ImageView
     {
       return swapchainImageViews[currentImageIndex];
