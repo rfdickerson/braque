@@ -65,8 +65,9 @@ auto Window::CreateSurface(const Renderer& renderer) const -> vk::SurfaceKHR {
   return {surface};
 }
 
-glm::vec2 Window::GetMouseChange() {
-  double xpos, ypos;
+auto Window::GetMouseChange() -> glm::vec2 {
+  double xpos{};
+  double ypos{};
   glfwGetCursorPos(window, &xpos, &ypos);
 
   if (first_mouse_) {
@@ -80,7 +81,7 @@ glm::vec2 Window::GetMouseChange() {
   return mouse_change;
 }
 
-std::vector<int> Window::GetPressedKeys() const {
+auto Window::GetPressedKeys() const -> std::vector<int> {
   std::vector<int> keys;
   for (int i = 0; i < GLFW_KEY_LAST; i++) {
     if (glfwGetKey(window, i) == GLFW_PRESS) {

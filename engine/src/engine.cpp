@@ -41,8 +41,7 @@ namespace braque
 
     while ( !window.ShouldClose() )
     {
-      //Window::PollEvents();
-
+      
       swapchain.waitForFrame();
       swapchain.acquireNextImage();
       swapchain.waitForImageInFlight();
