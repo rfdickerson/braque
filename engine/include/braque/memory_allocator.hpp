@@ -12,6 +12,12 @@
 
 namespace braque
 {
+  struct AllocatedBuffer
+  {
+    vk::Buffer    buffer;
+    VmaAllocation allocation;
+  };
+
   struct AllocatedImage
   {
     vk::Image     image;
@@ -41,8 +47,10 @@ namespace braque
     [[nodiscard]] auto getReport() const -> MemoryReport;
 
     [[nodiscard]] auto createImage( const vk::ImageCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedImage;
+    [[nodiscard]] auto createBuffer( const vk::BufferCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedBuffer;
 
     void destroyImage( const AllocatedImage & image ) const;
+    void destroyBuffer( const AllocatedBuffer & buffer ) const;
 
   private:
     VmaAllocator allocator;

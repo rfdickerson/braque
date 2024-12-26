@@ -10,6 +10,7 @@
 #include "renderer.hpp"
 #include "rendering_stage.hpp"
 #include "swapchain.hpp"
+#include "uniforms.hpp"
 #include "window.hpp"
 
 namespace braque
@@ -61,6 +62,7 @@ namespace braque
     MemoryAllocator memoryAllocator;
     RenderingStage  renderingStage;
     DebugWindow     debugWindow;
+    Uniforms        uniforms_;
   };
 
 }  // namespace braque

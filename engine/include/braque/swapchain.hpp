@@ -100,7 +100,7 @@ namespace braque
 
     FrameStats frameStats;
 
-    void createSwapchain( Window & window );
+    void createSwapchain( const Window & window );
     void createSemaphores();
     void createFences();
     void createSwapchainImages();

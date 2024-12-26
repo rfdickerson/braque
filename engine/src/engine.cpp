@@ -21,6 +21,7 @@ namespace braque
     , memoryAllocator( MemoryAllocator( renderer ) )
     , renderingStage( RenderingStage( *this ) )
     , debugWindow( DebugWindow( *this ) )
+    , uniforms_( Uniforms( *this ) )
   {
     // Any other initialization after all members are constructed
   }
@@ -43,13 +44,13 @@ namespace braque
       swapchain.waitForImageInFlight();
       // do drawing here
 
-      debugWindow.createFrame(swapchain.getFrameStats());
+      debugWindow.createFrame( swapchain.getFrameStats() );
 
       auto commandBuffer = swapchain.getCommandBuffer();
       RenderingStage::begin( commandBuffer );
       renderingStage.prepareImageForColorAttachment( commandBuffer );
       renderingStage.beginRenderingPass( commandBuffer );
-        renderingStage.renderTriangle( commandBuffer );
+      renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );
       RenderingStage::endRenderingPass( commandBuffer );
       renderingStage.prepareImageForDisplay( commandBuffer );
