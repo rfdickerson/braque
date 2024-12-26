@@ -86,7 +86,7 @@ namespace braque
       vk::ImageLayout::eColorAttachmentOptimal,            // newLayout
       vk::QueueFamilyIgnored,                              // srcQueueFamilyIndex
       vk::QueueFamilyIgnored,                              // dstQueueFamilyIndex
-      engine.getSwapchain().getSwapchainImage(),           // image
+      engine.getSwapchain().swapchain_image(),           // image
       { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 }      // subresourceRange
     };
 
@@ -110,7 +110,7 @@ namespace braque
       vk::ImageLayout::ePresentSrcKHR,                     // newLayout
       vk::QueueFamilyIgnored,                              // srcQueueFamilyIndex
       vk::QueueFamilyIgnored,                              // dstQueueFamilyIndex
-      engine.getSwapchain().getSwapchainImage(),           // image
+      engine.getSwapchain().swapchain_image(),           // image
       { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 }      // subresourceRange
     };
 

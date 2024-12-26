@@ -138,7 +138,7 @@ namespace braque
         barrier.setSrcQueueFamilyIndex(vk::QueueFamilyIgnored);
         barrier.setDstQueueFamilyIndex(vk::QueueFamilyIgnored);
 
-        buffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eVertexInput, vk::DependencyFlagBits::eByRegion, nullptr, barrier, nullptr);
+        buffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eVertexShader, vk::DependencyFlagBits::eByRegion, nullptr, barrier, nullptr);
     }
 
 }  // namespace braque

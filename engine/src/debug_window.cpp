@@ -74,9 +74,9 @@ namespace braque
     ImGui::Begin( "Engine" );
 
     ImGui::PlotLines( "Frame Latencies",
-      stats.getLatencyData().data(),
-      stats.getLatencyData().size(),
-      stats.getLatencyDataOffset(),
+      stats.LatencyData().data(),
+      stats.LatencyData().size(),
+      stats.LatencyDataOffset(),
       nullptr, 0.0F, 0.1F, ImVec2( 0, 80 ) );
 
     ImGui::Text( "Allocations: %d", report.allocations );

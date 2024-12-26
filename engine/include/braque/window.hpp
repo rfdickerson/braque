@@ -6,6 +6,7 @@
 #define WINDOW_HPP
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
+#include <glm/glm.hpp>
 
 namespace braque {
 
@@ -29,12 +30,17 @@ public:
     static void PollEvents();
     [[nodiscard]] auto CreateSurface(const Renderer &renderer) const -> vk::SurfaceKHR;
     [[nodiscard]] auto GetNativeWindow() const -> GLFWwindow * { return window; }
+    [[nodiscard]] glm::vec2 GetMouseChange();
 
 private:
     GLFWwindow *window;
 
     int width;
     int height;
+
+    // store the last mouse position
+    glm::vec2 last_mouse_position_;
+    bool first_mouse_ = true;
 };
 
 } // namespace braque

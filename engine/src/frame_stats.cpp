@@ -7,19 +7,19 @@
 namespace braque
 {
 
-  FrameStats::FrameStats(): frameLatencies{} {}
+  FrameStats::FrameStats(): frame_latencies_{} {}
 
-  void FrameStats::update()
+  void FrameStats::Update()
   {
     // get current time and latency
     const auto currentTime = std::chrono::high_resolution_clock::now();
     // get the duration
-    const auto frameTime = std::chrono::duration<float>( currentTime - lastFrameTime ).count();
+    const auto frameTime = std::chrono::duration<float>( currentTime - last_frame_time_ ).count();
 
     // update the frame latency
-    frameLatencies[currentFrameLatencyIndex] = frameTime;
-    currentFrameLatencyIndex                 = ( currentFrameLatencyIndex + 1 ) % MAX_FRAME_LATENCIES;
-    lastFrameTime                            = currentTime;
+    frame_latencies_[current_frame_latency_index_] = frameTime;
+    current_frame_latency_index_                 = ( current_frame_latency_index_ + 1 ) % MAX_FRAME_LATENCIES;
+    last_frame_time_                            = currentTime;
   }
 
 }  // namespace braque

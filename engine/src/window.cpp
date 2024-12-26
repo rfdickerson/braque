@@ -10,55 +10,74 @@
 
 namespace braque {
 
-Window::Window(const int width, const int height, const std::string &title) :
-    window(nullptr), width(width), height(height) {
+Window::Window(const int width, const int height, const std::string& title)
+    : window(nullptr), width(width), height(height), last_mouse_position_() {
 
-    glfwInit();
+  glfwInit();
 
-    // check for Vulkan support
-    if (glfwVulkanSupported() == 0) {
-        spdlog::error("Vulkan not supported");
-        return;
-    }
+  // check for Vulkan support
+  if (glfwVulkanSupported() == 0) {
+    spdlog::error("Vulkan not supported");
+    return;
+  }
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    // create window
-    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-    if (window == nullptr) {
-        spdlog::error("Failed to create window");
-        return;
-    }
+  // create window
+  window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+  if (window == nullptr) {
+    spdlog::error("Failed to create window");
+    return;
+  }
 
-    spdlog::info("Window created");
+  spdlog::info("Window created");
 }
 
 Window::~Window() {
 
-    if (window != nullptr) {
-        glfwDestroyWindow(window);
-    }
+  if (window != nullptr) {
+    glfwDestroyWindow(window);
+  }
 
-    glfwTerminate();
+  glfwTerminate();
 
-    spdlog::info("Window destroyed");
+  spdlog::info("Window destroyed");
 }
 
-auto Window::ShouldClose() const -> bool { return glfwWindowShouldClose(window) != 0; }
-
-void Window::PollEvents() { glfwPollEvents(); }
-
-auto Window::CreateSurface(const Renderer &renderer) const -> vk::SurfaceKHR {
-    VkSurfaceKHR surface = nullptr;
-
-    auto result = glfwCreateWindowSurface(renderer.getInstance(), window, nullptr, &surface);
-    if (result != VK_SUCCESS) {
-        spdlog::error("Failed to create window surface {}", std::to_string(result));
-        throw std::runtime_error("Failed to create window surface");
-    }
-
-    return {surface};
+auto Window::ShouldClose() const -> bool {
+  return glfwWindowShouldClose(window) != 0;
 }
 
+void Window::PollEvents() {
+  glfwPollEvents();
+}
 
-} // namespace braque
+auto Window::CreateSurface(const Renderer& renderer) const -> vk::SurfaceKHR {
+  VkSurfaceKHR surface = nullptr;
+
+  auto result = glfwCreateWindowSurface(renderer.getInstance(), window, nullptr,
+                                        &surface);
+  if (result != VK_SUCCESS) {
+    spdlog::error("Failed to create window surface {}", std::to_string(result));
+    throw std::runtime_error("Failed to create window surface");
+  }
+
+  return {surface};
+}
+
+glm::vec2 Window::GetMouseChange() {
+  double xpos, ypos;
+  glfwGetCursorPos(window, &xpos, &ypos);
+
+  if (first_mouse_) {
+    last_mouse_position_ = glm::vec2(xpos, ypos);
+    first_mouse_ = false;
+  }
+
+  const glm::vec2 mouse_change = glm::vec2(xpos, ypos) - last_mouse_position_;
+  last_mouse_position_ = glm::vec2(xpos, ypos);
+
+  return mouse_change;
+}
+
+}  // namespace braque

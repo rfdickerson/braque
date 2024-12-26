@@ -47,6 +47,9 @@ namespace braque
       // update the camera
       camera_.UpdateCameraVectors();
 
+      auto mouseChange = window.GetMouseChange();
+      camera_.ProcessMouseMovement(mouseChange.x, mouseChange.y);
+
       debugWindow.createFrame( swapchain.getFrameStats() );
 
       auto commandBuffer = swapchain.getCommandBuffer();
