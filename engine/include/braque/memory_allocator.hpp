@@ -54,6 +54,8 @@ namespace braque
     void destroyImage( const AllocatedImage & image ) const;
     void destroyBuffer( const AllocatedBuffer & buffer ) const;
 
+    void WriteData(vk::CommandBuffer buffer, const AllocatedBuffer & bufferInfo, const void* data, size_t size) const;
+
   private:
     VmaAllocator allocator;
   };

@@ -35,9 +35,9 @@ namespace braque
   {
     spdlog::info( "Starting the engine loop" );
 
-    while ( !window.shouldClose() )
+    while ( !window.ShouldClose() )
     {
-      Window::pollEvents();
+      Window::PollEvents();
 
       swapchain.waitForFrame();
       swapchain.acquireNextImage();
@@ -45,13 +45,13 @@ namespace braque
       // do drawing here
 
       // update the camera
-        camera_.UpdateCameraVectors();
-      uniforms_.SetCameraData(camera_);
+      camera_.UpdateCameraVectors();
 
       debugWindow.createFrame( swapchain.getFrameStats() );
 
       auto commandBuffer = swapchain.getCommandBuffer();
       RenderingStage::begin( commandBuffer );
+      uniforms_.SetCameraData(commandBuffer, camera_);
       renderingStage.prepareImageForColorAttachment( commandBuffer );
       renderingStage.beginRenderingPass( commandBuffer );
       uniforms_.Bind( commandBuffer );

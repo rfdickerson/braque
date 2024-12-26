@@ -44,11 +44,11 @@ Window::~Window() {
     spdlog::info("Window destroyed");
 }
 
-auto Window::shouldClose() const -> bool { return glfwWindowShouldClose(window) != 0; }
+auto Window::ShouldClose() const -> bool { return glfwWindowShouldClose(window) != 0; }
 
-void Window::pollEvents() { glfwPollEvents(); }
+void Window::PollEvents() { glfwPollEvents(); }
 
-auto Window::createSurface(const Renderer &renderer) const -> vk::SurfaceKHR {
+auto Window::CreateSurface(const Renderer &renderer) const -> vk::SurfaceKHR {
     VkSurfaceKHR surface = nullptr;
 
     auto result = glfwCreateWindowSurface(renderer.getInstance(), window, nullptr, &surface);

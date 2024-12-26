@@ -17,6 +17,6 @@ TEST(RendererTest, Initialization) {
 TEST(WindowTest, Initialization) {
     braque::Window window;
     // ... your assertions to test window initialization ...
-    auto nativeWindow = window.getNativeWindow();
+    auto nativeWindow = window.GetNativeWindow();
     EXPECT_TRUE(nativeWindow);
 }

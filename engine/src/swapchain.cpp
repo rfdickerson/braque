@@ -132,7 +132,7 @@ namespace braque
 
   void Swapchain::createSwapchain( const Window & window )
   {
-    surface = window.createSurface( renderer );
+    surface = window.CreateSurface( renderer );
 
     // get the surface capabilities
     auto surfaceCapabilities = renderer.getPhysicalDevice().getSurfaceCapabilitiesKHR( surface );

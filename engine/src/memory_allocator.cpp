@@ -120,4 +120,25 @@ namespace braque
     return allocatedBuffer;
   }
 
+    void MemoryAllocator::WriteData( vk::CommandBuffer buffer, const AllocatedBuffer & bufferInfo, const void * data, size_t size ) const
+    {
+        std::memcpy( bufferInfo.mappedData, data, size );
+        auto result = vmaFlushAllocation(allocator, bufferInfo.allocation, 0, VK_WHOLE_SIZE);
+
+        if (result != VK_SUCCESS)
+        {
+            spdlog::error("Failed to flush memory");
+        }
+
+      vk::BufferMemoryBarrier barrier;
+        barrier.setBuffer(bufferInfo.buffer);
+        barrier.setSize(VK_WHOLE_SIZE);
+        barrier.setSrcAccessMask(vk::AccessFlagBits::eHostWrite);
+        barrier.setDstAccessMask(vk::AccessFlagBits::eUniformRead);
+        barrier.setSrcQueueFamilyIndex(vk::QueueFamilyIgnored);
+        barrier.setDstQueueFamilyIndex(vk::QueueFamilyIgnored);
+
+        buffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eVertexInput, vk::DependencyFlagBits::eByRegion, nullptr, barrier, nullptr);
+    }
+
 }  // namespace braque

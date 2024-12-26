@@ -25,10 +25,10 @@ public:
     Window(Window &&) = delete;
     auto operator=(Window &&) -> Window & = delete;
 
-    [[nodiscard]] auto shouldClose() const -> bool;
-    static void pollEvents();
-    [[nodiscard]] auto createSurface(const Renderer &renderer) const -> vk::SurfaceKHR;
-    [[nodiscard]] auto getNativeWindow() const -> GLFWwindow * { return window; }
+    [[nodiscard]] auto ShouldClose() const -> bool;
+    static void PollEvents();
+    [[nodiscard]] auto CreateSurface(const Renderer &renderer) const -> vk::SurfaceKHR;
+    [[nodiscard]] auto GetNativeWindow() const -> GLFWwindow * { return window; }
 
 private:
     GLFWwindow *window;

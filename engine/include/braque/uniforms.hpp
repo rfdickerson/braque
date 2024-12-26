@@ -17,7 +17,7 @@ class Uniforms {
   // remove copy and move
   Uniforms(const Uniforms&) = delete;
 
-  void SetCameraData(const Camera& camera) const;
+  void SetCameraData(vk::CommandBuffer buffer, const Camera& camera) const;
 
  // bind descriptor sets
   void Bind(vk::CommandBuffer buffer) const;

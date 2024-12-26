@@ -28,7 +28,7 @@ namespace braque
     pipelineRenderingCreateInfo.setColorAttachmentCount( 1 );
     pipelineRenderingCreateInfo.setPColorAttachmentFormats( &format );
 
-    ImGui_ImplGlfw_InitForVulkan( engine.getWindow().getNativeWindow(), true );
+    ImGui_ImplGlfw_InitForVulkan( engine.getWindow().GetNativeWindow(), true );
 
     const auto & renderer = engine.getRenderer();
 

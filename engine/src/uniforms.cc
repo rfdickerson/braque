@@ -35,14 +35,14 @@ Uniforms::~Uniforms() {
 void Uniforms::CreateUniformBuffers() {
   auto cameraBufferCreateInfo = vk::BufferCreateInfo{};
   cameraBufferCreateInfo.setSize(sizeof(CameraUbo));
-  cameraBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+  cameraBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
   cameraBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
 
   auto cameraBufferAllocInfo = VmaAllocationCreateInfo{};
   cameraBufferAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
   cameraBufferAllocInfo.flags =
       VMA_ALLOCATION_CREATE_MAPPED_BIT |
-      VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+      VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT;
 
   const auto& swapchain = engine_.getSwapchain();
   const auto& allocator = engine_.getMemoryAllocator();
@@ -113,7 +113,7 @@ void Uniforms::createDescriptorSets() {
   }
 }
 
-void Uniforms::SetCameraData(const Camera& camera) const {
+void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) const {
 
   const auto& frame = engine_.getSwapchain().CurrentFrameIndex();
 
@@ -124,7 +124,10 @@ void Uniforms::SetCameraData(const Camera& camera) const {
   cameraUbo.view = camera.ViewMatrix();
   cameraUbo.proj = camera.ProjectionMatrix();
 
-  std::memcpy(cameraBuffer.mappedData, &cameraUbo, sizeof(CameraUbo));
+  //std::memcpy(cameraBuffer.mappedData, &cameraUbo, sizeof(CameraUbo));
+
+    const auto& allocator = engine_.getMemoryAllocator();
+  allocator.WriteData(buffer, cameraBuffer, &cameraUbo, sizeof(CameraUbo));
 }
 
 void Uniforms::Bind(vk::CommandBuffer buffer) const {
