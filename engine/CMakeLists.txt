@@ -14,6 +14,8 @@ add_library(braque STATIC
         src/frame_stats.cpp
         src/uniforms.cc
         src/camera.cc
+        src/input/input_controller.cc
+        src/input/fps_controller.cc
 )
 
 target_include_directories(braque PUBLIC

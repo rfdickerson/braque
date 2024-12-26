@@ -7,6 +7,8 @@
 
 #include "camera.hpp"
 #include "debug_window.hpp"
+#include "input/fps_controller.h"
+#include "input/input_controller.h"
 #include "memory_allocator.hpp"
 #include "renderer.hpp"
 #include "rendering_stage.hpp"
@@ -49,7 +51,9 @@ class Engine {
   Uniforms uniforms_;
   Camera camera_;
   RenderingStage renderingStage;
- DebugWindow debugWindow;
+  DebugWindow debugWindow;
+  InputController input_contoller_;
+  FirstPersonController fps_controller_;
 };
 
 }  // namespace braque

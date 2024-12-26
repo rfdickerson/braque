@@ -24,6 +24,10 @@ namespace braque
 , debugWindow( DebugWindow( *this ) )
   {
     // Any other initialization after all members are constructed
+    spdlog::info( "Engine created" );
+    input_contoller_.RegisterWindow(&window);
+    input_contoller_.RegisterObserver(&fps_controller_);
+    fps_controller_.SetCamera(&camera_);
   }
 
   Engine::~Engine()
@@ -37,7 +41,7 @@ namespace braque
 
     while ( !window.ShouldClose() )
     {
-      Window::PollEvents();
+      //Window::PollEvents();
 
       swapchain.waitForFrame();
       swapchain.acquireNextImage();
@@ -45,10 +49,7 @@ namespace braque
       // do drawing here
 
       // update the camera
-      camera_.UpdateCameraVectors();
-
-      auto mouseChange = window.GetMouseChange();
-      camera_.ProcessMouseMovement(mouseChange.x, mouseChange.y);
+      input_contoller_.PollEvents();
 
       debugWindow.createFrame( swapchain.getFrameStats() );
 

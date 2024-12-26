@@ -22,7 +22,7 @@ namespace braque
     newFront.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
     newFront.y = sin(glm::radians(pitch_));
     newFront.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
-    front_ = glm::normalize(newFront);
+    front_ = normalize(newFront);
     right_ = glm::normalize(glm::cross(front_, up_));
     up_ = glm::normalize(glm::cross(right_, front_));
     }
@@ -37,38 +37,38 @@ namespace braque
       return glm::perspective( glm::radians( fov_ ), aspectRatio_, nearPlane_, farPlane_ );
     }
 
-    void Camera::ProcessKeyboard( CameraMovement direction, float deltaTime )
-    {
-      const auto velocity = 2.5f * deltaTime;
+    // void Camera::ProcessKeyboard( CameraMovement direction, float deltaTime )
+    // {
+    //   const auto velocity = 2.5f * deltaTime;
+    //
+    //   if ( direction == FORWARD )
+    //   position_ += front_ * velocity;
+    //   if ( direction == BACKWARD )
+    //   position_ -= front_ * velocity;
+    //   if ( direction == LEFT )
+    //   position_ -= right_ * velocity;
+    //   if ( direction == RIGHT )
+    //   position_ += right_ * velocity;
+    // }
 
-      if ( direction == FORWARD )
-      position_ += front_ * velocity;
-      if ( direction == BACKWARD )
-      position_ -= front_ * velocity;
-      if ( direction == LEFT )
-      position_ -= right_ * velocity;
-      if ( direction == RIGHT )
-      position_ += right_ * velocity;
-    }
-
-    void Camera::ProcessMouseMovement( float xoffset, float yoffset, bool constrainPitch )
-    {
-      xoffset *= 0.1f;
-      yoffset *= 0.1f;
-
-      yaw_ += xoffset;
-      pitch_ += yoffset;
-
-      if ( constrainPitch )
-      {
-        if ( pitch_ > 89.0f )
-        pitch_ = 89.0f;
-        if ( pitch_ < -89.0f )
-        pitch_ = -89.0f;
-      }
-
-      UpdateCameraVectors();
-    }
+    // void Camera::ProcessMouseMovement( float xoffset, float yoffset, bool constrainPitch )
+    // {
+    //   xoffset *= 0.1f;
+    //   yoffset *= 0.1f;
+    //
+    //   yaw_ += xoffset;
+    //   pitch_ += yoffset;
+    //
+    //   if ( constrainPitch )
+    //   {
+    //     if ( pitch_ > 89.0f )
+    //     pitch_ = 89.0f;
+    //     if ( pitch_ < -89.0f )
+    //     pitch_ = -89.0f;
+    //   }
+    //
+    //   UpdateCameraVectors();
+    // }
 
 
 } // namespace braque

@@ -24,11 +24,11 @@ class Camera
 	glm::mat4 ViewMatrix() const;
 	glm::mat4 ProjectionMatrix() const;
 
-	void ProcessKeyboard(CameraMovement direction, float deltaTime);
-
-	void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
-
-	void ProcessMouseScroll(float yoffset);
+	// void ProcessKeyboard(CameraMovement direction, float deltaTime);
+	//
+	// void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
+	//
+	// void ProcessMouseScroll(float yoffset);
 
 	void UpdateCameraVectors();
 
