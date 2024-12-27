@@ -7,6 +7,7 @@
 
 #include "camera.h"
 #include "debug_window.h"
+#include "input/app_controller.h"
 #include "input/fps_controller.h"
 #include "input/input_controller.h"
 #include "memory_allocator.h"
@@ -41,6 +42,8 @@ class Engine {
 
   auto getUniforms() -> Uniforms& { return uniforms_; }
 
+  void Quit() { running = false; }
+
   void run();
 
  private:
@@ -52,8 +55,11 @@ class Engine {
   Camera camera_;
   RenderingStage renderingStage;
   DebugWindow debugWindow;
-  InputController input_contoller_;
+  InputController input_controller_;
   FirstPersonController fps_controller_;
+  AppController app_controller_;
+
+  bool running = true;
 };
 
 }  // namespace braque

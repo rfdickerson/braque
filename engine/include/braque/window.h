@@ -33,6 +33,9 @@ public:
     [[nodiscard]] glm::vec2 GetMouseChange();
     [[nodiscard]] std::vector<int> GetPressedKeys() const;
 
+    void HideCursor();
+    void ShowCursor();
+
 private:
     GLFWwindow *window;
 

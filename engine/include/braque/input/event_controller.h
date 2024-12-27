@@ -5,6 +5,8 @@
 #ifndef EVENT_CONTROLLER_H
 #define EVENT_CONTROLLER_H
 
+#include "event.h"
+
 namespace braque {
 class EventController {
 public:
@@ -16,6 +18,7 @@ virtual ~EventController() = default;
 //  virtual void OnMouseScrolled(float x, float y) {};
   virtual void OnKeyPressed(int key) {};
 //  virtual void OnKeyReleased(int key, int action, int mods) {};
+  virtual void OnEvent (Event event) {};
 
   };
 }

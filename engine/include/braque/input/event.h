@@ -12,7 +12,8 @@ enum class EventType {
   MouseMoved,
   MouseButtonPressed,
   MouseButtonReleased,
-  MouseScrolled
+  MouseScrolled,
+  AppQuit
 };
 
 struct Event {

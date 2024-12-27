@@ -35,6 +35,11 @@ void InputController::PollEvents() {
     events_.push_back(event);
   }
 
+  if (window_->ShouldClose()) {
+    event.type = EventType::AppQuit;
+    events_.push_back(event);
+  }
+
   for (const auto& observer : observers_) {
     for (const auto& event : events_) {
       switch (event.type) {
@@ -43,6 +48,10 @@ void InputController::PollEvents() {
           break;
         case EventType::KeyPressed:
           observer->OnKeyPressed(event.key);
+          break;
+        case EventType::AppQuit:
+          observer->OnEvent(event);
+          break;
         default:
           spdlog::warn("Could not handle event type");
       }

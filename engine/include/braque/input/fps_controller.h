@@ -9,7 +9,7 @@
 #include "braque/input/event_controller.h"
 
 namespace braque {
-class FirstPersonController : public EventController {
+class FirstPersonController final : public EventController {
  public:
   FirstPersonController() = default;
 

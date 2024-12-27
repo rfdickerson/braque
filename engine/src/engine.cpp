@@ -25,9 +25,11 @@ namespace braque
   {
     // Any other initialization after all members are constructed
     spdlog::info( "Engine created" );
-    input_contoller_.RegisterWindow(&window);
-    input_contoller_.RegisterObserver(&fps_controller_);
+    input_controller_.RegisterWindow(&window);
+    input_controller_.RegisterObserver(&fps_controller_);
     fps_controller_.SetCamera(&camera_);
+    input_controller_.RegisterObserver(&app_controller_);
+    app_controller_.SetEngine(this);
   }
 
   Engine::~Engine()
@@ -39,7 +41,7 @@ namespace braque
   {
     spdlog::info( "Starting the engine loop" );
 
-    while ( !window.ShouldClose() )
+    while ( running )
     {
       
       swapchain.waitForFrame();
@@ -48,7 +50,7 @@ namespace braque
       // do drawing here
 
       // update the camera
-      input_contoller_.PollEvents();
+      input_controller_.PollEvents();
 
       debugWindow.createFrame( swapchain.getFrameStats() );
 

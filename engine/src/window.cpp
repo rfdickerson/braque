@@ -30,6 +30,8 @@ Window::Window(const int width, const int height, const std::string& title)
     return;
   }
 
+  HideCursor();
+
   spdlog::info("Window created");
 }
 
@@ -90,6 +92,20 @@ auto Window::GetPressedKeys() const -> std::vector<int> {
   }
 
   return keys;
+}
+
+void Window::HideCursor() {
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // set the cursor to the center of the screen
+    glfwSetCursorPos(window, width / 2, height / 2);
+  // set linear mouse movement
+  first_mouse_ = true;
+
+}
+
+void Window::ShowCursor() {
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    first_mouse_ = true;
 }
 
 }  // namespace braque
