@@ -5,13 +5,14 @@
 #include "braque/input/fps_controller.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <algorithm>
 
 namespace braque
 {
 
-  constexpr float PI_2 = M_PI_2 - 0.001;
+  constexpr float PI_2 = glm::pi<float>() / 2.0f;
 
   void FirstPersonController::OnMouseMoved(float xoffset, float yoffset) {
 

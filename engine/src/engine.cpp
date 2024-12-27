@@ -9,7 +9,6 @@
 #include "braque/renderer.h"
 #include "braque/rendering_stage.h"
 #include "braque/swapchain.h"
-#include "braque/window.h"
 
 #include <spdlog/spdlog.h>
 
@@ -42,7 +41,7 @@ namespace braque
     spdlog::info( "Starting the engine loop" );
 
     float accumulatedTime = 0.0f;
-    constexpr float staticTimeStep = 1.0f / 120.0f;
+    constexpr float staticTimeStep = 1.0f / 165.0f;
 
     while ( running )
     {
@@ -57,6 +56,8 @@ namespace braque
       auto latency = swapchain.getFrameStats().Latency();
       if (latency < 1.0) {
         accumulatedTime += swapchain.getFrameStats().Latency();
+      } else {
+        latency = 0.0;
       }
 
       while (accumulatedTime >= staticTimeStep) {
