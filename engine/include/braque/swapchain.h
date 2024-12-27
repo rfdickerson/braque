@@ -42,7 +42,7 @@ class Swapchain {
     return currentFrameInFlight;
   }
 
-  [[nodiscard]] auto getFramesInFlightCount() const -> uint32_t {
+  [[nodiscard]] static auto getFramesInFlightCount() -> uint32_t {
     return MAX_FRAMES_IN_FLIGHT;
   }
 
@@ -63,7 +63,6 @@ class Swapchain {
   void waitForImageInFlight();
   void submitCommandBuffer();
   void presentImage();
-  void recordFrameLatency();
 
  private:
   vk::SwapchainKHR swapchain_;

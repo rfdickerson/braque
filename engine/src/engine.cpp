@@ -41,6 +41,9 @@ namespace braque
   {
     spdlog::info( "Starting the engine loop" );
 
+    float accumulatedTime = 0.0f;
+    constexpr float staticTimeStep = 1.0f / 120.0f;
+
     while ( running )
     {
       
@@ -50,7 +53,16 @@ namespace braque
       // do drawing here
 
       // update the camera
-      input_controller_.PollEvents();
+      // update the input based on time left
+      auto latency = swapchain.getFrameStats().Latency();
+      if (latency < 1.0) {
+        accumulatedTime += swapchain.getFrameStats().Latency();
+      }
+
+      while (accumulatedTime >= staticTimeStep) {
+        accumulatedTime -= staticTimeStep;
+        input_controller_.PollEvents();
+      }
 
       debugWindow.createFrame( swapchain.getFrameStats() );
 

@@ -30,7 +30,7 @@ Window::Window(const int width, const int height, const std::string& title)
     return;
   }
 
-  HideCursor();
+  // HideCursor();
 
   spdlog::info("Window created");
 }
@@ -57,8 +57,8 @@ void Window::PollEvents() {
 auto Window::CreateSurface(const Renderer& renderer) const -> vk::SurfaceKHR {
   VkSurfaceKHR surface = nullptr;
 
-  auto result = glfwCreateWindowSurface(renderer.getInstance(), window, nullptr,
-                                        &surface);
+  const auto result = glfwCreateWindowSurface(renderer.getInstance(), window,
+                                              nullptr, &surface);
   if (result != VK_SUCCESS) {
     spdlog::error("Failed to create window surface {}", std::to_string(result));
     throw std::runtime_error("Failed to create window surface");
@@ -97,15 +97,17 @@ auto Window::GetPressedKeys() const -> std::vector<int> {
 void Window::HideCursor() {
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   // set the cursor to the center of the screen
-    glfwSetCursorPos(window, width / 2, height / 2);
+  //glfwSetCursorPos(window, width / 2, height / 2);
   // set linear mouse movement
+  //glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
   first_mouse_ = true;
 
+  spdlog::info("Hide cursor");
 }
 
 void Window::ShowCursor() {
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    first_mouse_ = true;
+  first_mouse_ = true;
 }
 
 }  // namespace braque

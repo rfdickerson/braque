@@ -27,6 +27,10 @@ class FrameStats {
     return current_frame_latency_index_;
   }
 
+  [[nodiscard]] auto Latency() const -> float {
+    return frame_latencies_[current_frame_latency_index_];
+  }
+
  private:
   // frame latencies
   FrameLatencies frame_latencies_;
