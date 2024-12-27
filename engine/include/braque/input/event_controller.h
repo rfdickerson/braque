@@ -10,15 +10,21 @@
 namespace braque {
 class EventController {
 public:
+  EventController() = default;
 virtual ~EventController() = default;
 
-  virtual void OnMouseMoved(float x, float y) {};
+ EventController(const EventController& other) = delete;
+ EventController(EventController&& other) noexcept = delete;
+ EventController& operator=(const EventController& other) = delete;
+ EventController& operator=(EventController&& other) noexcept = delete;
+
+ virtual void OnMouseMoved(float /*x*/, float /*y*/) {};
 //  virtual void OnMouseButtonPressed(int button, int action, int mods) {};
 //  virtual void OnMouseButtonReleased(int button, int action, int mods) {};
 //  virtual void OnMouseScrolled(float x, float y) {};
-  virtual void OnKeyPressed(int key) {};
+  virtual void OnKeyPressed(int /*key*/) {};
 //  virtual void OnKeyReleased(int key, int action, int mods) {};
-  virtual void OnEvent (Event event) {};
+  virtual void OnEvent (Event /*event*/) {};
 
   };
 }

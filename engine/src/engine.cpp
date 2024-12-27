@@ -12,6 +12,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <algorithm>
+
 namespace braque
 {
 
@@ -42,6 +44,7 @@ namespace braque
 
     float accumulatedTime = 0.0f;
     constexpr float staticTimeStep = 1.0f / 165.0f;
+    constexpr float max_latency = 0.25;
 
     while ( running )
     {
@@ -54,11 +57,9 @@ namespace braque
       // update the camera
       // update the input based on time left
       auto latency = swapchain.getFrameStats().Latency();
-      if (latency < 1.0) {
-        accumulatedTime += swapchain.getFrameStats().Latency();
-      } else {
-        latency = 0.0;
-      }
+      latency = std::min<double>(latency, max_latency);
+
+      accumulatedTime += latency;
 
       while (accumulatedTime >= staticTimeStep) {
         accumulatedTime -= staticTimeStep;

@@ -19,12 +19,12 @@ namespace braque
 
   void Camera::UpdateCameraVectors() {
     glm::vec3 newFront;
-    newFront.x = cos(yaw_) * cos(pitch_);
-    newFront.y = sin(pitch_);
-    newFront.z = sin(yaw_) * cos(pitch_);
-    front_ = normalize(newFront);
-    right_ = normalize(cross(front_, up_));
-    up_ = normalize(cross(right_, front_));
+    newFront.x = glm::cos(yaw_) * glm::cos(pitch_);
+    newFront.y = glm::sin(pitch_);
+    newFront.z = glm::sin(yaw_) * glm::cos(pitch_);
+    front_ = glm::normalize(newFront);
+    right_ = glm::normalize(glm::cross(front_, up_));
+    up_ = glm::normalize(glm::cross(right_, front_));
     }
 
     auto Camera::ViewMatrix() const -> glm::mat4

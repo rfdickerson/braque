@@ -11,7 +11,6 @@
 namespace braque {
 class FirstPersonController final : public EventController {
  public:
-  FirstPersonController() = default;
 
   void SetCamera(Camera* camera) { camera_ = camera; }
 

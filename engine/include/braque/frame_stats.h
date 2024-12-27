@@ -9,9 +9,11 @@
 #include <chrono>
 
 namespace braque {
+
+using TimeType = float;
 using Timestamp = std::chrono::time_point<std::chrono::high_resolution_clock>;
-constexpr int MAX_FRAME_LATENCIES = 100;
-using FrameLatencies = std::array<float, MAX_FRAME_LATENCIES>;
+constexpr int kMaxFrameLatencies = 100;
+using FrameLatencies = std::array<TimeType, kMaxFrameLatencies>;
 
 class FrameStats {
  public:
@@ -27,8 +29,8 @@ class FrameStats {
     return current_frame_latency_index_;
   }
 
-  [[nodiscard]] auto Latency() const -> float {
-    return frame_latencies_[current_frame_latency_index_];
+  [[nodiscard]] auto Latency() const -> TimeType {
+    return frame_latencies_.at(current_frame_latency_index_);
   }
 
  private:

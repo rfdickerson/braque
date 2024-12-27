@@ -21,8 +21,8 @@ class Camera
 	       glm::vec3 up  = glm::vec3(0.0f, 1.0f, 0.0f),
 	       float yaw = -90.0f, float pitch = 0.0f);
 
-	glm::mat4 ViewMatrix() const;
-	glm::mat4 ProjectionMatrix() const;
+	[[nodiscard]] auto ViewMatrix() const -> glm::mat4;
+	[[nodiscard]] auto ProjectionMatrix() const -> glm::mat4;
 
 	// void ProcessKeyboard(CameraMovement direction, float deltaTime);
 	//
@@ -33,8 +33,6 @@ class Camera
 	void UpdateCameraVectors();
 
 	void LookAt(glm::vec3 target);
-
-  public:
 
 	glm::vec3 position_;
 	glm::vec3 front_;
