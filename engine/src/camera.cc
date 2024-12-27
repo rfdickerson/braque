@@ -3,6 +3,8 @@
 namespace braque
 {
 
+constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
   Camera::Camera( glm::vec3 pos, glm::vec3 up, float yaw, float pitch )
       : position_( pos ),
         front_( glm::vec3( 0.0f, 0.0f, -1.0f ) ),
@@ -23,7 +25,8 @@ namespace braque
     newFront.y = glm::sin(pitch_);
     newFront.z = glm::sin(yaw_) * glm::cos(pitch_);
     front_ = glm::normalize(newFront);
-    right_ = glm::normalize(glm::cross(front_, up_));
+    // Always use the world up (0, 1, 0) to find right
+    right_ = glm::normalize(glm::cross(front_, kWorldUp));
     up_ = glm::normalize(glm::cross(right_, front_));
     }
 

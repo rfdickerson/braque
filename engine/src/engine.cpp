@@ -57,7 +57,7 @@ namespace braque
       // update the camera
       // update the input based on time left
       auto latency = swapchain.getFrameStats().Latency();
-      latency = std::min<double>(latency, max_latency);
+      latency = std::min<float>(latency, max_latency);
 
       accumulatedTime += latency;
 
