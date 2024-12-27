@@ -20,14 +20,16 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
   }
 
   void Camera::UpdateCameraVectors() {
-    glm::vec3 newFront;
-    newFront.x = glm::cos(yaw_) * glm::cos(pitch_);
-    newFront.y = glm::sin(pitch_);
-    newFront.z = glm::sin(yaw_) * glm::cos(pitch_);
-    front_ = glm::normalize(newFront);
+
+    const auto v_x = glm::cos(yaw_) * glm::cos(pitch_);
+    const auto v_y = glm::sin(pitch_);
+    const auto v_z = glm::sin(yaw_) * glm::cos(pitch_);
+    const auto new_front = glm::vec3(v_x, v_y, v_z);
+
+    front_ = normalize(new_front);
     // Always use the world up (0, 1, 0) to find right
-    right_ = glm::normalize(glm::cross(front_, kWorldUp));
-    up_ = glm::normalize(glm::cross(right_, front_));
+    right_ = normalize(cross(front_, kWorldUp));
+    up_ = normalize(cross(right_, front_));
     }
 
     auto Camera::ViewMatrix() const -> glm::mat4

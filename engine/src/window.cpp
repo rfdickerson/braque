@@ -101,8 +101,7 @@ void Window::HideCursor() {
   // set linear mouse movement
   //glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
   first_mouse_ = true;
-
-  spdlog::info("Hide cursor");
+  
 }
 
 void Window::ShowCursor() {
