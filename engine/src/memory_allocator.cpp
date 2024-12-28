@@ -6,6 +6,7 @@
 
 #define VMA_IMPLEMENTATION
 #include "braque/renderer.h"
+#include "braque/buffer.h"
 
 #include <spdlog/spdlog.h>
 #include <vk_mem_alloc.h>
@@ -144,6 +145,10 @@ void MemoryAllocator::WriteData(vk::CommandBuffer buffer,
                          vk::PipelineStageFlagBits::eVertexShader,
                          vk::DependencyFlagBits::eByRegion, nullptr, barrier,
                          nullptr);
+}
+
+void MemoryAllocator::destroyBuffer(const Buffer& buffer) const {
+  vmaDestroyBuffer(allocator, buffer.GetBuffer(), buffer.GetAllocation());
 }
 
 }  // namespace braque

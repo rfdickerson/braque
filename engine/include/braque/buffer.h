@@ -6,7 +6,7 @@
 #define BUFFER_H
 #include <vulkan/vulkan.hpp>
 
-#include "memory_allocator.h"
+#include "engine.h"
 
 namespace braque {
   enum class BufferType {
@@ -18,8 +18,10 @@ namespace braque {
 
 class Buffer {
 public:
-  Buffer();
+  explicit Buffer(Engine& engine, vk::BufferCreateInfo buffer_create_info, VmaAllocationCreateInfo allocation_info);
   ~Buffer();
+
+  static auto CreateIndexBuffer(vk::DeviceSize size) -> Buffer;
 
   Buffer(const Buffer& other) = delete;
   Buffer(Buffer&& other) noexcept = delete;
@@ -31,6 +33,7 @@ public:
   void Copy(vk::CommandBuffer, Buffer& destination);
 
   [[nodiscard]] auto GetBuffer() const -> vk::Buffer;
+  [[nodiscard]] auto GetAllocation() const -> VmaAllocation;
   [[nodiscard]] auto GetSize() const -> vk::DeviceSize;
   [[nodiscard]] auto GetType() const -> BufferType;
 
@@ -40,8 +43,7 @@ private:
   vk::Buffer buffer_;
   VmaAllocation allocation_;
 
-  Renderer& renderer_;
-  MemoryAllocator& allocator_;
+  Engine& engine_;
 };
 } // namespace braque
 
