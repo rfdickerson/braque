@@ -114,8 +114,9 @@ AllocatedBuffer MemoryAllocator::createBuffer(
   allocatedBuffer.buffer = buffer;
   allocatedBuffer.allocation = allocation;
 
-  // map the buffer
-  vmaMapMemory(allocator, allocation, &allocatedBuffer.mappedData);
+  if ((allocInfo.flags & VMA_ALLOCATION_CREATE_MAPPED_BIT) != 0U) {
+    vmaMapMemory(allocator, allocation, &allocatedBuffer.mappedData);
+  }
 
   return allocatedBuffer;
 }
