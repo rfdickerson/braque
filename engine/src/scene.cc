@@ -8,8 +8,8 @@ namespace braque {
 Scene::Scene(MemoryAllocator& allocator, Renderer& renderer)
     : allocator_(allocator), renderer_(renderer) {
   CreateVertexBuffer();
-  // CreateIndexBuffer();
-  // CreateStagingBuffer();
+  CreateIndexBuffer();
+  CreateStagingBuffer();
 }
 
 void Scene::CreateVertexBuffer() {
@@ -19,8 +19,9 @@ void Scene::CreateVertexBuffer() {
     vertexBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
                                     vk::BufferUsageFlagBits::eTransferDst);
 
-    VmaAllocationCreateInfo vertexBufferAllocInfo;
-    vertexBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+    VmaAllocationCreateInfo vertexBufferAllocInfo {};
+    vertexBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    vertexBufferAllocInfo.flags = 0;
 
     vertex_buffer_ =
         allocator_.createBuffer(vertexBufferCreateInfo, vertexBufferAllocInfo);
@@ -30,13 +31,13 @@ void Scene::CreateVertexBuffer() {
 void Scene::CreateIndexBuffer() {
   // create the index buffer
   vk::BufferCreateInfo indexBufferCreateInfo;
-  indexBufferCreateInfo.setSize(3 * sizeof(uint32_t));
+  indexBufferCreateInfo.setSize(65536);
   indexBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
                                  vk::BufferUsageFlagBits::eTransferDst);
-  indexBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
 
-  VmaAllocationCreateInfo indexBufferAllocInfo;
+  VmaAllocationCreateInfo indexBufferAllocInfo {};
   indexBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    indexBufferAllocInfo.flags = 0;
 
   index_buffer_ =
       allocator_.createBuffer(indexBufferCreateInfo, indexBufferAllocInfo);
@@ -49,7 +50,7 @@ void Scene::CreateStagingBuffer() {
   stagingBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
   stagingBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
 
-  VmaAllocationCreateInfo stagingBufferAllocInfo;
+  VmaAllocationCreateInfo stagingBufferAllocInfo {};
   stagingBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
   stagingBufferAllocInfo.flags =
       VMA_ALLOCATION_CREATE_MAPPED_BIT |
