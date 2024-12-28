@@ -6,13 +6,6 @@
 
 namespace braque
 {
-enum CameraMovement
-{
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
-};
 
 class Camera
 {

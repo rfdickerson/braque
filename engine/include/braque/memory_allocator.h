@@ -17,7 +17,7 @@ namespace braque
     vk::Buffer    buffer;
     VmaAllocation allocation;
     // mapped data
-    void* mappedData;
+    void* mappedData = nullptr;
   };
 
   struct AllocatedImage

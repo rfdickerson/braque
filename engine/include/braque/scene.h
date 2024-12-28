@@ -10,7 +10,7 @@
 
 namespace braque {
 
-constexpr vk::DeviceSize kVertexBufferSize = 1000L * 8 * sizeof(float);
+constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
 class Scene {
 public:

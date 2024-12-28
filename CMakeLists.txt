@@ -7,15 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Add vcpkg toolchain file
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "VCPKG toolchain file")
 
-# add memory errors detection
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-    add_link_options(-fsanitize=address)
-endif()
-
-# generate debug information
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)

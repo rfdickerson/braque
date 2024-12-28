@@ -16,6 +16,7 @@
 #include "swapchain.h"
 #include "uniforms.h"
 #include "window.h"
+#include "scene.h"
 
 namespace braque {
 
@@ -58,6 +59,7 @@ class Engine {
   InputController input_controller_;
   FirstPersonController fps_controller_;
   AppController app_controller_;
+  Scene scene_;
 
   bool running = true;
 };
