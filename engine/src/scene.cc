@@ -4,9 +4,11 @@
 
 #include "braque/scene.h"
 
+#include "braque/engine.h"
+
 namespace braque {
-Scene::Scene(MemoryAllocator& allocator, Renderer& renderer)
-    : allocator_(allocator), renderer_(renderer) {
+Scene::Scene(Engine& engine)
+    : engine_(engine), staging_buffer_(engine, BufferType::staging, kVertexBufferSize) {
   CreateVertexBuffer();
   CreateIndexBuffer();
   CreateStagingBuffer();
@@ -24,7 +26,7 @@ void Scene::CreateVertexBuffer() {
   vertexBufferAllocInfo.flags = 0;
 
   vertex_buffer_ =
-      allocator_.createBuffer(vertexBufferCreateInfo, vertexBufferAllocInfo);
+      engine_.getMemoryAllocator().createBuffer(vertexBufferCreateInfo, vertexBufferAllocInfo);
 }
 
 void Scene::CreateIndexBuffer() {
@@ -39,7 +41,7 @@ void Scene::CreateIndexBuffer() {
   indexBufferAllocInfo.flags = 0;
 
   index_buffer_ =
-      allocator_.createBuffer(indexBufferCreateInfo, indexBufferAllocInfo);
+      engine_.getMemoryAllocator().createBuffer(indexBufferCreateInfo, indexBufferAllocInfo);
 }
 
 void Scene::CreateStagingBuffer() {
@@ -56,16 +58,16 @@ void Scene::CreateStagingBuffer() {
       VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 
   vertex_staging_buffer_ =
-      allocator_.createBuffer(stagingBufferCreateInfo, stagingBufferAllocInfo);
+      engine_.getMemoryAllocator().createBuffer(stagingBufferCreateInfo, stagingBufferAllocInfo);
   index_staging_buffer_ =
-      allocator_.createBuffer(stagingBufferCreateInfo, stagingBufferAllocInfo);
+      engine_.getMemoryAllocator().createBuffer(stagingBufferCreateInfo, stagingBufferAllocInfo);
 }
 
 Scene::~Scene() {
-  allocator_.destroyBuffer(vertex_buffer_);
-  allocator_.destroyBuffer(index_buffer_);
-  allocator_.destroyBuffer(vertex_staging_buffer_);
-  allocator_.destroyBuffer(index_staging_buffer_);
+  engine_.getMemoryAllocator().destroyBuffer(vertex_buffer_);
+  engine_.getMemoryAllocator().destroyBuffer(index_buffer_);
+  engine_.getMemoryAllocator().destroyBuffer(vertex_staging_buffer_);
+  engine_.getMemoryAllocator().destroyBuffer(index_staging_buffer_);
 }
 
 void Scene::Draw(vk::CommandBuffer buffer) {
@@ -103,7 +105,7 @@ void Scene::UploadSceneData(vk::CommandBuffer buffer) {
   // submit
   vk::SubmitInfo submitInfo;
   submitInfo.setCommandBuffers(buffer);
-  renderer_.getGraphicsQueue().submit(submitInfo, nullptr);
+  engine_.getRenderer().getGraphicsQueue().submit(submitInfo, nullptr);
 }
 
 void Scene::AddCube(glm::vec3 position) {

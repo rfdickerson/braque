@@ -9,8 +9,10 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-namespace braque {
+#include "buffer.h"
 
+namespace braque {
+class Engine;
 constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
 struct Mesh {
@@ -27,7 +29,7 @@ struct Vertex {
 
 class Scene {
 public:
-  Scene(MemoryAllocator &allocator, Renderer& renderer);
+  Scene(Engine& engine);
   ~Scene();
 
   void UploadSceneData(vk::CommandBuffer buffer);
@@ -36,13 +38,14 @@ public:
 
 private:
 
-  MemoryAllocator& allocator_;
-  Renderer& renderer_;
+  Engine& engine_;
 
   AllocatedBuffer vertex_buffer_;
   AllocatedBuffer index_buffer_;
   AllocatedBuffer vertex_staging_buffer_;
   AllocatedBuffer index_staging_buffer_;
+
+  Buffer staging_buffer_;
 
   std::vector<Mesh> meshes_;
 

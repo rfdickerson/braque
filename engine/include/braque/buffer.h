@@ -5,11 +5,12 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 #include <vulkan/vulkan.hpp>
-
-#include "engine.h"
+#include "vk_mem_alloc.h"
 
 namespace braque {
-  enum class BufferType {
+class Engine;
+
+enum class BufferType: uint8_t {
     vertex,
     index,
     uniform,
@@ -18,17 +19,14 @@ namespace braque {
 
 class Buffer {
 public:
+  explicit Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size);
   explicit Buffer(Engine& engine, vk::BufferCreateInfo buffer_create_info, VmaAllocationCreateInfo allocation_info);
   ~Buffer();
 
-  static auto CreateIndexBuffer(vk::DeviceSize size) -> Buffer;
+  // move constructor
+  Buffer(Buffer&& other) noexcept;
 
-  Buffer(const Buffer& other) = delete;
-  Buffer(Buffer&& other) noexcept = delete;
-  Buffer& operator=(const Buffer& other) = delete;
-  Buffer& operator=(Buffer&& other) noexcept = delete;
-
-  void Bind();
+  void Bind(vk::CommandBuffer buffer, vk::DeviceSize offset = 0);
   void CopyData(const void* data, size_t size);
   void Copy(vk::CommandBuffer, Buffer& destination);
 
@@ -42,6 +40,9 @@ private:
   vk::DeviceSize size_;
   vk::Buffer buffer_;
   VmaAllocation allocation_;
+
+  bool is_mapped_ = false;
+  void* mapped_data_ = nullptr;
 
   Engine& engine_;
 };

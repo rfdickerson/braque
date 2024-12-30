@@ -48,6 +48,8 @@ class Buffer;
     MemoryAllocator( MemoryAllocator && )                          = delete;
     auto operator=( MemoryAllocator && ) -> MemoryAllocator &      = delete;
 
+    [[nodiscard]] auto getAllocator() const -> VmaAllocator { return allocator; }
+
     [[nodiscard]] auto getReport() const -> MemoryReport;
 
     [[nodiscard]] auto createImage( const vk::ImageCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedImage;

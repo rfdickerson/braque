@@ -23,7 +23,7 @@ namespace braque
     , uniforms_( Uniforms( *this ) )
     , renderingStage( RenderingStage( *this ) )
 , debugWindow( DebugWindow( *this ) ),
-scene_(Scene(memoryAllocator, renderer))
+scene_(Scene(*this))
   {
     // Any other initialization after all members are constructed
     spdlog::info( "Engine created" );
