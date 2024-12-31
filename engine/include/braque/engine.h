@@ -13,10 +13,10 @@
 #include "memory_allocator.h"
 #include "renderer.h"
 #include "rendering_stage.h"
+#include "scene.h"
 #include "swapchain.h"
 #include "uniforms.h"
 #include "window.h"
-#include "scene.h"
 
 namespace braque {
 
@@ -37,7 +37,8 @@ class Engine {
 
   auto getSwapchain() -> Swapchain& { return swapchain; }
 
-  auto getRenderingStage() -> RenderingStage& { return renderingStage; }
+  //auto getRenderingStage() -> RenderingStage& { return renderingStage; }
+  RenderingStage& getRenderingStage() { return renderingStage; }
 
   auto getMemoryAllocator() -> MemoryAllocator& { return memoryAllocator; }
 

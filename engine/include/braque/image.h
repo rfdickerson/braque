@@ -25,48 +25,52 @@ namespace braque
     Image( Engine & engine, vk::Extent3D extent, vk::Format format );
     ~Image();
 
-    // remove copy and move
+    // declare the copy constructor
+    Image(Image&& other) noexcept;
+    Image& operator=(Image&& other) noexcept;
+
+    // make sure copy and move are deleted
     Image( const Image & )                     = delete;
-    auto operator=( const Image & ) -> Image & = delete;
-    Image( Image && )                          = delete;
-    auto operator=( Image && ) -> Image &      = delete;
+    Image& operator=( const Image & ) = delete;
 
-    [[nodiscard]] auto getVulkanImage() const -> vk::ImageView;
 
-    [[nodiscard]] auto getImageView() const -> vk::ImageView
-    {
-      return imageView;
+    [[nodiscard]] auto GetImage() const -> vk::Image {
+      return image_;
     }
 
-    [[nodiscard]] auto getExtent() const -> vk::Extent3D
+    [[nodiscard]] auto GetImageView() const -> vk::ImageView
     {
-      return extent;
+      return image_view_;
     }
 
-    [[nodiscard]] auto getFormat() const -> vk::Format
+    [[nodiscard]] auto GetExtent() const -> vk::Extent3D
+    {
+      return extent_;
+    }
+
+    [[nodiscard]] auto GetFormat() const -> vk::Format
     {
       return format;
     }
 
-    [[nodiscard]] auto getLayout() const -> vk::ImageLayout
+    [[nodiscard]] auto GetLayout() const -> vk::ImageLayout
     {
-      return layout;
+      return layout_;
     }
 
-    void transitionLayout( vk::ImageLayout newLayout, vk::CommandBuffer commandBuffer, const SyncBarriers & barriers = {} );
+    void TransitionLayout( vk::ImageLayout newLayout, vk::CommandBuffer commandBuffer, const SyncBarriers & barriers = {} );
 
-    void blitImage(vk::CommandBuffer buffer, const Image & destImage) const;
-
-  protected:
-    AllocatedImage  allocatedImage;
+    void BlitImage(vk::CommandBuffer buffer, const Image & destImage) const;
 
   private:
-    Engine &        engine;
+    Engine &        engine_;
 
-    vk::ImageView   imageView;
-    vk::Extent3D    extent;
+    vk::Image image_;
+    VmaAllocation   allocation_;
+    vk::ImageView   image_view_;
+    vk::Extent3D    extent_;
     vk::Format      format;
-    vk::ImageLayout layout;
+    vk::ImageLayout layout_;
 
     void allocateImage();
     void createImageView();
