@@ -12,14 +12,6 @@
 
 namespace braque
 {
-  struct AllocatedBuffer
-  {
-    vk::Buffer    buffer;
-    VmaAllocation allocation;
-    // mapped data
-    void* mappedData = nullptr;
-  };
-
   struct AllocatedImage
   {
     vk::Image     image;
@@ -53,12 +45,8 @@ class Buffer;
     [[nodiscard]] auto getReport() const -> MemoryReport;
 
     [[nodiscard]] auto createImage( const vk::ImageCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedImage;
-    [[nodiscard]] auto createBuffer( const vk::BufferCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedBuffer;
 
     void destroyImage( const AllocatedImage & image ) const;
-    void destroyBuffer( const AllocatedBuffer & buffer ) const;
-
-    void WriteData(vk::CommandBuffer buffer, const AllocatedBuffer & bufferInfo, const void* data, size_t size) const;
 
   private:
     VmaAllocator allocator;

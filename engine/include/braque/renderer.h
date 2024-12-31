@@ -52,17 +52,23 @@ namespace braque
       return graphicsQueueFamilyIndex;
     }
 
+    [[nodiscard]] auto CreateCommandBuffer() const -> vk::CommandBuffer;
+
   private:
     vk::Instance       m_instance;
     vk::PhysicalDevice m_physicalDevice;
     vk::Device         m_device;
     vk::Queue          m_graphicsQueue;
 
+    // used for creating command buffers
+    vk::CommandPool    command_pool_;
+
     uint32_t graphicsQueueFamilyIndex;
 
     void createInstance();
     void createPhysicalDevice();
     void createLogicalDevice();
+    void CreateCommandPool();
 
     static auto getInstanceExtensions() -> std::vector<VulkanString>;
     static auto getDeviceExtensions() -> std::vector<VulkanString>;

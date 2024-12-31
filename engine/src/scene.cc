@@ -8,72 +8,22 @@
 
 namespace braque {
 Scene::Scene(Engine& engine)
-    : engine_(engine), staging_buffer_(engine, BufferType::staging, kVertexBufferSize) {
-  CreateVertexBuffer();
-  CreateIndexBuffer();
-  CreateStagingBuffer();
+    : engine_(engine),
+      vertex_buffer_(engine, BufferType::vertex, kVertexBufferSize),
+      index_buffer_(engine, BufferType::index, kVertexBufferSize),
+      vertex_staging_buffer_(engine, BufferType::staging, kVertexBufferSize),
+      index_staging_buffer_(engine, BufferType::staging, kVertexBufferSize) {
+
+  // add a cube to vertex and index staging buffers
+  AddCube({0.0f, 0.0f, 0.0f});
+  UploadSceneData();
 }
 
-void Scene::CreateVertexBuffer() {
-  // create the vertex buffer
-  vk::BufferCreateInfo vertexBufferCreateInfo{};
-  vertexBufferCreateInfo.setSize(65536);
-  vertexBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
-                                  vk::BufferUsageFlagBits::eTransferDst);
-
-  VmaAllocationCreateInfo vertexBufferAllocInfo{};
-  vertexBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
-  vertexBufferAllocInfo.flags = 0;
-
-  vertex_buffer_ =
-      engine_.getMemoryAllocator().createBuffer(vertexBufferCreateInfo, vertexBufferAllocInfo);
-}
-
-void Scene::CreateIndexBuffer() {
-  // create the index buffer
-  vk::BufferCreateInfo indexBufferCreateInfo;
-  indexBufferCreateInfo.setSize(65536);
-  indexBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
-                                 vk::BufferUsageFlagBits::eTransferDst);
-
-  VmaAllocationCreateInfo indexBufferAllocInfo{};
-  indexBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
-  indexBufferAllocInfo.flags = 0;
-
-  index_buffer_ =
-      engine_.getMemoryAllocator().createBuffer(indexBufferCreateInfo, indexBufferAllocInfo);
-}
-
-void Scene::CreateStagingBuffer() {
-  // create the staging buffer
-  vk::BufferCreateInfo stagingBufferCreateInfo;
-  stagingBufferCreateInfo.setSize(kVertexBufferSize);
-  stagingBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-  stagingBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
-
-  VmaAllocationCreateInfo stagingBufferAllocInfo{};
-  stagingBufferAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-  stagingBufferAllocInfo.flags =
-      VMA_ALLOCATION_CREATE_MAPPED_BIT |
-      VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-
-  vertex_staging_buffer_ =
-      engine_.getMemoryAllocator().createBuffer(stagingBufferCreateInfo, stagingBufferAllocInfo);
-  index_staging_buffer_ =
-      engine_.getMemoryAllocator().createBuffer(stagingBufferCreateInfo, stagingBufferAllocInfo);
-}
-
-Scene::~Scene() {
-  engine_.getMemoryAllocator().destroyBuffer(vertex_buffer_);
-  engine_.getMemoryAllocator().destroyBuffer(index_buffer_);
-  engine_.getMemoryAllocator().destroyBuffer(vertex_staging_buffer_);
-  engine_.getMemoryAllocator().destroyBuffer(index_staging_buffer_);
-}
+Scene::~Scene() {}
 
 void Scene::Draw(vk::CommandBuffer buffer) {
-  // bind the vertex buffer
-  buffer.bindVertexBuffers(0, vertex_buffer_.buffer, {0});
-  buffer.bindIndexBuffer(index_buffer_.buffer, 0, vk::IndexType::eUint32);
+  vertex_buffer_.Bind(buffer);
+  index_buffer_.Bind(buffer);
 
   for (const auto& mesh : meshes_) {
     // draw the mesh
@@ -82,61 +32,59 @@ void Scene::Draw(vk::CommandBuffer buffer) {
   }
 }
 
-void Scene::UploadSceneData(vk::CommandBuffer buffer) {
+void Scene::UploadSceneData() {
+
+  const auto device = engine_.getRenderer().getDevice();
+  const auto graphicsQueue = engine_.getRenderer().getGraphicsQueue();
+
+  const auto command_buffer = engine_.getRenderer().CreateCommandBuffer();
+
   // begin single time command buffer
   vk::CommandBufferBeginInfo beginInfo;
   beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
-  buffer.begin(beginInfo);
-  // transfer the data from staging buffer to vertex buffer
-  vk::BufferCopy copyRegion;
-  copyRegion.setSize(kVertexBufferSize);
-  buffer.copyBuffer(vertex_staging_buffer_.buffer, vertex_buffer_.buffer,
-                    copyRegion);
+  command_buffer.begin(beginInfo);
 
-  // transfer the data from staging buffer to index buffer
-  copyRegion.setSize(kVertexBufferSize);
-  buffer.copyBuffer(index_staging_buffer_.buffer, index_buffer_.buffer,
-                    copyRegion);
+  vertex_staging_buffer_.CopyToBuffer(command_buffer, vertex_buffer_);
+  index_staging_buffer_.CopyToBuffer(command_buffer, index_buffer_);
 
   // end the command buffer
-  buffer.end();
+  command_buffer.end();
 
   // submit
   vk::SubmitInfo submitInfo;
-  submitInfo.setCommandBuffers(buffer);
-  engine_.getRenderer().getGraphicsQueue().submit(submitInfo, nullptr);
+  submitInfo.setCommandBuffers(command_buffer);
+  graphicsQueue.submit(submitInfo, nullptr);
 }
 
 void Scene::AddCube(glm::vec3 position) {
 
   // create the vertices
-    std::vector<Vertex> vertices = {
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
+  std::vector<Vertex> vertices = {{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
+                                  {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
+                                  {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
+                                  {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
+                                  {{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
+                                  {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},
 
-        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                  {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                  {{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                  {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                  {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                  {{-0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                  {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
 
-        {{-0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}}
-      };
+                                  {{-0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}}};
 
-  std::vector<uint32_t> indices = {
-    0, 1, 2, 2, 3, 0,
-    4, 5, 6, 6, 7, 4,
-    8, 9, 10, 10, 11, 8
-  };
+  std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0,  4,  5,  6,
+                                   6, 7, 4, 8, 9, 10, 10, 11, 8};
 
   // move data to staging buffer
+  vertex_staging_buffer_.CopyData(vertices.data(),
+                                  vertices.size() * sizeof(Vertex));
 
+  index_staging_buffer_.CopyData(indices.data(),
+                                 indices.size() * sizeof(uint32_t));
 
   // create the cube
   Mesh cube;

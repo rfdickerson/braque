@@ -21,10 +21,15 @@ namespace braque
     createInstance();
     createPhysicalDevice();
     createLogicalDevice();
+    CreateCommandPool();
   }
 
   Renderer::~Renderer()
   {
+
+    // destroy the command pool
+    m_device.destroyCommandPool( command_pool_ );
+
     // destroy the device
     m_device.destroy();
 
@@ -198,5 +203,24 @@ namespace braque
 
     return flags;
   }
+
+auto Renderer::CreateCommandBuffer() const -> vk::CommandBuffer
+{
+  vk::CommandBufferAllocateInfo allocateInfo;
+  allocateInfo.setCommandPool( command_pool_ );
+  allocateInfo.setLevel( vk::CommandBufferLevel::ePrimary );
+  allocateInfo.setCommandBufferCount( 1 );
+
+  return m_device.allocateCommandBuffers( allocateInfo )[0];
+}
+
+void Renderer::CreateCommandPool()
+{
+  vk::CommandPoolCreateInfo poolInfo;
+  poolInfo.setQueueFamilyIndex( graphicsQueueFamilyIndex );
+  poolInfo.setFlags( vk::CommandPoolCreateFlagBits::eResetCommandBuffer );
+
+  command_pool_ = m_device.createCommandPool( poolInfo );
+}
 
 }  // namespace braque

@@ -75,16 +75,6 @@ void MemoryAllocator::destroyImage(const AllocatedImage& image) const {
   vmaDestroyImage(allocator, image.image, image.allocation);
 }
 
-void MemoryAllocator::destroyBuffer(
-    const braque::AllocatedBuffer& buffer) const {
-
-  if (buffer.mappedData != nullptr) {
-    vmaUnmapMemory(allocator, buffer.allocation);
-  }
-
-  vmaDestroyBuffer(allocator, buffer.buffer, buffer.allocation);
-}
-
 auto MemoryAllocator::getReport() const -> MemoryReport {
   MemoryReport report{};
   std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets{};
@@ -95,57 +85,5 @@ auto MemoryAllocator::getReport() const -> MemoryReport {
   report.usedMemory = budgets[0].usage;
   return report;
 }
-
-AllocatedBuffer MemoryAllocator::createBuffer(
-    const vk::BufferCreateInfo& createInfo,
-    const VmaAllocationCreateInfo& allocInfo) const {
-  AllocatedBuffer allocatedBuffer{};
-
-  VkBuffer buffer = nullptr;
-  VmaAllocation allocation = nullptr;
-  const VkBufferCreateInfo vkCreateInfo = createInfo;
-
-  const auto result = vmaCreateBuffer(allocator, &vkCreateInfo, &allocInfo,
-                                      &buffer, &allocation, nullptr);
-  if (result != VK_SUCCESS) {
-    spdlog::error("Failed to create buffer");
-    throw std::runtime_error("Failed to create buffer");
-  }
-
-  allocatedBuffer.buffer = buffer;
-  allocatedBuffer.allocation = allocation;
-
-  if ((allocInfo.flags & VMA_ALLOCATION_CREATE_MAPPED_BIT) != 0U) {
-    vmaMapMemory(allocator, allocation, &allocatedBuffer.mappedData);
-  }
-
-  return allocatedBuffer;
-}
-
-void MemoryAllocator::WriteData(vk::CommandBuffer buffer,
-                                const AllocatedBuffer& bufferInfo,
-                                const void* data, size_t size) const {
-  std::memcpy(bufferInfo.mappedData, data, size);
-  auto result =
-      vmaFlushAllocation(allocator, bufferInfo.allocation, 0, VK_WHOLE_SIZE);
-
-  if (result != VK_SUCCESS) {
-    spdlog::error("Failed to flush memory");
-  }
-
-  vk::BufferMemoryBarrier barrier;
-  barrier.setBuffer(bufferInfo.buffer);
-  barrier.setSize(VK_WHOLE_SIZE);
-  barrier.setSrcAccessMask(vk::AccessFlagBits::eHostWrite);
-  barrier.setDstAccessMask(vk::AccessFlagBits::eUniformRead);
-  barrier.setSrcQueueFamilyIndex(vk::QueueFamilyIgnored);
-  barrier.setDstQueueFamilyIndex(vk::QueueFamilyIgnored);
-
-  buffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost,
-                         vk::PipelineStageFlagBits::eVertexShader,
-                         vk::DependencyFlagBits::eByRegion, nullptr, barrier,
-                         nullptr);
-}
-
 
 }  // namespace braque

@@ -68,17 +68,21 @@ Buffer::Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size)
 }
 
 Buffer::Buffer(Engine& engine, vk::BufferCreateInfo buffer_create_info,
-               VmaAllocationCreateInfo allocation_info)
+               VmaAllocationCreateInfo allocation_create_info)
     : type_(BufferType::staging),
       size_(buffer_create_info.size),
       buffer_(nullptr),
       allocation_(nullptr),
       engine_(engine) {
 
-  const auto allocatedBuffer = engine_.getMemoryAllocator().createBuffer(
-      buffer_create_info, allocation_info);
-  buffer_ = allocatedBuffer.buffer;
-  allocation_ = allocatedBuffer.allocation;
+  VkBufferCreateInfo vk_create_info = buffer_create_info;
+  VkBuffer buffer = nullptr;
+
+  const auto allocator = engine_.getMemoryAllocator().getAllocator();
+  vmaCreateBuffer(allocator, &vk_create_info, &allocation_create_info, &buffer,
+                  &allocation_, &allocation_info_);
+
+  buffer_ = buffer;
 }
 
 Buffer::Buffer(Buffer&& other) noexcept

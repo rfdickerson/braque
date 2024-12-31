@@ -32,7 +32,7 @@ public:
   Scene(Engine& engine);
   ~Scene();
 
-  void UploadSceneData(vk::CommandBuffer buffer);
+  void UploadSceneData();
   void Draw(vk::CommandBuffer buffer);
   void AddCube(glm::vec3 position);
 
@@ -40,18 +40,14 @@ private:
 
   Engine& engine_;
 
-  AllocatedBuffer vertex_buffer_;
-  AllocatedBuffer index_buffer_;
-  AllocatedBuffer vertex_staging_buffer_;
-  AllocatedBuffer index_staging_buffer_;
+  Buffer vertex_buffer_;
+  Buffer index_buffer_;
 
-  Buffer staging_buffer_;
+  Buffer vertex_staging_buffer_;
+  Buffer index_staging_buffer_;
 
   std::vector<Mesh> meshes_;
 
-  void CreateVertexBuffer();
-  void CreateIndexBuffer();
-  void CreateStagingBuffer();
 };
 
 } // namespace braque
