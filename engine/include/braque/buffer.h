@@ -24,11 +24,16 @@ public:
   ~Buffer();
 
   // move constructor
+  Buffer(const Buffer&) = delete;
+  Buffer& operator=(const Buffer&) = delete;
+
   Buffer(Buffer&& other) noexcept;
+  // Buffer& operator=(Buffer&&) noexcept;
 
   void Bind(vk::CommandBuffer buffer, vk::DeviceSize offset = 0);
   void CopyData(const void* data, size_t size);
-  void Copy(vk::CommandBuffer, Buffer& destination);
+  void CopyData(vk::CommandBuffer buffer, const void* data, size_t size);
+  void CopyToBuffer(vk::CommandBuffer, Buffer& destination);
 
   [[nodiscard]] auto GetBuffer() const -> vk::Buffer;
   [[nodiscard]] auto GetAllocation() const -> VmaAllocation;
@@ -40,7 +45,9 @@ private:
   vk::DeviceSize size_;
   vk::Buffer buffer_;
   VmaAllocation allocation_;
+  VmaAllocationInfo allocation_info_;
 
+  bool is_persistently_mapped_ = false;
   bool is_mapped_ = false;
   void* mapped_data_ = nullptr;
 
