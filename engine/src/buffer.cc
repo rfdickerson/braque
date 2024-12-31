@@ -19,7 +19,7 @@ Buffer::Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size)
   vk::BufferCreateInfo buffer_create_info;
   buffer_create_info.setSize(size);
 
-  VmaAllocationCreateInfo allocation_info{};
+  VmaAllocationCreateInfo allocation_create_info{};
   // allocation_info.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
   // allocation_info.flags = 0;
 
@@ -27,29 +27,27 @@ Buffer::Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size)
     case BufferType::vertex:
       buffer_create_info.setUsage(vk::BufferUsageFlagBits::eVertexBuffer |
                                   vk::BufferUsageFlagBits::eTransferDst);
-      allocation_info.usage = VMA_MEMORY_USAGE_AUTO;
+      allocation_create_info.usage = VMA_MEMORY_USAGE_AUTO;
       break;
     case BufferType::index:
       buffer_create_info.setUsage(vk::BufferUsageFlagBits::eIndexBuffer |
                                   vk::BufferUsageFlagBits::eTransferDst);
-      allocation_info.usage = VMA_MEMORY_USAGE_AUTO;
+      allocation_create_info.usage = VMA_MEMORY_USAGE_AUTO;
       break;
     case BufferType::uniform:
-      buffer_create_info.setUsage(vk::BufferUsageFlagBits::eUniformBuffer |
-                                  vk::BufferUsageFlagBits::eTransferDst);
-      allocation_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-      allocation_info.flags =
+      buffer_create_info.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+      allocation_create_info.usage = VMA_MEMORY_USAGE_AUTO;
+      allocation_create_info.flags =
           VMA_ALLOCATION_CREATE_MAPPED_BIT |
           VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
           VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT;
       break;
     case BufferType::staging:
       buffer_create_info.setUsage(vk::BufferUsageFlagBits::eTransferSrc);
-      allocation_info.usage = VMA_MEMORY_USAGE_AUTO;
-    allocation_info.flags =
+      allocation_create_info.usage = VMA_MEMORY_USAGE_AUTO;
+    allocation_create_info.flags =
       VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
       VMA_ALLOCATION_CREATE_MAPPED_BIT;
-
       break;
     default:
       spdlog::warn("Buffer type not recognized");
@@ -61,7 +59,7 @@ Buffer::Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size)
   VkBuffer buffer = nullptr;
 
   const auto allocator = engine_.getMemoryAllocator().getAllocator();
-  vmaCreateBuffer(allocator, &vk_create_info, &allocation_info, &buffer,
+  vmaCreateBuffer(allocator, &vk_create_info, &allocation_create_info, &buffer,
                   &allocation_, &allocation_info_);
 
   buffer_ = buffer;
@@ -88,6 +86,7 @@ Buffer::Buffer(Buffer&& other) noexcept
       size_(other.size_),
       buffer_(other.buffer_),
       allocation_(other.allocation_),
+      allocation_info_(other.allocation_info_),
       engine_(other.engine_) {
   other.buffer_ = nullptr;
   other.allocation_ = nullptr;
@@ -96,7 +95,8 @@ Buffer::Buffer(Buffer&& other) noexcept
 
 Buffer::~Buffer() {
   if (buffer_ != nullptr) {
-    engine_.getMemoryAllocator().destroyBuffer(*this);
+    vmaDestroyBuffer(engine_.getMemoryAllocator().getAllocator(), buffer_,
+                     allocation_);
     spdlog::info("Destroyed the buffer");
   }
 }

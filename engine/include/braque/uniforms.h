@@ -17,7 +17,7 @@ class Uniforms {
   // remove copy and move
   Uniforms(const Uniforms&) = delete;
 
-  void SetCameraData(vk::CommandBuffer buffer, const Camera& camera) const;
+  void SetCameraData(vk::CommandBuffer buffer, const Camera& camera);
 
  // bind descriptor sets
   void Bind(vk::CommandBuffer buffer) const;
@@ -27,7 +27,7 @@ class Uniforms {
  private:
   Engine& engine_;
 
-  std::vector<AllocatedBuffer> camera_buffers_;
+  std::vector<Buffer> camera_buffers_;
   std::vector<vk::DescriptorSet> descriptor_sets_;
 
   vk::DescriptorSetLayout descriptor_set_layout_;

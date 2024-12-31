@@ -40,6 +40,11 @@ public:
   [[nodiscard]] auto GetSize() const -> vk::DeviceSize;
   [[nodiscard]] auto GetType() const -> BufferType;
 
+  template <typename T>
+  auto GetPointer() const -> T* {
+    return static_cast<T*>(allocation_info_.pMappedData);
+  }
+
 private:
   BufferType type_;
   vk::DeviceSize size_;

@@ -147,8 +147,5 @@ void MemoryAllocator::WriteData(vk::CommandBuffer buffer,
                          nullptr);
 }
 
-void MemoryAllocator::destroyBuffer(const Buffer& buffer) const {
-  vmaDestroyBuffer(allocator, buffer.GetBuffer(), buffer.GetAllocation());
-}
 
 }  // namespace braque
