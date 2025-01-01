@@ -17,7 +17,7 @@ constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
 struct Mesh {
   std::string name;
-  uint32_t vertex_offset;
+  int32_t vertex_offset;
   uint32_t index_offset;
   uint32_t index_count;
 };
