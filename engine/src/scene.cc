@@ -22,6 +22,7 @@ Scene::Scene(Engine& engine)
 Scene::~Scene() {}
 
 void Scene::Draw(vk::CommandBuffer buffer) {
+
   vertex_buffer_.Bind(buffer);
   index_buffer_.Bind(buffer);
 

@@ -41,6 +41,9 @@ scene_(Scene(*this))
 
   void Engine::run()
   {
+    // set up the scene
+    scene_.UploadSceneData();
+
     spdlog::info( "Starting the engine loop" );
 
     float accumulatedTime = 0.0f;
@@ -75,7 +78,11 @@ scene_(Scene(*this))
       renderingStage.prepareImageForColorAttachment( commandBuffer );
       renderingStage.beginRenderingPass( commandBuffer );
       uniforms_.Bind( commandBuffer );
-      renderingStage.renderTriangle( commandBuffer );
+      renderingStage.GetPipeline().Bind( commandBuffer);
+      renderingStage.GetPipeline().SetScissor(commandBuffer, {800, 600});
+      renderingStage.GetPipeline().SetViewport(commandBuffer, {0, 0, 800, 600, 0, 1});
+      scene_.Draw(commandBuffer);
+      //renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );
       RenderingStage::endRenderingPass( commandBuffer );
       renderingStage.prepareImageForDisplay( commandBuffer );

@@ -22,7 +22,27 @@ namespace braque
 
     auto shaderStages = shader.getPipelineShaderStageCreateInfos();
 
-    constexpr vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+    vk::VertexInputBindingDescription bindingDescription{};
+    bindingDescription.setBinding( 0 );
+    bindingDescription.setStride( sizeof( float ) * 6 );
+    bindingDescription.setInputRate( vk::VertexInputRate::eVertex );
+
+    std::array<vk::VertexInputAttributeDescription, 2> attributeDescription{};
+    attributeDescription[0].setBinding( 0 );
+    attributeDescription[0].setLocation( 0 );
+    attributeDescription[0].setFormat( vk::Format::eR32G32B32Sfloat );
+    attributeDescription[0].setOffset( 0 );
+
+    attributeDescription[1].setBinding( 0 );
+    attributeDescription[1].setLocation( 1 );
+    attributeDescription[1].setFormat( vk::Format::eR32G32B32Sfloat );
+    attributeDescription[1].setOffset( sizeof( float ) * 3 );
+
+
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
+    vertexInputInfo.setVertexBindingDescriptions( bindingDescription );
+    vertexInputInfo.setVertexAttributeDescriptions( attributeDescription );
+
     vk::PipelineInputAssemblyStateCreateInfo     inputAssembly{};
     inputAssembly.setTopology( vk::PrimitiveTopology::eTriangleList );
     inputAssembly.setPrimitiveRestartEnable( vk::False );
