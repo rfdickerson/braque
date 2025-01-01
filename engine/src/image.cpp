@@ -58,8 +58,14 @@ void Image::allocateImage() {
   createInfo.setFormat(format);
   createInfo.setTiling(vk::ImageTiling::eOptimal);
   createInfo.setInitialLayout(vk::ImageLayout::eUndefined);
-  createInfo.setUsage(vk::ImageUsageFlagBits::eColorAttachment |
-                      vk::ImageUsageFlagBits::eTransferSrc);
+
+  if (format == vk::Format::eD32Sfloat) {
+    createInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment |
+                        vk::ImageUsageFlagBits::eTransferSrc);
+  } else {
+    createInfo.setUsage(vk::ImageUsageFlagBits::eColorAttachment);
+  }
+
   createInfo.setSamples(vk::SampleCountFlagBits::e1);
   createInfo.setSharingMode(vk::SharingMode::eExclusive);
 
@@ -78,10 +84,15 @@ void Image::createImageView() {
   createInfo.setImage(image_);
   createInfo.setViewType(vk::ImageViewType::e2D);
   createInfo.setFormat(format);
-  createInfo.setComponents({vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
+
+  if (format == vk::Format::eD32Sfloat) {
+    createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
+  } else {
+    createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+    createInfo.setComponents({vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
                             vk::ComponentSwizzle::eB,
                             vk::ComponentSwizzle::eA});
-  createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+  }
 
   image_view_ = engine_.getRenderer().getDevice().createImageView(createInfo);
 

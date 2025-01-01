@@ -90,10 +90,19 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   vk::PipelineDynamicStateCreateInfo dynamicState{};
   dynamicState.setDynamicStates(dynamicStates);
 
+  vk::PipelineDepthStencilStateCreateInfo depthStencil{};
+  depthStencil.setDepthTestEnable(vk::True);
+  depthStencil.setDepthWriteEnable(vk::True);
+  depthStencil.setDepthCompareOp(vk::CompareOp::eLess);
+  depthStencil.setDepthBoundsTestEnable(vk::False);
+  depthStencil.setStencilTestEnable(vk::False);
+
   constexpr auto colorFormat = vk::Format::eB8G8R8A8Srgb;
-  vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo;
-  pipelineRenderingCreateInfo.setColorAttachmentCount(1);
-  pipelineRenderingCreateInfo.setPColorAttachmentFormats(&colorFormat);
+  constexpr auto depthFormat = vk::Format::eD32Sfloat;
+
+  vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo {};
+  pipelineRenderingCreateInfo.setColorAttachmentFormats(colorFormat);
+  pipelineRenderingCreateInfo.setDepthAttachmentFormat(depthFormat);
 
   vk::GraphicsPipelineCreateInfo pipelineInfo{};
 
@@ -109,6 +118,7 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   pipelineInfo.setRenderPass(nullptr);
   pipelineInfo.setSubpass(0);
   pipelineInfo.setPNext(&pipelineRenderingCreateInfo);
+  pipelineInfo.setPDepthStencilState(&depthStencil);
 
   auto result = device.createGraphicsPipeline(nullptr, pipelineInfo);
 
