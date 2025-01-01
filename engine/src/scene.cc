@@ -35,7 +35,7 @@ void Scene::Draw(vk::CommandBuffer buffer) {
 
 void Scene::UploadSceneData() {
 
-  const auto device = engine_.getRenderer().getDevice();
+
   const auto graphicsQueue = engine_.getRenderer().getGraphicsQueue();
 
   const auto command_buffer = engine_.getRenderer().CreateCommandBuffer();
@@ -56,6 +56,8 @@ void Scene::UploadSceneData() {
   vk::SubmitInfo submitInfo;
   submitInfo.setCommandBuffers(command_buffer);
   graphicsQueue.submit(submitInfo, nullptr);
+
+  engine_.getRenderer().waitIdle();
 }
 
 void Scene::AddCube(glm::vec3 position) {
@@ -121,16 +123,16 @@ std::vector<Vertex> vertices = {
     0, 1, 2,   2, 3, 0,
 
     // Back:    uses vertices [6..11]
-    6, 7, 8,   8, 9, 6,
+    6, 8, 7,   8, 6, 9,
 
     // Left:    uses vertices [12..17]
-    12, 13, 14, 14, 15, 12,
+    12, 14, 13, 14, 12, 15,
 
     // Right:   uses vertices [18..23]
     18, 19, 20, 20, 21, 18,
 
     // Bottom:  uses vertices [24..29]
-    24, 25, 26, 26, 27, 24,
+    24, 26, 25, 26, 24, 27,
 
     // Top:     uses vertices [30..35]
     30, 31, 32, 32, 33, 30
