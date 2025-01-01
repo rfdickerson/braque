@@ -79,8 +79,8 @@ scene_(Scene(*this))
       renderingStage.beginRenderingPass( commandBuffer );
       uniforms_.Bind( commandBuffer );
       renderingStage.GetPipeline().Bind( commandBuffer);
-      renderingStage.GetPipeline().SetScissor(commandBuffer, {800, 600});
-      renderingStage.GetPipeline().SetViewport(commandBuffer, {0, 0, 800, 600, 0, 1});
+      renderingStage.GetPipeline().SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {1280, 720}});
+      renderingStage.GetPipeline().SetViewport(commandBuffer, {0, 0, 1280, 720, 0, 1});
       scene_.Draw(commandBuffer);
       //renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );

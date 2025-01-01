@@ -19,8 +19,8 @@ class FirstPersonController final : public EventController {
 
  private:
   Camera* camera_ = nullptr;
-  float mouse_sensitivity_ = 0.001f;
-  float movement_speed_ = 0.25f;
+  float mouse_sensitivity_ = 0.1f;
+  float movement_speed_ = 0.025f;
 };
 }  // namespace braque
 

@@ -3,6 +3,7 @@
 //
 
 #include "braque/pipeline.h"
+#include "braque/scene.h"
 
 #include <spdlog/spdlog.h>
 
@@ -24,10 +25,10 @@ namespace braque
 
     vk::VertexInputBindingDescription bindingDescription{};
     bindingDescription.setBinding( 0 );
-    bindingDescription.setStride( sizeof( float ) * 6 );
+    bindingDescription.setStride( sizeof( Vertex ) );
     bindingDescription.setInputRate( vk::VertexInputRate::eVertex );
 
-    std::array<vk::VertexInputAttributeDescription, 2> attributeDescription{};
+    std::array<vk::VertexInputAttributeDescription, 3> attributeDescription{};
     attributeDescription[0].setBinding( 0 );
     attributeDescription[0].setLocation( 0 );
     attributeDescription[0].setFormat( vk::Format::eR32G32B32Sfloat );
@@ -37,6 +38,11 @@ namespace braque
     attributeDescription[1].setLocation( 1 );
     attributeDescription[1].setFormat( vk::Format::eR32G32B32Sfloat );
     attributeDescription[1].setOffset( sizeof( float ) * 3 );
+
+    attributeDescription[2].setBinding( 0 );
+    attributeDescription[2].setLocation( 2 );
+    attributeDescription[2].setFormat( vk::Format::eR32G32B32Sfloat );
+    attributeDescription[2].setOffset( sizeof( float ) * 6 );
 
 
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -59,7 +65,7 @@ namespace braque
     rasterizer.setRasterizerDiscardEnable( vk::False );
     rasterizer.setPolygonMode( vk::PolygonMode::eFill );
     rasterizer.setLineWidth( 1.0F );
-    rasterizer.setCullMode( vk::CullModeFlagBits::eBack );
+    rasterizer.setCullMode( vk::CullModeFlagBits::eNone );
     rasterizer.setFrontFace( vk::FrontFace::eClockwise );
     rasterizer.setDepthBiasEnable( vk::False );
 
