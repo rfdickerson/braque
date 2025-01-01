@@ -32,6 +32,8 @@ scene_(Scene(*this))
     fps_controller_.SetCamera(&camera_);
     input_controller_.RegisterObserver(&app_controller_);
     app_controller_.SetEngine(this);
+
+    camera_.SetAspectRatio(swapchain.getExtent().width / static_cast<float>(swapchain.getExtent().height));
   }
 
   Engine::~Engine()
@@ -72,6 +74,8 @@ scene_(Scene(*this))
 
       debugWindow.createFrame( swapchain.getFrameStats() );
 
+      auto extent = swapchain.getExtent();
+
       auto commandBuffer = swapchain.getCommandBuffer();
       RenderingStage::begin( commandBuffer );
       uniforms_.SetCameraData(commandBuffer, camera_);
@@ -79,8 +83,8 @@ scene_(Scene(*this))
       renderingStage.beginRenderingPass( commandBuffer );
       uniforms_.Bind( commandBuffer );
       renderingStage.GetPipeline().Bind( commandBuffer);
-      renderingStage.GetPipeline().SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {1280, 720}});
-      renderingStage.GetPipeline().SetViewport(commandBuffer, {0, 0, 1280, 720, 0, 1});
+      Pipeline::SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {extent.width, extent.height}});
+      Pipeline::SetViewport(commandBuffer, {0, 0, static_cast<float>(extent.width), static_cast<float>(extent.height), 0, 1});
       scene_.Draw(commandBuffer);
       //renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );

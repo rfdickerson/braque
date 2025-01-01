@@ -64,8 +64,8 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   rasterizer.setRasterizerDiscardEnable(vk::False);
   rasterizer.setPolygonMode(vk::PolygonMode::eFill);
   rasterizer.setLineWidth(1.0F);
-  rasterizer.setCullMode(vk::CullModeFlagBits::eNone);
-  rasterizer.setFrontFace(vk::FrontFace::eClockwise);
+  rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
+  rasterizer.setFrontFace(vk::FrontFace::eCounterClockwise);
   rasterizer.setDepthBiasEnable(vk::False);
 
   vk::PipelineMultisampleStateCreateInfo multisampling{};
