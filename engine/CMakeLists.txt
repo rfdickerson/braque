@@ -19,6 +19,7 @@ set (braque-headers
         include/braque/input/app_controller.h
         include/braque/scene.h
         include/braque/buffer.h
+        include/braque/image_loader.h
 )
 
 add_library(braque STATIC
@@ -41,6 +42,7 @@ add_library(braque STATIC
         src/input/app_controller.cpp
         src/scene.cc
         src/buffer.cc
+        src/image_loader.cc
 )
 
 target_include_directories(braque PUBLIC

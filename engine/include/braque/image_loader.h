@@ -2,20 +2,25 @@
 #define IMAGE_LOADER_H
 
 #include <vulkan/vulkan.hpp>
-#include <soil/SOIL.h>
+#include <SOIL2/SOIL2.h>
 
 namespace braque
 {
-    struct ImageData {
+    class Texture {
+    public:
+        Texture(std::string path);
+
+        ~Texture();
+
+      // copy constructor
+      Texture(Texture&& other) noexcept;
+
+    private:
         int width;
         int height;
         int channels;
         unsigned char* data;
     };
-    
-    class ImageLoader
-    {
-    public:
-        static ImageData load(const char* filename);
-    };
 }
+
+#endif // IMAGE_LOADER_H
