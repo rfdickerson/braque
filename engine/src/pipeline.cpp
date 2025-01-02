@@ -28,7 +28,7 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   bindingDescription.setStride(sizeof(Vertex));
   bindingDescription.setInputRate(vk::VertexInputRate::eVertex);
 
-  std::array<vk::VertexInputAttributeDescription, 3> attributeDescription{};
+  std::array<vk::VertexInputAttributeDescription, 4> attributeDescription{};
   attributeDescription[0].setBinding(0);
   attributeDescription[0].setLocation(0);
   attributeDescription[0].setFormat(vk::Format::eR32G32B32Sfloat);
@@ -43,6 +43,11 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   attributeDescription[2].setLocation(2);
   attributeDescription[2].setFormat(vk::Format::eR32G32B32Sfloat);
   attributeDescription[2].setOffset(sizeof(float) * 6);
+
+  attributeDescription[3].setBinding(0);
+  attributeDescription[3].setLocation(3);
+  attributeDescription[3].setFormat(vk::Format::eR32G32Sfloat);
+  attributeDescription[3].setOffset(sizeof(float) * 9);
 
   vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.setVertexBindingDescriptions(bindingDescription);

@@ -19,7 +19,6 @@ Uniforms::Uniforms(Engine& engine) : engine_(engine) {
 }
 
 Uniforms::~Uniforms() {
-  const auto& allocator = engine_.getMemoryAllocator();
 
   // Destroy the descriptor pool
   const auto& device = engine_.getRenderer().getDevice();

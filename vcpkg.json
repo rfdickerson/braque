@@ -9,6 +9,7 @@
     "vulkan-headers",
     "spdlog",
     "gtest",
+    "soil2",
     {
       "name": "imgui",
       "features": [

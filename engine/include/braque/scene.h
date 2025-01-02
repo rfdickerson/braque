@@ -7,6 +7,7 @@
 #include "memory_allocator.h"
 
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <vector>
 
 #include "buffer.h"
@@ -26,6 +27,7 @@ struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;
   glm::vec3 color;
+  glm::vec2 uv;
 };
 
 class Scene {

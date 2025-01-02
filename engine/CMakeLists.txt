@@ -56,4 +56,5 @@ target_link_libraries(braque
         spdlog::spdlog
         imgui::imgui
         GPUOpen::VulkanMemoryAllocator
+        soil2
 )
