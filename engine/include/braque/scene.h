@@ -9,11 +9,16 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <vector>
+#include <memory>
 
-#include "buffer.h"
+#include "braque/buffer.h"
+
 
 namespace braque {
-class Engine;
+
+class Engine; // Forward declaration if needed
+class Texture;
+
 constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
 struct Mesh {
@@ -32,7 +37,7 @@ struct Vertex {
 
 class Scene {
 public:
-  Scene(Engine& engine);
+  explicit Scene(Engine& engine);
   ~Scene();
 
   void UploadSceneData();
@@ -50,6 +55,7 @@ private:
   Buffer index_staging_buffer_;
 
   std::vector<Mesh> meshes_;
+  Texture* texture_;
 
 };
 

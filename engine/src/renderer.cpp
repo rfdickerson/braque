@@ -223,4 +223,28 @@ void Renderer::CreateCommandPool()
   command_pool_ = m_device.createCommandPool( poolInfo );
 }
 
+void Renderer::SubmitAndWait(vk::CommandBuffer cmd) {
+    vk::SubmitInfo submitInfo;
+    submitInfo.setCommandBufferCount(1);
+    submitInfo.setPCommandBuffers(&cmd);
+
+    vk::FenceCreateInfo fenceInfo;
+    vk::Fence fence = m_device.createFence(fenceInfo);
+
+    // Submit the command buffer
+    m_graphicsQueue.submit(1, &submitInfo, fence);
+
+    // Wait for the fence to be signaled
+    vk::Result result = m_device.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    if (result != vk::Result::eSuccess)
+    {
+      spdlog::error("Failed to wait for fence");
+      throw std::runtime_error("Failed to wait for fence");
+    }
+
+    // Clean up
+    m_device.destroyFence(fence);
+}
+
+
 }  // namespace braque

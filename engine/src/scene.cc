@@ -5,6 +5,7 @@
 #include "braque/scene.h"
 
 #include "braque/engine.h"
+#include "braque/image_loader.h"
 
 namespace braque {
 Scene::Scene(Engine& engine)
@@ -17,9 +18,17 @@ Scene::Scene(Engine& engine)
   // add a cube to vertex and index staging buffers
   AddCube({0.0f, 0.0f, 0.0f});
   UploadSceneData();
+
+  // initialize the texture
+
+  texture_ = new Texture("cobblestone", TextureType::albedo, "../../../../assets/textures/cobblestone_albedo.dds");
+  texture_->CreateImage(engine);
 }
 
-Scene::~Scene() {}
+Scene::~Scene() {
+  // texture destructor will delete the image
+  delete texture_;
+}
 
 void Scene::Draw(vk::CommandBuffer buffer) {
 

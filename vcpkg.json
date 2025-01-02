@@ -1,7 +1,6 @@
 {
   "dependencies": [
     "fmt",
-    "vk-bootstrap",
     "vulkan",
     "glfw3",
     "glm",
@@ -9,7 +8,7 @@
     "vulkan-headers",
     "spdlog",
     "gtest",
-    "soil2",
+    "gli",
     {
       "name": "imgui",
       "features": [

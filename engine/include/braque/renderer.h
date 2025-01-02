@@ -54,6 +54,8 @@ namespace braque
 
     [[nodiscard]] auto CreateCommandBuffer() const -> vk::CommandBuffer;
 
+    void SubmitAndWait(vk::CommandBuffer cmd);
+
   private:
     vk::Instance       m_instance;
     vk::PhysicalDevice m_physicalDevice;
