@@ -9,7 +9,7 @@ namespace braque
 Texture::Texture(std::string name, TextureType texture_type, std::string path)
   : name_(name), texture_type_(texture_type), path_(path)
 {
-  texture_ = gli::load_dds(path);
+  texture_ = gli::load(path);
   if (texture_.empty()) {
     spdlog::error("Failed to load texture: {}", path);
     throw std::runtime_error("Failed to load texture: " + path);
@@ -79,28 +79,37 @@ void Texture::CreateImage(Engine& engine) {
 
   texture_image_->TransitionLayout(vk::ImageLayout::eTransferDstOptimal, cmd, barriers, levels);
 
+  // Before the loop, let's log the total number of mip levels
+  spdlog::info("Total mip levels: {}", texture_.levels());
+
   vk::DeviceSize offset = 0;
   for (uint32_t level = 0; level < texture_.levels(); ++level)
   {
     gli::extent3d const mip_extent = texture_.extent(level);
-    gli::extent3d const block_extent = gli::block_extent(texture_.format());
+    vk::DeviceSize mipSize = texture_.size(level);
+
+    // Log information about each mip level
+    spdlog::info("Mip level {}: size = {} bytes, extent = {} x {} x {}",
+                 level, mipSize, mip_extent.x, mip_extent.y, mip_extent.z);
+
+    if (mipSize == 0) {
+      spdlog::warn("Mip level {} has zero size, skipping", level);
+      continue;
+    }
 
     vk::BufferImageCopy region{};
     region.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
     region.imageSubresource.mipLevel = level;
     region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount = texture_.layers();
+    region.imageSubresource.layerCount = 1;  // Assuming non-array texture
     region.imageOffset = vk::Offset3D{0, 0, 0};
     region.imageExtent = vk::Extent3D{
-      static_cast<unsigned int>(std::max(block_extent.x, mip_extent.x)),
-      static_cast<unsigned int>(std::max(block_extent.y, mip_extent.y)),
-      static_cast<unsigned int>(std::max(block_extent.z, mip_extent.z))
-  };
+      static_cast<uint32_t>(mip_extent.x),
+      static_cast<uint32_t>(mip_extent.y),
+      static_cast<uint32_t>(mip_extent.z)
+    };
+    region.bufferOffset = offset;
 
-    region.bufferOffset = offset; // Offset in the buffer for this mip level
-
-    spdlog::info("Copying mip level {}: {} x {} x {}",
-        level, region.imageExtent.width, region.imageExtent.height, region.imageExtent.depth);
 
     cmd.copyBufferToImage(
         staging_buffer.GetBuffer(),
@@ -108,11 +117,8 @@ void Texture::CreateImage(Engine& engine) {
         vk::ImageLayout::eTransferDstOptimal,
         region);
 
-    vk::DeviceSize mipSize = texture_.size(level);
     offset += mipSize;
   }
-
-  spdlog::info("Copying texture to image");
 
   barriers.srcStage = vk::PipelineStageFlagBits2::eTransfer;
   barriers.srcAccess = vk::AccessFlagBits2::eTransferWrite;

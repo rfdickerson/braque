@@ -103,7 +103,8 @@ void Image::createImageView() {
   if (format == vk::Format::eD32Sfloat) {
     createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
   } else {
-    createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+    // TODO: dynamically set the mip levels
+    createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 8, 0, 1});
     createInfo.setComponents({vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
                             vk::ComponentSwizzle::eB,
                             vk::ComponentSwizzle::eA});

@@ -21,7 +21,7 @@ Scene::Scene(Engine& engine)
 
   // initialize the texture
 
-  texture_ = new Texture("cobblestone", TextureType::albedo, "../../../../assets/textures/cobblestone_albedo.dds");
+  texture_ = new Texture("cobblestone", TextureType::albedo, R"(C:\Users\rfdic\projects\braque\assets\textures\cobblestone_albedo.dds)");
   texture_->CreateImage(engine);
 
   CreateTextureSampler();
@@ -179,12 +179,12 @@ void Scene::CreateTextureSampler() {
   samplerInfo.setAddressModeU(vk::SamplerAddressMode::eRepeat);
   samplerInfo.setAddressModeV(vk::SamplerAddressMode::eRepeat);
   samplerInfo.setAddressModeW(vk::SamplerAddressMode::eRepeat);
-  samplerInfo.setMipLodBias(0.0f);
+  samplerInfo.setMipLodBias(0.2f);
   samplerInfo.setAnisotropyEnable(true);
   samplerInfo.setMaxAnisotropy(16.0f);
   samplerInfo.setCompareOp(vk::CompareOp::eAlways);
   samplerInfo.setMinLod(0.0f);
-  samplerInfo.setMaxLod(0.0f);
+  samplerInfo.setMaxLod(8.0f);
 
   texture_sampler_ = engine_.getRenderer().getDevice().createSampler(samplerInfo);
 }
