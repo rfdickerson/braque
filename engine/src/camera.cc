@@ -21,9 +21,10 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
   void Camera::UpdateCameraVectors() {
 
-    const auto v_x = glm::cos(yaw_) * glm::cos(pitch_);
-    const auto v_y = glm::sin(pitch_);
-    const auto v_z = glm::sin(yaw_) * glm::cos(pitch_);
+    const auto v_x = glm::cos(glm::radians(yaw_)) * glm::cos(glm::radians(pitch_));
+    const auto v_y = glm::sin(glm::radians(pitch_));
+    const auto v_z = glm::sin(glm::radians(yaw_)) * glm::cos(glm::radians(pitch_));
+
     const auto new_front = glm::vec3(v_x, v_y, v_z);
 
     front_ = normalize(new_front);

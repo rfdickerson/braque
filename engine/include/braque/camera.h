@@ -16,6 +16,7 @@ class Camera
 
 	[[nodiscard]] auto ViewMatrix() const -> glm::mat4;
 	[[nodiscard]] auto ProjectionMatrix() const -> glm::mat4;
+    void SetAspectRatio(float aspectRatio) { aspectRatio_ = aspectRatio; }
 
 	// void ProcessKeyboard(CameraMovement direction, float deltaTime);
 	//

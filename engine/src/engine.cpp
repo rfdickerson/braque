@@ -32,6 +32,8 @@ scene_(Scene(*this))
     fps_controller_.SetCamera(&camera_);
     input_controller_.RegisterObserver(&app_controller_);
     app_controller_.SetEngine(this);
+
+    camera_.SetAspectRatio(swapchain.getExtent().width / static_cast<float>(swapchain.getExtent().height));
   }
 
   Engine::~Engine()
@@ -41,6 +43,9 @@ scene_(Scene(*this))
 
   void Engine::run()
   {
+    // set up the scene
+    scene_.UploadSceneData();
+
     spdlog::info( "Starting the engine loop" );
 
     float accumulatedTime = 0.0f;
@@ -69,13 +74,19 @@ scene_(Scene(*this))
 
       debugWindow.createFrame( swapchain.getFrameStats() );
 
+      auto extent = swapchain.getExtent();
+
       auto commandBuffer = swapchain.getCommandBuffer();
       RenderingStage::begin( commandBuffer );
       uniforms_.SetCameraData(commandBuffer, camera_);
       renderingStage.prepareImageForColorAttachment( commandBuffer );
       renderingStage.beginRenderingPass( commandBuffer );
       uniforms_.Bind( commandBuffer );
-      renderingStage.renderTriangle( commandBuffer );
+      renderingStage.GetPipeline().Bind( commandBuffer);
+      Pipeline::SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {extent.width, extent.height}});
+      Pipeline::SetViewport(commandBuffer, {0, 0, static_cast<float>(extent.width), static_cast<float>(extent.height), 0, 1});
+      scene_.Draw(commandBuffer);
+      //renderingStage.renderTriangle( commandBuffer );
       DebugWindow::renderFrame( commandBuffer );
       RenderingStage::endRenderingPass( commandBuffer );
       renderingStage.prepareImageForDisplay( commandBuffer );

@@ -8,6 +8,7 @@
 namespace braque {
 
 class Engine;
+class Texture;
 
 class Uniforms {
  public:
@@ -19,10 +20,12 @@ class Uniforms {
 
   void SetCameraData(vk::CommandBuffer buffer, const Camera& camera);
 
+  void SetTextureData(const Texture& texture, vk::Sampler sampler);
+
  // bind descriptor sets
   void Bind(vk::CommandBuffer buffer) const;
 
-  vk::DescriptorSetLayout GetDescriptorSetLayout() const { return descriptor_set_layout_; }
+  auto GetDescriptorSetLayout() const -> vk::DescriptorSetLayout { return descriptor_set_layout_; }
 
  private:
   Engine& engine_;

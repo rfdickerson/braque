@@ -29,6 +29,11 @@ RenderingStage::RenderingStage(Engine& engine) : engine(engine) {
   pipeline =
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
                                  engine.getUniforms().GetDescriptorSetLayout());
+
+  for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount();
+       ++i) {
+    depthImages.emplace_back(engine, extent, vk::Format::eD32Sfloat);
+  }
 }
 
 RenderingStage::~RenderingStage() {
@@ -46,6 +51,8 @@ void RenderingStage::begin(const vk::CommandBuffer buffer) {
 void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
   const auto& swapchain = engine.getSwapchain();
 
+  const auto curr = swapchain.CurrentFrameIndex();
+
   constexpr vk::ClearColorValue clearColor{0.0F, 0.0F, 0.0F, 0.0F};
 
   vk::RenderingAttachmentInfo renderingAttachmentInfo{};
@@ -56,10 +63,22 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
       vk::ImageLayout::eColorAttachmentOptimal);
   renderingAttachmentInfo.setImageView(swapchain.getImageView());
 
+  // create the depth attachment
+  auto clear_value = vk::ClearValue();
+  clear_value.setDepthStencil({1.0F, 0});
+
+  vk::RenderingAttachmentInfo depthAttachmentInfo{};
+  depthAttachmentInfo.setImageView(depthImages[curr].GetImageView());
+  depthAttachmentInfo.setLoadOp(vk::AttachmentLoadOp::eClear);
+  depthAttachmentInfo.setStoreOp(vk::AttachmentStoreOp::eStore);
+  depthAttachmentInfo.setImageLayout(vk::ImageLayout::eDepthAttachmentOptimal);
+  depthAttachmentInfo.setClearValue(clear_value);
+
   const auto renderArea = vk::Rect2D{{0, 0}, swapchain.getExtent()};
 
   vk::RenderingInfo renderingInfo{};
   renderingInfo.setColorAttachments(renderingAttachmentInfo);
+  renderingInfo.setPDepthAttachment(&depthAttachmentInfo);
   renderingInfo.setLayerCount(1);
   renderingInfo.setRenderArea(renderArea);
 

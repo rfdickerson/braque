@@ -12,7 +12,7 @@
 namespace braque
 {
 
-  constexpr float PI_2 = glm::pi<float>() / 2.0F;
+  //constexpr float PI_2 = glm::pi<float>() / 2.0F;
 
   void FirstPersonController::OnMouseMoved(float xoffset, float yoffset) {
 
@@ -32,8 +32,8 @@ namespace braque
     camera_->pitch_ += yoffset;
 
     // make sure that when pitch is out of bounds, screen doesn't get flipped
-    camera_->pitch_ = std::min(camera_->pitch_, PI_2);
-    camera_->pitch_ = std::max(camera_->pitch_, -PI_2);
+    camera_->pitch_ = std::min(camera_->pitch_, 89.0F);
+    camera_->pitch_ = std::max(camera_->pitch_, -89.0F);
 
     camera_->UpdateCameraVectors();
   }

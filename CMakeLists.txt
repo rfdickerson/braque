@@ -14,6 +14,7 @@ find_package(VulkanHeaders REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+find_package(gli CONFIG REQUIRED)
 
 add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 add_definitions(-DGLFW_INCLUDE_VULKAN)
