@@ -55,7 +55,8 @@ void Texture::CreateImage(Engine& engine) {
   imageInfo.extent = extent;
   imageInfo.mipLevels = texture_.levels();
   imageInfo.arrayLayers = texture_.layers();
-  imageInfo.format = vk::Format::eBc1RgbUnormBlock;  // Make sure this matches your texture format
+  //imageInfo.format = vk::Format::eBc1RgbUnormBlock;  // Make sure this matches your texture format
+  imageInfo.format = vk::Format::eBc1RgbSrgbBlock;
   imageInfo.tiling = vk::ImageTiling::eOptimal;
   imageInfo.initialLayout = vk::ImageLayout::eUndefined;
   imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
