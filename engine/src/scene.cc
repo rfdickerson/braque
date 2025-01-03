@@ -23,10 +23,16 @@ Scene::Scene(Engine& engine)
 
   texture_ = new Texture("cobblestone", TextureType::albedo, "../../../../assets/textures/cobblestone_albedo.dds");
   texture_->CreateImage(engine);
+
+  CreateTextureSampler();
+
+  engine.getUniforms().SetTextureData(*texture_, texture_sampler_);
 }
 
 Scene::~Scene() {
-  // texture destructor will delete the image
+
+  engine_.getRenderer().getDevice().destroySampler(texture_sampler_);
+
   delete texture_;
 }
 
@@ -163,5 +169,25 @@ std::vector<Vertex> vertices = {
 
   meshes_.push_back(cube);
 }
+
+void Scene::CreateTextureSampler() {
+  vk::SamplerCreateInfo samplerInfo{};
+
+  samplerInfo.setMagFilter(vk::Filter::eLinear);
+  samplerInfo.setMinFilter(vk::Filter::eLinear);
+  samplerInfo.setMipmapMode(vk::SamplerMipmapMode::eLinear);
+  samplerInfo.setAddressModeU(vk::SamplerAddressMode::eRepeat);
+  samplerInfo.setAddressModeV(vk::SamplerAddressMode::eRepeat);
+  samplerInfo.setAddressModeW(vk::SamplerAddressMode::eRepeat);
+  samplerInfo.setMipLodBias(0.0f);
+  samplerInfo.setAnisotropyEnable(true);
+  samplerInfo.setMaxAnisotropy(16.0f);
+  samplerInfo.setCompareOp(vk::CompareOp::eAlways);
+  samplerInfo.setMinLod(0.0f);
+  samplerInfo.setMaxLod(0.0f);
+
+  texture_sampler_ = engine_.getRenderer().getDevice().createSampler(samplerInfo);
+}
+
 
 }  // namespace braque

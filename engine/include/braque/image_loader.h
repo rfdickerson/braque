@@ -23,6 +23,8 @@ class Texture {
 
   std::string GetName() const { return name_; }
 
+  vk::ImageView GetImageView() const { return texture_image_->GetImageView(); }
+
   // Move constructor (already defined)
   Texture(Texture&& other) noexcept;
 
@@ -35,12 +37,9 @@ class Texture {
   TextureType texture_type_;
   std::string path_;
 
-  int size;
-  unsigned char* data;
-
   gli::texture texture_;
 
-  std::unique_ptr<Image> image;
+  Image* texture_image_;
 };
 }  // namespace braque
 

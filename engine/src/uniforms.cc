@@ -1,6 +1,7 @@
 #include <spdlog/spdlog.h>
 #include <braque/engine.h>
 #include <braque/uniforms.h>
+#include <braque/image_loader.h>
 
 namespace braque {
 
@@ -29,16 +30,6 @@ Uniforms::~Uniforms() {
 }
 
 void Uniforms::CreateUniformBuffers() {
-  // auto cameraBufferCreateInfo = vk::BufferCreateInfo{};
-  // cameraBufferCreateInfo.setSize(sizeof(CameraUbo));
-  // cameraBufferCreateInfo.setUsage(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
-  // cameraBufferCreateInfo.setSharingMode(vk::SharingMode::eExclusive);
-  //
-  // auto cameraBufferAllocInfo = VmaAllocationCreateInfo{};
-  // cameraBufferAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-  // cameraBufferAllocInfo.flags =
-  //     VMA_ALLOCATION_CREATE_MAPPED_BIT |
-  //     VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT;
 
   const auto& swapchain = engine_.getSwapchain();
 
@@ -52,14 +43,22 @@ void Uniforms::CreateUniformBuffers() {
 void Uniforms::createDescriptorSetLayout() {
   const auto& device = engine_.getRenderer().getDevice();
 
-  vk::DescriptorSetLayoutBinding cameraBinding;
+  vk::DescriptorSetLayoutBinding cameraBinding{};
   cameraBinding.setBinding(CAMERA_BINDING);
   cameraBinding.setDescriptorType(vk::DescriptorType::eUniformBuffer);
   cameraBinding.setDescriptorCount(1);
   cameraBinding.setStageFlags(vk::ShaderStageFlagBits::eVertex);
 
+  vk::DescriptorSetLayoutBinding samplerBinding{};
+  samplerBinding.binding = 1;
+  samplerBinding.descriptorCount = 1;
+  samplerBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+  samplerBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+  std::array bindings = {cameraBinding, samplerBinding};
+
   vk::DescriptorSetLayoutCreateInfo layoutInfo;
-  layoutInfo.setBindings(cameraBinding);
+  layoutInfo.setBindings(bindings);
 
   descriptor_set_layout_ = device.createDescriptorSetLayout(layoutInfo);
 }
@@ -105,6 +104,33 @@ void Uniforms::createDescriptorSets() {
 
     device.updateDescriptorSets(descriptorWrite, nullptr);
   }
+}
+
+void Uniforms::SetTextureData( const Texture& texture, vk::Sampler sampler) {
+
+  vk::DescriptorImageInfo imageInfo {};
+
+  imageInfo.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
+  imageInfo.setImageView(texture.GetImageView());
+  imageInfo.setSampler(sampler);
+
+  // for each swapchain descriptor
+  for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount(); ++i) {
+
+    vk::WriteDescriptorSet descriptorWrite;
+
+    descriptorWrite.setDstSet(descriptor_sets_[i]);
+    descriptorWrite.setDstBinding(1);
+    descriptorWrite.setDstArrayElement(0);
+    descriptorWrite.setDescriptorType(vk::DescriptorType::eCombinedImageSampler);
+    descriptorWrite.setDescriptorCount(1);
+    descriptorWrite.setImageInfo(imageInfo);
+
+    engine_.getRenderer().getDevice().updateDescriptorSets(descriptorWrite, nullptr);
+  }
+
+
+
 }
 
 void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) {

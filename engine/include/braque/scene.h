@@ -57,6 +57,10 @@ private:
   std::vector<Mesh> meshes_;
   Texture* texture_;
 
+  vk::Sampler texture_sampler_;
+
+  void CreateTextureSampler();
+
 };
 
 } // namespace braque
