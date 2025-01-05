@@ -7,17 +7,23 @@
 #include "memory_allocator.h"
 
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <vector>
+#include <memory>
 
-#include "buffer.h"
+#include "braque/buffer.h"
+
 
 namespace braque {
-class Engine;
+
+class Engine; // Forward declaration if needed
+class Texture;
+
 constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
 struct Mesh {
   std::string name;
-  uint32_t vertex_offset;
+  int32_t vertex_offset;
   uint32_t index_offset;
   uint32_t index_count;
 };
@@ -25,11 +31,13 @@ struct Mesh {
 struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;
+  glm::vec3 color;
+  glm::vec2 uv;
 };
 
 class Scene {
 public:
-  Scene(Engine& engine);
+  explicit Scene(Engine& engine);
   ~Scene();
 
   void UploadSceneData();
@@ -47,6 +55,11 @@ private:
   Buffer index_staging_buffer_;
 
   std::vector<Mesh> meshes_;
+  Texture* texture_;
+
+  vk::Sampler texture_sampler_;
+
+  void CreateTextureSampler();
 
 };
 

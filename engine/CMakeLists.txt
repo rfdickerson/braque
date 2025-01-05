@@ -19,6 +19,7 @@ set (braque-headers
         include/braque/input/app_controller.h
         include/braque/scene.h
         include/braque/buffer.h
+        include/braque/texture.h
 )
 
 add_library(braque STATIC
@@ -41,6 +42,7 @@ add_library(braque STATIC
         src/input/app_controller.cpp
         src/scene.cc
         src/buffer.cc
+        src/texture.cc
 )
 
 target_include_directories(braque PUBLIC
@@ -56,4 +58,5 @@ target_link_libraries(braque
         spdlog::spdlog
         imgui::imgui
         GPUOpen::VulkanMemoryAllocator
+        gli
 )

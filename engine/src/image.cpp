@@ -10,6 +10,23 @@
 
 namespace braque {
 
+Image::Image(Engine& engine, const vk::ImageCreateInfo& createInfo,
+             const VmaAllocationCreateInfo& allocInfo)
+    : engine_(engine),
+      format(vk::Format::eUndefined),
+      layout_(vk::ImageLayout::eUndefined) {
+
+  auto [image, allocation] =
+      engine_.getMemoryAllocator().createImage(createInfo, allocInfo);
+
+  allocation_ = allocation;
+  image_ = image;
+  format = createInfo.format;
+  mip_levels_ = createInfo.mipLevels;
+
+  createImageView();
+}
+
 Image::Image(Engine& engine, vk::Extent3D extent, vk::Format format)
     : engine_(engine),
       extent_(extent),
@@ -29,10 +46,9 @@ Image::~Image() {
   }
 
   if (image_) {
-    auto allocator = engine_.getMemoryAllocator().getAllocator();
-
-    vmaDestroyImage(allocator, image_, allocation_);
-    spdlog::info("Destroyed image memory");
+    engine_.getMemoryAllocator().destroyImage(image_, allocation_);
+    image_ = nullptr;
+    allocation_ = nullptr;
   }
 }
 
@@ -58,8 +74,16 @@ void Image::allocateImage() {
   createInfo.setFormat(format);
   createInfo.setTiling(vk::ImageTiling::eOptimal);
   createInfo.setInitialLayout(vk::ImageLayout::eUndefined);
-  createInfo.setUsage(vk::ImageUsageFlagBits::eColorAttachment |
-                      vk::ImageUsageFlagBits::eTransferSrc);
+
+  if (format == vk::Format::eD32Sfloat) {
+    createInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment |
+                        vk::ImageUsageFlagBits::eTransferSrc);
+  } else {
+    createInfo.setUsage(vk::ImageUsageFlagBits::eColorAttachment |
+                        vk::ImageUsageFlagBits::eTransferDst |
+                        vk::ImageUsageFlagBits::eSampled);
+  }
+
   createInfo.setSamples(vk::SampleCountFlagBits::e1);
   createInfo.setSharingMode(vk::SharingMode::eExclusive);
 
@@ -74,23 +98,30 @@ void Image::allocateImage() {
 }
 
 void Image::createImageView() {
-  vk::ImageViewCreateInfo createInfo;
+  vk::ImageViewCreateInfo createInfo{};
   createInfo.setImage(image_);
   createInfo.setViewType(vk::ImageViewType::e2D);
   createInfo.setFormat(format);
-  createInfo.setComponents({vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
-                            vk::ComponentSwizzle::eB,
-                            vk::ComponentSwizzle::eA});
-  createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+
+  if (format == vk::Format::eD32Sfloat) {
+    createInfo.setSubresourceRange(
+        {vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
+  } else {
+    createInfo.setSubresourceRange(
+        {vk::ImageAspectFlagBits::eColor, 0, mip_levels_, 0, 1});
+    createInfo.setComponents(
+        {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
+         vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA});
+  }
 
   image_view_ = engine_.getRenderer().getDevice().createImageView(createInfo);
 
-  spdlog::info("Created image view");
+  spdlog::info("Created image view with {} mip levels", mip_levels_);
 }
 
 void Image::TransitionLayout(const vk::ImageLayout newLayout,
                              const vk::CommandBuffer commandBuffer,
-                             const SyncBarriers& barriers) {
+                             const SyncBarriers& barriers, uint32_t mipLevels) {
   // create a barrier to transition the image layout
   // use the pipelineBarrier2KHRs to use synchronization2
   vk::ImageMemoryBarrier2KHR barrier;
@@ -103,7 +134,11 @@ void Image::TransitionLayout(const vk::ImageLayout newLayout,
   barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.image = image_;
-  barrier.subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1};
+  barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+  barrier.subresourceRange.baseMipLevel = 0;
+  barrier.subresourceRange.levelCount = mipLevels;  // use all mip levels
+  barrier.subresourceRange.baseArrayLayer = 0;
+  barrier.subresourceRange.layerCount = 1;
 
   vk::DependencyInfoKHR dependencyInfo;
   dependencyInfo.imageMemoryBarrierCount = 1;

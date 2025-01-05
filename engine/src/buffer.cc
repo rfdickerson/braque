@@ -123,7 +123,17 @@ auto Buffer::GetType() const -> BufferType {
 
 void Buffer::Bind(vk::CommandBuffer buffer, vk::DeviceSize offset) {
   // do nothing
-  buffer.bindVertexBuffers(0, buffer_, {offset});
+  switch (type_) {
+    case BufferType::vertex:
+      buffer.bindVertexBuffers(0, buffer_, {offset});
+      break;
+    case BufferType::index:
+      buffer.bindIndexBuffer(buffer_, offset, vk::IndexType::eUint32);
+      break;
+    default:
+      spdlog::warn("binding unknown type");
+  }
+
 }
 
 void Buffer::CopyData(const void* data, size_t size) {
