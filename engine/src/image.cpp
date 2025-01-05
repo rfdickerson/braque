@@ -10,9 +10,11 @@
 
 namespace braque {
 
-Image::Image(Engine& engine, vk::ImageCreateInfo createInfo, VmaAllocationCreateInfo allocInfo)
-    : engine_(engine), format(vk::Format::eUndefined), layout_(vk::ImageLayout::eUndefined)
-{
+Image::Image(Engine& engine, const vk::ImageCreateInfo& createInfo,
+             const VmaAllocationCreateInfo& allocInfo)
+    : engine_(engine),
+      format(vk::Format::eUndefined),
+      layout_(vk::ImageLayout::eUndefined) {
 
   auto [image, allocation] =
       engine_.getMemoryAllocator().createImage(createInfo, allocInfo);
@@ -20,9 +22,9 @@ Image::Image(Engine& engine, vk::ImageCreateInfo createInfo, VmaAllocationCreate
   allocation_ = allocation;
   image_ = image;
   format = createInfo.format;
+  mip_levels_ = createInfo.mipLevels;
 
   createImageView();
-
 }
 
 Image::Image(Engine& engine, vk::Extent3D extent, vk::Format format)
@@ -44,10 +46,9 @@ Image::~Image() {
   }
 
   if (image_) {
-    auto allocator = engine_.getMemoryAllocator().getAllocator();
-
-    vmaDestroyImage(allocator, image_, allocation_);
-    spdlog::info("Destroyed image memory");
+    engine_.getMemoryAllocator().destroyImage(image_, allocation_);
+    image_ = nullptr;
+    allocation_ = nullptr;
   }
 }
 
@@ -78,7 +79,9 @@ void Image::allocateImage() {
     createInfo.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment |
                         vk::ImageUsageFlagBits::eTransferSrc);
   } else {
-    createInfo.setUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
+    createInfo.setUsage(vk::ImageUsageFlagBits::eColorAttachment |
+                        vk::ImageUsageFlagBits::eTransferDst |
+                        vk::ImageUsageFlagBits::eSampled);
   }
 
   createInfo.setSamples(vk::SampleCountFlagBits::e1);
@@ -95,24 +98,25 @@ void Image::allocateImage() {
 }
 
 void Image::createImageView() {
-  vk::ImageViewCreateInfo createInfo;
+  vk::ImageViewCreateInfo createInfo{};
   createInfo.setImage(image_);
   createInfo.setViewType(vk::ImageViewType::e2D);
   createInfo.setFormat(format);
 
   if (format == vk::Format::eD32Sfloat) {
-    createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
+    createInfo.setSubresourceRange(
+        {vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
   } else {
-    // TODO: dynamically set the mip levels
-    createInfo.setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 8, 0, 1});
-    createInfo.setComponents({vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
-                            vk::ComponentSwizzle::eB,
-                            vk::ComponentSwizzle::eA});
+    createInfo.setSubresourceRange(
+        {vk::ImageAspectFlagBits::eColor, 0, mip_levels_, 0, 1});
+    createInfo.setComponents(
+        {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG,
+         vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA});
   }
 
   image_view_ = engine_.getRenderer().getDevice().createImageView(createInfo);
 
-  spdlog::info("Created image view");
+  spdlog::info("Created image view with {} mip levels", mip_levels_);
 }
 
 void Image::TransitionLayout(const vk::ImageLayout newLayout,
@@ -132,7 +136,7 @@ void Image::TransitionLayout(const vk::ImageLayout newLayout,
   barrier.image = image_;
   barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
   barrier.subresourceRange.baseMipLevel = 0;
-  barrier.subresourceRange.levelCount = mipLevels; // use all mip levels
+  barrier.subresourceRange.levelCount = mipLevels;  // use all mip levels
   barrier.subresourceRange.baseArrayLayer = 0;
   barrier.subresourceRange.layerCount = 1;
 

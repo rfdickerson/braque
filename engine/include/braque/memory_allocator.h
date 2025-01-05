@@ -46,7 +46,7 @@ class Buffer;
 
     [[nodiscard]] auto createImage( const vk::ImageCreateInfo & createInfo, const VmaAllocationCreateInfo & allocInfo ) const -> AllocatedImage;
 
-    void destroyImage( const AllocatedImage & image ) const;
+    void destroyImage(vk::Image image, VmaAllocation allocation) const;
 
   private:
     VmaAllocator allocator;

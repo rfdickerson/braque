@@ -1,4 +1,4 @@
-#include <braque/image_loader.h>
+#include <braque/texture.h>
 
 #include <spdlog/spdlog.h>
 #include <gli/gli.hpp>

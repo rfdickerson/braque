@@ -5,7 +5,7 @@
 #include "braque/scene.h"
 
 #include "braque/engine.h"
-#include "braque/image_loader.h"
+#include "braque/texture.h"
 
 namespace braque {
 Scene::Scene(Engine& engine)

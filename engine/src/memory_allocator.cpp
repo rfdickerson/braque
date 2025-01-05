@@ -71,8 +71,9 @@ auto MemoryAllocator::createImage(
   return allocatedImage;
 }
 
-void MemoryAllocator::destroyImage(const AllocatedImage& image) const {
-  vmaDestroyImage(allocator, image.image, image.allocation);
+void MemoryAllocator::destroyImage(vk::Image image, VmaAllocation allocation) const {
+  vmaDestroyImage(allocator, image, allocation);
+  spdlog::info("Destroyed image memory");
 }
 
 auto MemoryAllocator::getReport() const -> MemoryReport {

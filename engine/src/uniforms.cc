@@ -1,7 +1,7 @@
-#include <spdlog/spdlog.h>
 #include <braque/engine.h>
+#include <braque/texture.h>
 #include <braque/uniforms.h>
-#include <braque/image_loader.h>
+#include <spdlog/spdlog.h>
 
 namespace braque {
 

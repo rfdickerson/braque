@@ -21,16 +21,16 @@ class Texture {
 
   void CreateImage(Engine& engine);
 
-  std::string GetName() const { return name_; }
+  [[nodiscard]] auto GetName() const -> std::string { return name_; }
 
-  vk::ImageView GetImageView() const { return texture_image_->GetImageView(); }
+  [[nodiscard]] auto GetImageView() const -> vk::ImageView { return texture_image_->GetImageView(); }
 
   // Move constructor (already defined)
   Texture(Texture&& other) noexcept;
 
   // Delete copy operations
   Texture(const Texture& other) = delete;
-  Texture& operator=(const Texture& other) = delete;
+  auto operator=(const Texture& other) -> Texture& = delete;
 
  private:
   std::string name_;

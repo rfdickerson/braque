@@ -19,8 +19,8 @@ struct SyncBarriers {
 
 class Image {
  public:
-  Image(Engine& engine, vk::ImageCreateInfo createInfo,
-        VmaAllocationCreateInfo allocInfo);
+  Image(Engine& engine, const vk::ImageCreateInfo& createInfo,
+        const VmaAllocationCreateInfo& allocInfo);
   Image(Engine& engine, vk::Extent3D extent, vk::Format format);
   ~Image();
 
@@ -60,6 +60,8 @@ class Image {
   vk::Extent3D extent_;
   vk::Format format;
   vk::ImageLayout layout_;
+
+  uint32_t mip_levels_ = 1;
 
   void allocateImage();
   void createImageView();
