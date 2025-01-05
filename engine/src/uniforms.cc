@@ -66,13 +66,19 @@ void Uniforms::createDescriptorSetLayout() {
 void Uniforms::createDescriptorPool() {
   const auto& device = engine_.getRenderer().getDevice();
 
-  vk::DescriptorPoolSize poolSize;
-  poolSize.setType(vk::DescriptorType::eUniformBuffer);
-  poolSize.setDescriptorCount(static_cast<uint32_t>(camera_buffers_.size()));
+  std::array<vk::DescriptorPoolSize, 2> poolSizes{};
+
+  // for uniform buffer
+  poolSizes[0].setType(vk::DescriptorType::eUniformBuffer);
+  poolSizes[0].setDescriptorCount(static_cast<uint32_t>(camera_buffers_.size()));
+
+  // for combined image sampler
+  poolSizes[1].setType(vk::DescriptorType::eCombinedImageSampler);
+  poolSizes[1].setDescriptorCount(static_cast<uint32_t>(camera_buffers_.size()));
 
   vk::DescriptorPoolCreateInfo poolInfo;
-  poolInfo.setPoolSizes(poolSize);
-  poolInfo.setMaxSets(static_cast<uint32_t>(camera_buffers_.size()));
+  poolInfo.setPoolSizes(poolSizes);
+  poolInfo.setMaxSets(10);
 
   descriptor_pool_ = device.createDescriptorPool(poolInfo);
 }

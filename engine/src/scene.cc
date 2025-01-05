@@ -21,7 +21,7 @@ Scene::Scene(Engine& engine)
 
   // initialize the texture
 
-  texture_ = new Texture("cobblestone", TextureType::albedo, R"(../../../..\assets\textures\TCom_Brick_BlocksBare_2K_albedo.DDS)");
+  texture_ = new Texture("cobblestone", TextureType::albedo, R"(../../../../assets/textures/brick_d.dds)");
   texture_->CreateImage(engine);
 
   CreateTextureSampler();
