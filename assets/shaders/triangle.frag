@@ -9,10 +9,27 @@ layout (location = 0) out vec4 outColor;
 
 layout (binding = 1) uniform sampler2D texSampler;
 
-void main () { 
+// Directional light properties
+const vec3 lightDir = normalize(vec3(1.0, 1.0, -1.0)); // Direction towards the light
+const vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
+const float ambientStrength = 0.1;
 
-    vec3 n = 0.5 * (fragNormal + vec3 (1.0)) ;
-    outColor = vec4 (fragColor, 1.0); 
-    outColor = vec4(fragUV, 0.0, 1.0);
-    outColor = texture(texSampler, fragUV);
+void main () {
+    // Normalize the fragment normal
+    vec3 norm = normalize(fragNormal);
+
+    // Calculate diffuse lighting
+    float diff = max(dot(norm, -lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
+
+    // Calculate ambient lighting
+    vec3 ambient = ambientStrength * lightColor;
+
+    // Sample the texture
+    vec3 texColor = texture(texSampler, fragUV).rgb;
+
+    // Combine lighting with texture and vertex color
+    vec3 result = (ambient + diffuse) * texColor;
+
+    outColor = vec4(result, 1.0);
 }
