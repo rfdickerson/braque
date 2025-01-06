@@ -14,87 +14,87 @@
 
 #include <algorithm>
 
-namespace braque
-{
+namespace braque {
 
-  Engine::Engine()
-    : swapchain( Swapchain( window, renderer ) )
-    , memoryAllocator( MemoryAllocator( renderer ) )
-    , uniforms_( Uniforms( *this ) )
-    , renderingStage( RenderingStage( *this ) )
-, debugWindow( DebugWindow( *this ) ),
-scene_(Scene(*this))
-  {
-    // Any other initialization after all members are constructed
-    spdlog::info( "Engine created" );
-    input_controller_.RegisterWindow(&window);
-    input_controller_.RegisterObserver(&fps_controller_);
-    fps_controller_.SetCamera(&camera_);
-    input_controller_.RegisterObserver(&app_controller_);
-    app_controller_.SetEngine(this);
+Engine::Engine()
+    : swapchain(window, renderer),
+      memoryAllocator(renderer),
+      context_(memoryAllocator, renderer, swapchain),
+      uniforms_(context_),
+      renderingStage(context_, uniforms_),
+      debugWindow(*this),
+      scene_(context_, uniforms_) {
+  // Any other initialization after all members are constructed
+  spdlog::info("Engine created");
+  input_controller_.RegisterWindow(&window);
+  input_controller_.RegisterObserver(&fps_controller_);
+  fps_controller_.SetCamera(&camera_);
+  input_controller_.RegisterObserver(&app_controller_);
+  app_controller_.SetEngine(this);
 
-    camera_.SetAspectRatio(swapchain.getExtent().width / static_cast<float>(swapchain.getExtent().height));
-  }
+  camera_.SetAspectRatio(swapchain.getExtent().width /
+                         static_cast<float>(swapchain.getExtent().height));
+}
 
-  Engine::~Engine()
-  {
-    renderer.waitIdle();
-  }
+Engine::~Engine() {
+  renderer.waitIdle();
+}
 
-  void Engine::run()
-  {
-    // set up the scene
-    scene_.UploadSceneData();
+void Engine::run() {
+  // set up the scene
+  scene_.UploadSceneData();
 
-    spdlog::info( "Starting the engine loop" );
+  spdlog::info("Starting the engine loop");
 
-    float accumulatedTime = 0.0f;
-    constexpr float staticTimeStep = 1.0f / 165.0f;
-    constexpr float max_latency = 0.25;
+  float accumulatedTime = 0.0f;
+  constexpr float staticTimeStep = 1.0f / 165.0f;
+  constexpr float max_latency = 0.25;
 
-    while ( running )
-    {
-      
-      swapchain.waitForFrame();
-      swapchain.acquireNextImage();
-      swapchain.waitForImageInFlight();
-      // do drawing here
+  while (running) {
 
-      // update the camera
-      // update the input based on time left
-      auto latency = swapchain.getFrameStats().Latency();
-      latency = std::min<float>(latency, max_latency);
+    swapchain.waitForFrame();
+    swapchain.acquireNextImage();
+    swapchain.waitForImageInFlight();
+    // do drawing here
 
-      accumulatedTime += latency;
+    // update the camera
+    // update the input based on time left
+    auto latency = swapchain.getFrameStats().Latency();
+    latency = std::min<float>(latency, max_latency);
 
-      while (accumulatedTime >= staticTimeStep) {
-        accumulatedTime -= staticTimeStep;
-        input_controller_.PollEvents();
-      }
+    accumulatedTime += latency;
 
-      debugWindow.createFrame( swapchain.getFrameStats() );
-
-      auto extent = swapchain.getExtent();
-
-      auto commandBuffer = swapchain.getCommandBuffer();
-      RenderingStage::begin( commandBuffer );
-      uniforms_.SetCameraData(commandBuffer, camera_);
-      renderingStage.prepareImageForColorAttachment( commandBuffer );
-      renderingStage.beginRenderingPass( commandBuffer );
-      uniforms_.Bind( commandBuffer );
-      renderingStage.GetPipeline().Bind( commandBuffer);
-      Pipeline::SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {extent.width, extent.height}});
-      Pipeline::SetViewport(commandBuffer, {0, 0, static_cast<float>(extent.width), static_cast<float>(extent.height), 0, 1});
-      scene_.Draw(commandBuffer);
-      //renderingStage.renderTriangle( commandBuffer );
-      DebugWindow::renderFrame( commandBuffer );
-      RenderingStage::endRenderingPass( commandBuffer );
-      renderingStage.prepareImageForDisplay( commandBuffer );
-      RenderingStage::end( commandBuffer );
-
-      swapchain.submitCommandBuffer();
-      swapchain.presentImage();
+    while (accumulatedTime >= staticTimeStep) {
+      accumulatedTime -= staticTimeStep;
+      input_controller_.PollEvents();
     }
+
+    debugWindow.createFrame(swapchain.getFrameStats());
+
+    auto extent = swapchain.getExtent();
+
+    auto commandBuffer = swapchain.getCommandBuffer();
+    RenderingStage::begin(commandBuffer);
+    uniforms_.SetCameraData(commandBuffer, camera_);
+    renderingStage.prepareImageForColorAttachment(commandBuffer);
+    renderingStage.beginRenderingPass(commandBuffer);
+    uniforms_.Bind(commandBuffer, renderingStage.GetPipeline().VulkanLayout());
+    renderingStage.GetPipeline().Bind(commandBuffer);
+    Pipeline::SetScissor(commandBuffer,
+                         vk::Rect2D{{0, 0}, {extent.width, extent.height}});
+    Pipeline::SetViewport(commandBuffer,
+                          {0, 0, static_cast<float>(extent.width),
+                           static_cast<float>(extent.height), 0, 1});
+    scene_.Draw(commandBuffer);
+    //renderingStage.renderTriangle( commandBuffer );
+    DebugWindow::renderFrame(commandBuffer);
+    RenderingStage::endRenderingPass(commandBuffer);
+    renderingStage.prepareImageForDisplay(commandBuffer);
+    RenderingStage::end(commandBuffer);
+
+    swapchain.submitCommandBuffer();
+    swapchain.presentImage();
   }
+}
 
 }  // namespace braque

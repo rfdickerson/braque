@@ -12,13 +12,14 @@
 
 namespace braque {
 // Forward declarations
-class Engine;
+class EngineContext;
 class Image;
 class Shader;
+class Uniforms;
 
 class RenderingStage {
  public:
-  explicit RenderingStage(Engine& engine);
+  explicit RenderingStage(EngineContext& engine, Uniforms& uniforms);
   ~RenderingStage();
 
   // make sure copy and move are deleted
@@ -45,7 +46,7 @@ class RenderingStage {
   // void render();
 
  private:
-  Engine& engine;
+  EngineContext& engine;
 
   vk::DescriptorPool descriptorPool;
   std::unique_ptr<Image> offscreenImage;

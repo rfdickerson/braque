@@ -19,9 +19,9 @@ struct SyncBarriers {
 
 class Image {
  public:
-  Image(Engine& engine, const vk::ImageCreateInfo& createInfo,
+  Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
         const VmaAllocationCreateInfo& allocInfo);
-  Image(Engine& engine, vk::Extent3D extent, vk::Format format);
+  Image(EngineContext& engine, vk::Extent3D extent, vk::Format format);
   ~Image();
 
   // declare the copy constructor
@@ -52,7 +52,7 @@ class Image {
   void BlitImage(vk::CommandBuffer buffer, const Image& destImage) const;
 
  private:
-  Engine& engine_;
+  EngineContext& engine_;
 
   vk::Image image_;
   VmaAllocation allocation_;

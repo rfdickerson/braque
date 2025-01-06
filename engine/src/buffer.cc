@@ -9,7 +9,7 @@
 
 namespace braque {
 
-Buffer::Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size)
+Buffer::Buffer(EngineContext& engine, BufferType buffer_type, vk::DeviceSize size)
     : type_(buffer_type),
       size_(size),
       buffer_(nullptr),
@@ -67,7 +67,7 @@ Buffer::Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size)
   spdlog::info("Created buffer");
 }
 
-Buffer::Buffer(Engine& engine, vk::BufferCreateInfo buffer_create_info,
+Buffer::Buffer(EngineContext& engine, vk::BufferCreateInfo buffer_create_info,
                VmaAllocationCreateInfo allocation_create_info)
     : type_(BufferType::staging),
       size_(buffer_create_info.size),

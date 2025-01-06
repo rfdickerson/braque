@@ -7,12 +7,12 @@
 
 namespace braque {
 
-class Engine;
+class EngineContext;
 class Texture;
 
 class Uniforms {
  public:
-  Uniforms(Engine& engine);
+  Uniforms(EngineContext& engine);
   ~Uniforms();
 
   // remove copy and move
@@ -23,12 +23,12 @@ class Uniforms {
   void SetTextureData(const Texture& texture, vk::Sampler sampler);
 
  // bind descriptor sets
-  void Bind(vk::CommandBuffer buffer) const;
+  void Bind(vk::CommandBuffer buffer, vk::PipelineLayout layout) const;
 
   auto GetDescriptorSetLayout() const -> vk::DescriptorSetLayout { return descriptor_set_layout_; }
 
  private:
-  Engine& engine_;
+  EngineContext& engine_;
 
   std::vector<Buffer> camera_buffers_;
   std::vector<vk::DescriptorSet> descriptor_sets_;
@@ -41,4 +41,5 @@ class Uniforms {
   void createDescriptorPool();
   void createDescriptorSets();
 };
+
 }  // namespace braque

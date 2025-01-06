@@ -12,7 +12,7 @@ struct CameraUbo {
   glm::mat4 proj;
 };
 
-Uniforms::Uniforms(Engine& engine) : engine_(engine) {
+Uniforms::Uniforms(EngineContext& engine) : engine_(engine) {
   CreateUniformBuffers();
   createDescriptorSetLayout();
   createDescriptorPool();
@@ -160,10 +160,8 @@ void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) {
   cameraBuffer.CopyData(buffer, &camera_ubo, sizeof(CameraUbo));
 }
 
-void Uniforms::Bind(vk::CommandBuffer buffer) const {
+void Uniforms::Bind(vk::CommandBuffer buffer, vk::PipelineLayout layout) const {
   const auto& frame = engine_.getSwapchain().CurrentFrameIndex();
-
-  const auto layout = engine_.getRenderingStage().GetPipeline().VulkanLayout();
 
   buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                             layout, 0,

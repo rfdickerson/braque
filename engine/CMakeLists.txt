@@ -20,6 +20,7 @@ set (braque-headers
         include/braque/scene.h
         include/braque/buffer.h
         include/braque/texture.h
+        include/braque/engine_context.h
 )
 
 add_library(braque STATIC

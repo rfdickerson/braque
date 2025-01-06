@@ -14,7 +14,7 @@
 
 namespace braque {
 
-RenderingStage::RenderingStage(Engine& engine) : engine(engine) {
+RenderingStage::RenderingStage(EngineContext& engine, Uniforms& uniforms) : engine(engine) {
   spdlog::info("Creating rendering stage");
 
   createDescriptorPool();
@@ -28,7 +28,7 @@ RenderingStage::RenderingStage(Engine& engine) : engine(engine) {
                                     "../assets/shaders/triangle.frag.spv");
   pipeline =
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
-                                 engine.getUniforms().GetDescriptorSetLayout());
+                                 uniforms.GetDescriptorSetLayout());
 
   for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount();
        ++i) {

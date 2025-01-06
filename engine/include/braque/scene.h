@@ -16,8 +16,9 @@
 
 namespace braque {
 
-class Engine; // Forward declaration if needed
+class EngineContext; // Forward declaration if needed
 class Texture;
+class Uniforms;
 
 constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
@@ -37,7 +38,7 @@ struct Vertex {
 
 class Scene {
 public:
-  explicit Scene(Engine& engine);
+  explicit Scene(EngineContext& engine, Uniforms& uniforms);
   ~Scene();
 
   void UploadSceneData();
@@ -46,7 +47,7 @@ public:
 
 private:
 
-  Engine& engine_;
+  EngineContext& engine_;
 
   Buffer vertex_buffer_;
   Buffer index_buffer_;

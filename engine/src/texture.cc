@@ -5,7 +5,7 @@
 
 namespace braque {
 
-Texture::Texture(Engine& engine, std::string name, TextureType texture_type,
+Texture::Texture(EngineContext& engine, std::string name, TextureType texture_type,
                  std::string path)
     : name_(name),
       texture_type_(texture_type),
@@ -50,7 +50,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
   return *this;
 }
 
-void Texture::CreateImage(Engine& engine) {
+void Texture::CreateImage(EngineContext& engine) {
 
   auto imageSize = texture_.size();
   auto levels = texture_.levels();

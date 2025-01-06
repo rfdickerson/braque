@@ -8,7 +8,7 @@
 #include "vk_mem_alloc.h"
 
 namespace braque {
-class Engine;
+class EngineContext;
 
 enum class BufferType: uint8_t {
     vertex,
@@ -19,8 +19,8 @@ enum class BufferType: uint8_t {
 
 class Buffer {
 public:
-  explicit Buffer(Engine& engine, BufferType buffer_type, vk::DeviceSize size);
-  explicit Buffer(Engine& engine, vk::BufferCreateInfo buffer_create_info, VmaAllocationCreateInfo allocation_info);
+  explicit Buffer(EngineContext& engine, BufferType buffer_type, vk::DeviceSize size);
+  explicit Buffer(EngineContext& engine, vk::BufferCreateInfo buffer_create_info, VmaAllocationCreateInfo allocation_info);
   ~Buffer();
 
   // move constructor
@@ -56,7 +56,7 @@ private:
   bool is_mapped_ = false;
   void* mapped_data_ = nullptr;
 
-  Engine& engine_;
+  EngineContext& engine_;
 };
 } // namespace braque
 

@@ -21,7 +21,7 @@ enum class TextureType : uint8_t {
 
 class Texture {
  public:
-  Texture(Engine& engine, std::string name, TextureType texture_type,
+  Texture(EngineContext& engine, std::string name, TextureType texture_type,
           std::string path);
 
   ~Texture() = default;
@@ -32,7 +32,7 @@ class Texture {
   Texture(Texture&& other) noexcept;             // move constructor
   auto operator=(Texture&& other) noexcept -> Texture&;  // move assignment operator()
 
-  void CreateImage(Engine& engine);
+  void CreateImage(EngineContext& engine);
 
   [[nodiscard]] auto GetName() const -> std::string { return name_; }
 

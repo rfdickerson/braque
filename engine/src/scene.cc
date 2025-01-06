@@ -8,7 +8,7 @@
 #include "braque/texture.h"
 
 namespace braque {
-Scene::Scene(Engine& engine)
+Scene::Scene(EngineContext& engine, Uniforms& uniforms)
     : engine_(engine),
       vertex_buffer_(engine, BufferType::vertex, kVertexBufferSize),
       index_buffer_(engine, BufferType::index, kVertexBufferSize),
@@ -19,14 +19,12 @@ Scene::Scene(Engine& engine)
   AddCube();
   UploadSceneData();
 
-  // initialize the texture
-
   texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, R"(../../../../assets/textures/brick_d.dds)");
   texture_->CreateImage(engine);
 
   CreateTextureSampler();
 
-  engine.getUniforms().SetTextureData(*texture_, texture_sampler_);
+  uniforms.SetTextureData(*texture_, texture_sampler_);
 }
 
 Scene::~Scene() {

@@ -10,7 +10,7 @@
 
 namespace braque {
 
-Image::Image(Engine& engine, const vk::ImageCreateInfo& createInfo,
+Image::Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
              const VmaAllocationCreateInfo& allocInfo)
     : engine_(engine),
       format(vk::Format::eUndefined),
@@ -27,7 +27,7 @@ Image::Image(Engine& engine, const vk::ImageCreateInfo& createInfo,
   createImageView();
 }
 
-Image::Image(Engine& engine, vk::Extent3D extent, vk::Format format)
+Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
     : engine_(engine),
       extent_(extent),
       format(format),
@@ -42,6 +42,7 @@ Image::~Image() {
   if (image_view_) {
     // destroy image view
     engine_.getRenderer().getDevice().destroyImageView(image_view_);
+    image_view_ = nullptr;
     spdlog::info("Destroyed image view");
   }
 
