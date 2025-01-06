@@ -57,7 +57,7 @@ class Texture {
   static auto CreateImageInfo(const gli::texture& texture)
       -> vk::ImageCreateInfo;
 
-  static auto CreateAllocationInfo(const gli::texture& texture)
+  static auto CreateAllocationInfo()
       -> VmaAllocationCreateInfo;
 };
 }  // namespace braque

@@ -7,6 +7,7 @@
 
 #include "camera.h"
 #include "debug_window.h"
+#include "engine_context.h"
 #include "input/app_controller.h"
 #include "input/fps_controller.h"
 #include "input/input_controller.h"
@@ -17,7 +18,6 @@
 #include "swapchain.h"
 #include "uniforms.h"
 #include "window.h"
-#include "engine_context.h"
 
 namespace braque {
 
@@ -39,7 +39,7 @@ class Engine {
   auto getSwapchain() -> Swapchain& { return swapchain; }
 
   //auto getRenderingStage() -> RenderingStage& { return renderingStage; }
-  RenderingStage& getRenderingStage() { return renderingStage; }
+  auto getRenderingStage() -> RenderingStage& { return renderingStage; }
 
   auto getMemoryAllocator() -> MemoryAllocator& { return memoryAllocator; }
 

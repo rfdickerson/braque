@@ -5,20 +5,21 @@
 #ifndef ENGINE_CONTEXT_H
 #define ENGINE_CONTEXT_H
 
-#include "memory_allocator.h"
-#include "renderer.h"
-#include "swapchain.h"
 
 namespace braque {
+
+class MemoryAllocator;
+class Renderer;
+class Swapchain;
 
 class EngineContext {
  public:
   EngineContext(MemoryAllocator& allocator, Renderer& renderer,
                 Swapchain& swapchain)
       : allocator_(allocator), renderer_(renderer), swapchain_(swapchain) {}
-  MemoryAllocator& getMemoryAllocator() { return allocator_; }
-  Renderer& getRenderer() { return renderer_; }
-  Swapchain& getSwapchain() { return swapchain_; }
+  auto getMemoryAllocator() const -> MemoryAllocator& { return allocator_; }
+  auto getRenderer() const -> Renderer& { return renderer_; }
+  auto getSwapchain() const -> Swapchain& { return swapchain_; }
 
  private:
   MemoryAllocator& allocator_;

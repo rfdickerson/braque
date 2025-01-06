@@ -5,14 +5,14 @@
 
 namespace braque {
 
-Texture::Texture(EngineContext& engine, std::string name, TextureType texture_type,
-                 std::string path)
+Texture::Texture(EngineContext& engine, std::string name,
+                 TextureType texture_type, std::string path)
     : name_(name),
       texture_type_(texture_type),
       path_(path),
-      texture_{gli::load(path)},
+      texture_{gli::load_dds(path)},
       texture_image_(engine, CreateImageInfo(texture_),
-                     CreateAllocationInfo(texture_)) {
+                     CreateAllocationInfo()) {
   spdlog::info("Loaded texture: {}", path);
   spdlog::info("Texture size: {} x {} x {}", texture_.extent().x,
                texture_.extent().y, texture_.extent().z);
@@ -53,7 +53,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 void Texture::CreateImage(EngineContext& engine) {
 
   auto imageSize = texture_.size();
-  auto levels = texture_.levels();
+  const auto levels = static_cast<uint32_t>(texture_.levels());
 
   Buffer staging_buffer(engine, BufferType::staging, imageSize);
   staging_buffer.CopyData(texture_.data(), imageSize);
@@ -112,7 +112,7 @@ void Texture::CreateImage(EngineContext& engine) {
   barriers.dstAccess = vk::AccessFlagBits2::eShaderRead;
 
   texture_image_.TransitionLayout(vk::ImageLayout::eShaderReadOnlyOptimal, cmd,
-                                  barriers, texture_.levels());
+                                  barriers, levels);
   cmd.end();
 
   engine.getRenderer().SubmitAndWait(cmd);
@@ -124,16 +124,30 @@ auto Texture::GetExtent(gli::texture const& texture) -> vk::Extent3D {
 }
 
 auto Texture::GetFormat(const gli::texture& texture) -> vk::Format {
-  return vk::Format::eBc1RgbSrgbBlock;
+  switch (texture.format()) {
+    case gli::format::FORMAT_RGB_DXT1_SRGB_BLOCK8:
+      return vk::Format::eBc1RgbSrgbBlock;
+    case gli::format::FORMAT_RGBA_DXT1_UNORM_BLOCK8:
+      //return vk::Format::eBc1RgbaUnormBlock;
+        return vk::Format::eBc1RgbSrgbBlock;
+    case gli::format::FORMAT_RGBA_DXT5_SRGB_BLOCK16:
+      return vk::Format::eBc3SrgbBlock;
+    case gli::format::FORMAT_RGBA_BP_UNORM_BLOCK16:
+      //return vk::Format::eBc7UnormBlock;
+      return vk::Format::eBc7SrgbBlock;
+    default:
+      spdlog::error("Unsupported texture format");
+      return vk::Format::eUndefined;
+  }
 }
 
 vk::ImageCreateInfo Texture::CreateImageInfo(const gli::texture& texture) {
   vk::ImageCreateInfo imageInfo{};
   imageInfo.imageType = vk::ImageType::e2D;  // or e3D if it's a 3D texture
   imageInfo.extent = GetExtent(texture);
-  imageInfo.mipLevels = texture.levels();
-  imageInfo.arrayLayers = texture.layers();
-  imageInfo.format = vk::Format::eBc1RgbSrgbBlock;
+  imageInfo.mipLevels = static_cast<uint32_t>(texture.levels());
+  imageInfo.arrayLayers = static_cast<uint32_t>(texture.layers());
+  imageInfo.format = GetFormat(texture);
   imageInfo.tiling = vk::ImageTiling::eOptimal;
   imageInfo.initialLayout = vk::ImageLayout::eUndefined;
   imageInfo.usage =
@@ -143,8 +157,7 @@ vk::ImageCreateInfo Texture::CreateImageInfo(const gli::texture& texture) {
   return imageInfo;
 }
 
-VmaAllocationCreateInfo Texture::CreateAllocationInfo(
-    const gli::texture& texture) {
+VmaAllocationCreateInfo Texture::CreateAllocationInfo() {
   VmaAllocationCreateInfo allocInfo{};
   allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   return allocInfo;

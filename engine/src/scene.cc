@@ -19,7 +19,7 @@ Scene::Scene(EngineContext& engine, Uniforms& uniforms)
   AddCube();
   UploadSceneData();
 
-  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, R"(../../../../assets/textures/brick_d.dds)");
+  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, R"(../../../../assets/textures/brick_d6.dds)");
   texture_->CreateImage(engine);
 
   CreateTextureSampler();

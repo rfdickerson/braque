@@ -4,19 +4,17 @@
 
 #ifndef SCENE_H
 #define SCENE_H
-#include "memory_allocator.h"
 
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
+#include <vulkan/vulkan.hpp>
+#include <glm/glm.hpp>
 #include <vector>
-#include <memory>
 
-#include "braque/buffer.h"
-
+#include "buffer.h"
 
 namespace braque {
 
-class EngineContext; // Forward declaration if needed
+// forward declarations
+class EngineContext;
 class Texture;
 class Uniforms;
 
