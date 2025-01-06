@@ -6,31 +6,33 @@
 namespace braque
 {
 
-Texture::Texture(std::string name, TextureType texture_type, std::string path)
-  : name_(name), texture_type_(texture_type), path_(path)
+Texture::Texture(Engine& engine, std::string name, TextureType texture_type, std::string path)
+  : name_(name),
+texture_type_(texture_type),
+path_(path),
+texture_{gli::load(path)},
+texture_image_(engine, CreateImageInfo(texture_), CreateAllocationInfo(texture_))
 {
-  texture_ = gli::load(path);
-  if (texture_.empty()) {
-    spdlog::error("Failed to load texture: {}", path);
-    throw std::runtime_error("Failed to load texture: " + path);
-  }
-
   spdlog::info("Loaded texture: {}", path);
   spdlog::info("Texture size: {} x {} x {}", texture_.extent().x, texture_.extent().y, texture_.extent().z);
   spdlog::info("Texture mipmaps: {}", texture_.levels());
 }
 
-Texture::Texture(Texture&& other) noexcept:
-texture_(other.texture_)
+Texture::Texture(Texture&& other) noexcept
+    : name_(std::move(other.name_)),
+      texture_(std::move(other.texture_)),
+      texture_type_(other.texture_type_),
+      path_(std::move(other.path_)),
+      texture_image_(std::move(other.texture_image_))
 {
+  // Clear the moved-from object
+  other.texture_type_ = TextureType::eUnknown;
 
+  // If there are any other member variables that need to be moved or reset, do it here
+
+  spdlog::debug("Texture moved: {}", name_);
 }
 
-
-Texture::~Texture() {
-  delete texture_image_;
-
-}
 
 void Texture::CreateImage(Engine& engine) {
 
@@ -38,35 +40,9 @@ void Texture::CreateImage(Engine& engine) {
   auto levels = texture_.levels();
 
   Buffer staging_buffer(engine, BufferType::staging, imageSize);
-
   staging_buffer.CopyData(texture_.data(), imageSize);
-  // Log some information for debugging
-  spdlog::info("Texture size: {} x {} x {}", texture_.extent().x, texture_.extent().y, texture_.extent().z);
+
   spdlog::info("Total texture size: {} bytes", imageSize);
-
-  vk::Extent3D const extent {
-    static_cast<uint32_t>(texture_.extent().x),
-    static_cast<uint32_t>(texture_.extent().y),
-    static_cast<uint32_t>(texture_.extent().z)
-};
-
-  vk::ImageCreateInfo imageInfo{};
-  imageInfo.imageType = vk::ImageType::e2D;  // or e3D if it's a 3D texture
-  imageInfo.extent = extent;
-  imageInfo.mipLevels = texture_.levels();
-  imageInfo.arrayLayers = texture_.layers();
-  //imageInfo.format = vk::Format::eBc1RgbUnormBlock;  // Make sure this matches your texture format
-  imageInfo.format = vk::Format::eBc1RgbSrgbBlock;
-  imageInfo.tiling = vk::ImageTiling::eOptimal;
-  imageInfo.initialLayout = vk::ImageLayout::eUndefined;
-  imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
-  imageInfo.sharingMode = vk::SharingMode::eExclusive;
-  imageInfo.samples = vk::SampleCountFlagBits::e1;
-
-  VmaAllocationCreateInfo allocInfo{};
-  allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-
-  texture_image_ = new Image(engine, imageInfo, allocInfo);;
 
   auto cmd = engine.getRenderer().CreateCommandBuffer();
   cmd.begin(vk::CommandBufferBeginInfo{});
@@ -77,7 +53,7 @@ void Texture::CreateImage(Engine& engine) {
   barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
   barriers.dstAccess = vk::AccessFlagBits2::eTransferRead;
 
-  texture_image_->TransitionLayout(vk::ImageLayout::eTransferDstOptimal, cmd, barriers, levels);
+  texture_image_.TransitionLayout(vk::ImageLayout::eTransferDstOptimal, cmd, barriers, levels);
 
   // Before the loop, let's log the total number of mip levels
   spdlog::info("Total mip levels: {}", texture_.levels());
@@ -113,7 +89,7 @@ void Texture::CreateImage(Engine& engine) {
 
     cmd.copyBufferToImage(
         staging_buffer.GetBuffer(),
-        texture_image_->GetImage(),
+        texture_image_.GetImage(),
         vk::ImageLayout::eTransferDstOptimal,
         region);
 
@@ -125,12 +101,41 @@ void Texture::CreateImage(Engine& engine) {
   barriers.dstStage = vk::PipelineStageFlagBits2::eFragmentShader;
   barriers.dstAccess = vk::AccessFlagBits2::eShaderRead;
 
-  texture_image_->TransitionLayout(vk::ImageLayout::eShaderReadOnlyOptimal, cmd, barriers, texture_.levels());
+  texture_image_.TransitionLayout(vk::ImageLayout::eShaderReadOnlyOptimal, cmd, barriers, texture_.levels());
   cmd.end();
 
   engine.getRenderer().SubmitAndWait(cmd);
 
 
+}
+
+auto Texture::GetExtent(gli::texture const& texture) -> vk::Extent3D {
+  return {static_cast<uint32_t>(texture.extent().x), static_cast<uint32_t>(texture.extent().y), 1};
+}
+
+ auto Texture::GetFormat(const gli::texture& texture) -> vk::Format {
+  return vk::Format::eBc1RgbSrgbBlock;
+}
+
+vk::ImageCreateInfo Texture::CreateImageInfo(const gli::texture& texture) {
+  vk::ImageCreateInfo imageInfo{};
+  imageInfo.imageType = vk::ImageType::e2D;  // or e3D if it's a 3D texture
+  imageInfo.extent = GetExtent(texture);
+  imageInfo.mipLevels = texture.levels();
+  imageInfo.arrayLayers = texture.layers();
+  imageInfo.format = vk::Format::eBc1RgbSrgbBlock;
+  imageInfo.tiling = vk::ImageTiling::eOptimal;
+  imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+  imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+  imageInfo.sharingMode = vk::SharingMode::eExclusive;
+  imageInfo.samples = vk::SampleCountFlagBits::e1;
+  return imageInfo;
+}
+
+VmaAllocationCreateInfo Texture::CreateAllocationInfo(const gli::texture& texture) {
+  VmaAllocationCreateInfo allocInfo{};
+  allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  return allocInfo;
 }
 
 } // namespace braque

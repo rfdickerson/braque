@@ -16,12 +16,12 @@ Scene::Scene(Engine& engine)
       index_staging_buffer_(engine, BufferType::staging, kVertexBufferSize) {
 
   // add a cube to vertex and index staging buffers
-  AddCube({0.0f, 0.0f, 0.0f});
+  AddCube();
   UploadSceneData();
 
   // initialize the texture
 
-  texture_ = new Texture("cobblestone", TextureType::albedo, R"(../../../../assets/textures/brick_d.dds)");
+  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, R"(../../../../assets/textures/brick_d.dds)");
   texture_->CreateImage(engine);
 
   CreateTextureSampler();
@@ -75,7 +75,7 @@ void Scene::UploadSceneData() {
   engine_.getRenderer().waitIdle();
 }
 
-void Scene::AddCube(glm::vec3 position) {
+void Scene::AddCube() {
 
   // Face 1..6 each has 6 vertices = 36 total
 // Indices will then be 6 faces × 2 triangles × 3 indices = 36 indices

@@ -42,7 +42,7 @@ public:
 
   void UploadSceneData();
   void Draw(vk::CommandBuffer buffer);
-  void AddCube(glm::vec3 position);
+  void AddCube();
 
 private:
 
