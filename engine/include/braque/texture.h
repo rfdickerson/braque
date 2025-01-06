@@ -10,26 +10,35 @@ namespace braque {
 // Forward declarations
 class Engine;
 
-enum class TextureType: uint8_t { eAlbedo, eNormal, eRoughness, eMetallic, eAmbientOcclusion, eUnknown };
+enum class TextureType : uint8_t {
+  eAlbedo,
+  eNormal,
+  eRoughness,
+  eMetallic,
+  eAmbientOcclusion,
+  eUnknown
+};
 
 class Texture {
  public:
-  Texture(Engine& engine, std::string name, TextureType texture_type, std::string path);
+  Texture(Engine& engine, std::string name, TextureType texture_type,
+          std::string path);
 
   ~Texture() = default;
+
+  Texture(const Texture&) = delete;             // Copy constructor
+  auto operator=(const Texture&) -> Texture& = delete;  // Copy assignment operator
+
+  Texture(Texture&& other) noexcept;             // move constructor
+  auto operator=(Texture&& other) noexcept -> Texture&;  // move assignment operator()
 
   void CreateImage(Engine& engine);
 
   [[nodiscard]] auto GetName() const -> std::string { return name_; }
 
-  [[nodiscard]] auto GetImageView() const -> vk::ImageView { return texture_image_.GetImageView(); }
-
-  // Move constructor (already defined)
-  Texture(Texture&& other) noexcept;
-
-  // Delete copy operations
-  Texture(const Texture& other) = delete;
-  auto operator=(const Texture& other) -> Texture& = delete;
+  [[nodiscard]] auto GetImageView() const -> vk::ImageView {
+    return texture_image_.GetImageView();
+  }
 
  private:
   std::string name_;
@@ -45,9 +54,11 @@ class Texture {
 
   static auto GetFormat(const gli::texture& texture) -> vk::Format;
 
-  static auto CreateImageInfo(const gli::texture& texture) -> vk::ImageCreateInfo;
+  static auto CreateImageInfo(const gli::texture& texture)
+      -> vk::ImageCreateInfo;
 
-  static auto CreateAllocationInfo(const gli::texture& texture) -> VmaAllocationCreateInfo;
+  static auto CreateAllocationInfo(const gli::texture& texture)
+      -> VmaAllocationCreateInfo;
 };
 }  // namespace braque
 

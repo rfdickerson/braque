@@ -65,6 +65,23 @@ Image::Image(Image&& other) noexcept
   other.allocation_ = nullptr;
 }
 
+Image& Image::operator=(Image&& other) noexcept {
+  if (this != &other) {
+    // First, clean up any existing resources
+    if (image_view_) {
+      engine_.getRenderer().getDevice().destroyImageView(image_view_);
+      image_view_ = nullptr;
+    }
+    if (image_) {
+      engine_.getMemoryAllocator().destroyImage(image_, allocation_);
+      image_ = nullptr;
+      allocation_ = nullptr;
+    }
+
+  }
+  return *this;
+}
+
 void Image::allocateImage() {
   vk::ImageCreateInfo createInfo;
   createInfo.setImageType(vk::ImageType::e2D);
