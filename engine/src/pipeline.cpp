@@ -4,6 +4,7 @@
 
 #include "braque/pipeline.h"
 #include "braque/scene.h"
+#include "braque/shader.h"
 
 #include <spdlog/spdlog.h>
 

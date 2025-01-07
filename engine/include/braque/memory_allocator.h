@@ -5,8 +5,6 @@
 #ifndef MEMORY_ALLOCATOR_HPP
 #define MEMORY_ALLOCATOR_HPP
 
-#include "renderer.h"
-
 #include <vk_mem_alloc.h>
 #include <vulkan/vulkan.hpp>
 
@@ -27,6 +25,8 @@ namespace braque
   };
 
 class Buffer;
+
+class Renderer;
 
   class MemoryAllocator
   {

@@ -5,8 +5,10 @@
 #ifndef IMAGE_HPP
 #define IMAGE_HPP
 
-#include "engine.h"
-#include "memory_allocator.h"
+#include "vulkan/vulkan.hpp"
+#include "vk_mem_alloc.h"
+
+#include "engine_context.h"
 
 namespace braque {
 
@@ -18,6 +20,7 @@ struct SyncBarriers {
 };
 
 class Image {
+
  public:
   Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
         const VmaAllocationCreateInfo& allocInfo);

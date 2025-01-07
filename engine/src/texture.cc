@@ -3,6 +3,9 @@
 #include <spdlog/spdlog.h>
 #include <gli/gli.hpp>
 
+#include <braque/buffer.h>
+#include <braque/renderer.h>
+
 namespace braque {
 
 Texture::Texture(EngineContext& engine, std::string name,

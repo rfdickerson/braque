@@ -9,6 +9,7 @@
 #include "braque/renderer.h"
 #include "braque/shader.h"
 #include "braque/swapchain.h"
+#include "braque/uniforms.h"
 
 #include <spdlog/spdlog.h>
 

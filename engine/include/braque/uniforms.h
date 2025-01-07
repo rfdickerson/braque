@@ -2,11 +2,13 @@
 
 #include <vector>
 
-namespace braque {
+#include "braque/engine_context.h"
+#include "braque/swapchain.h"
+#include "braque/camera.h"
+#include "braque/texture.h"
+#include "braque/buffer.h"
 
-class EngineContext;
-class Texture;
-class Swapchain;
+namespace braque {
 
 class Uniforms {
  public:

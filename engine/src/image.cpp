@@ -5,6 +5,7 @@
 #include "braque/image.h"
 
 #include "braque/renderer.h"
+#include "braque/memory_allocator.h"
 
 #include <spdlog/spdlog.h>
 

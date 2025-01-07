@@ -7,9 +7,9 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <braque/shader.h>
-
 namespace braque {
+
+class Shader;
 
 class Pipeline {
 public:
