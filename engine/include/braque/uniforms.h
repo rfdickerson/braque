@@ -1,18 +1,16 @@
 #pragma once
 
-#include "braque/memory_allocator.h"
-
-#include <glm/glm.hpp>
 #include <vector>
 
 namespace braque {
 
 class EngineContext;
 class Texture;
+class Swapchain;
 
 class Uniforms {
  public:
-  Uniforms(EngineContext& engine);
+  Uniforms(EngineContext& engine, Swapchain& swapchain);
   ~Uniforms();
 
   // remove copy and move
@@ -29,6 +27,7 @@ class Uniforms {
 
  private:
   EngineContext& engine_;
+  Swapchain& swapchain_;
 
   std::vector<Buffer> camera_buffers_;
   std::vector<vk::DescriptorSet> descriptor_sets_;

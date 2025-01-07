@@ -16,10 +16,11 @@ class EngineContext;
 class Image;
 class Shader;
 class Uniforms;
+class Swapchain;
 
 class RenderingStage {
  public:
-  explicit RenderingStage(EngineContext& engine, Uniforms& uniforms);
+  explicit RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms);
   ~RenderingStage();
 
   // make sure copy and move are deleted
@@ -47,6 +48,7 @@ class RenderingStage {
 
  private:
   EngineContext& engine;
+  Swapchain & swapchain_;
 
   vk::DescriptorPool descriptorPool;
   std::unique_ptr<Image> offscreenImage;

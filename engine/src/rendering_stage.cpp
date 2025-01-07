@@ -14,12 +14,12 @@
 
 namespace braque {
 
-RenderingStage::RenderingStage(EngineContext& engine, Uniforms& uniforms) : engine(engine) {
+RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms) : engine(engine), swapchain_(swapchain) {
   spdlog::info("Creating rendering stage");
 
   createDescriptorPool();
 
-  const auto extent = vk::Extent3D{engine.getSwapchain().getExtent(), 1};
+  const auto extent = vk::Extent3D{swapchain.getExtent(), 1};
 
   offscreenImage =
       std::make_unique<Image>(engine, extent, vk::Format::eR16G16B16A16Sfloat);
@@ -49,9 +49,8 @@ void RenderingStage::begin(const vk::CommandBuffer buffer) {
 }
 
 void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
-  const auto& swapchain = engine.getSwapchain();
 
-  const auto curr = swapchain.CurrentFrameIndex();
+  const auto curr = swapchain_.CurrentFrameIndex();
 
   constexpr vk::ClearColorValue clearColor{0.0F, 0.0F, 0.0F, 0.0F};
 
@@ -61,7 +60,7 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
   renderingAttachmentInfo.setStoreOp(vk::AttachmentStoreOp::eStore);
   renderingAttachmentInfo.setImageLayout(
       vk::ImageLayout::eColorAttachmentOptimal);
-  renderingAttachmentInfo.setImageView(swapchain.getImageView());
+  renderingAttachmentInfo.setImageView(swapchain_.getImageView());
 
   // create the depth attachment
   auto clear_value = vk::ClearValue();
@@ -74,7 +73,7 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
   depthAttachmentInfo.setImageLayout(vk::ImageLayout::eDepthAttachmentOptimal);
   depthAttachmentInfo.setClearValue(clear_value);
 
-  const auto renderArea = vk::Rect2D{{0, 0}, swapchain.getExtent()};
+  const auto renderArea = vk::Rect2D{{0, 0}, swapchain_.getExtent()};
 
   vk::RenderingInfo renderingInfo{};
   renderingInfo.setColorAttachments(renderingAttachmentInfo);
@@ -105,7 +104,7 @@ void RenderingStage::prepareImageForColorAttachment(
       vk::ImageLayout::eColorAttachmentOptimal,            // newLayout
       vk::QueueFamilyIgnored,                        // srcQueueFamilyIndex
       vk::QueueFamilyIgnored,                        // dstQueueFamilyIndex
-      engine.getSwapchain().swapchain_image(),       // image
+      swapchain_.swapchain_image(),       // image
       {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}  // subresourceRange
   };
 
@@ -129,7 +128,7 @@ void RenderingStage::prepareImageForDisplay(
       vk::ImageLayout::ePresentSrcKHR,                     // newLayout
       vk::QueueFamilyIgnored,                        // srcQueueFamilyIndex
       vk::QueueFamilyIgnored,                        // dstQueueFamilyIndex
-      engine.getSwapchain().swapchain_image(),       // image
+      swapchain_.swapchain_image(),       // image
       {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}  // subresourceRange
   };
 
@@ -183,13 +182,13 @@ void RenderingStage::renderTriangle(const vk::CommandBuffer buffer) const {
   const auto viewport =
       vk::Viewport{0.0F,
                    0.0F,
-                   static_cast<float>(engine.getSwapchain().getExtent().width),
-                   static_cast<float>(engine.getSwapchain().getExtent().height),
+                   static_cast<float>(swapchain_.getExtent().width),
+                   static_cast<float>(swapchain_.getExtent().height),
                    0.0F,
                    1.0F};
   Pipeline::SetViewport(buffer, viewport);
 
-  const auto scissor = vk::Rect2D{{0, 0}, engine.getSwapchain().getExtent()};
+  const auto scissor = vk::Rect2D{{0, 0}, swapchain_.getExtent()};
   Pipeline::SetScissor(buffer, scissor);
 
   buffer.draw(3, 1, 0, 0);

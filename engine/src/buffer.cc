@@ -3,8 +3,9 @@
 //
 
 #include "braque/buffer.h"
-#include "braque/engine.h"
 
+#include "braque/engine_context.h"
+#include "braque/memory_allocator.h"
 #include <spdlog/spdlog.h>
 
 namespace braque {

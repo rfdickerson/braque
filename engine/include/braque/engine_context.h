@@ -14,17 +14,16 @@ class Swapchain;
 
 class EngineContext {
  public:
-  EngineContext(MemoryAllocator& allocator, Renderer& renderer,
-                Swapchain& swapchain)
-      : allocator_(allocator), renderer_(renderer), swapchain_(swapchain) {}
+  EngineContext(MemoryAllocator& allocator, Renderer& renderer)
+      : allocator_(allocator), renderer_(renderer) {}
   auto getMemoryAllocator() const -> MemoryAllocator& { return allocator_; }
   auto getRenderer() const -> Renderer& { return renderer_; }
-  auto getSwapchain() const -> Swapchain& { return swapchain_; }
+  // auto getSwapchain() const -> Swapchain& { return swapchain_; }
 
  private:
   MemoryAllocator& allocator_;
   Renderer& renderer_;
-  Swapchain& swapchain_;
+  // Swapchain& swapchain_;
 };
 
 }  // namespace braque

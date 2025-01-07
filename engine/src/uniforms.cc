@@ -12,7 +12,7 @@ struct CameraUbo {
   glm::mat4 proj;
 };
 
-Uniforms::Uniforms(EngineContext& engine) : engine_(engine) {
+Uniforms::Uniforms(EngineContext& engine, Swapchain& swapchain) : engine_(engine), swapchain_(swapchain) {
   CreateUniformBuffers();
   createDescriptorSetLayout();
   createDescriptorPool();
@@ -31,9 +31,7 @@ Uniforms::~Uniforms() {
 
 void Uniforms::CreateUniformBuffers() {
 
-  const auto& swapchain = engine_.getSwapchain();
-
-  for (uint32_t i = 0; i < swapchain.getFramesInFlightCount(); ++i) {
+  for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount(); ++i) {
     camera_buffers_.push_back(Buffer(engine_, BufferType::uniform, sizeof(CameraUbo)));
   }
 
@@ -141,7 +139,7 @@ void Uniforms::SetTextureData( const Texture& texture, vk::Sampler sampler) {
 
 void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) {
 
-  const auto& frame = engine_.getSwapchain().CurrentFrameIndex();
+  const auto& frame = swapchain_.CurrentFrameIndex();
 
   auto& cameraBuffer = camera_buffers_[frame];
 
@@ -161,7 +159,7 @@ void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) {
 }
 
 void Uniforms::Bind(vk::CommandBuffer buffer, vk::PipelineLayout layout) const {
-  const auto& frame = engine_.getSwapchain().CurrentFrameIndex();
+  const auto& frame = swapchain_.CurrentFrameIndex();
 
   buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                             layout, 0,

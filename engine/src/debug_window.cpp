@@ -23,10 +23,12 @@ namespace braque
     ImGui::CreateContext();
 
     const auto format = engine.getSwapchain().getFormat();
+    constexpr auto depthFormat = vk::Format::eD32Sfloat;
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
-    pipelineRenderingCreateInfo.setColorAttachmentCount( 1 );
-    pipelineRenderingCreateInfo.setPColorAttachmentFormats( &format );
+
+    pipelineRenderingCreateInfo.setColorAttachmentFormats({format});
+    pipelineRenderingCreateInfo.setDepthAttachmentFormat(depthFormat);
 
     ImGui_ImplGlfw_InitForVulkan( engine.getWindow().GetNativeWindow(), true );
 

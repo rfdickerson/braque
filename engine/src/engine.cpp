@@ -19,9 +19,9 @@ namespace braque {
 Engine::Engine()
     : swapchain(window, renderer),
       memoryAllocator(renderer),
-      context_(memoryAllocator, renderer, swapchain),
-      uniforms_(context_),
-      renderingStage(context_, uniforms_),
+      context_(memoryAllocator, renderer),
+      uniforms_(context_, swapchain),
+      renderingStage(context_, swapchain,uniforms_),
       debugWindow(*this),
       scene_(context_, uniforms_) {
   // Any other initialization after all members are constructed
