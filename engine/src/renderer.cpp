@@ -124,6 +124,11 @@ namespace braque
     deviceCreateInfo.setEnabledExtensionCount( static_cast<uint32_t>( deviceExtensions.size() ) );
     deviceCreateInfo.setPpEnabledExtensionNames( deviceExtensions.data() );
 
+    vk::PhysicalDeviceFeatures enabledFeatures {};
+    enabledFeatures.setSamplerAnisotropy(true);
+    deviceCreateInfo.setPEnabledFeatures( &enabledFeatures );
+
+    // dynamic rendering features
     vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures;
     dynamicRenderingFeatures.setDynamicRendering( vk::True );
 
