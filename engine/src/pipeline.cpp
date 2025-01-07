@@ -102,7 +102,7 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   depthStencil.setDepthBoundsTestEnable(vk::False);
   depthStencil.setStencilTestEnable(vk::False);
 
-  constexpr auto colorFormat = vk::Format::eB8G8R8A8Srgb;
+  auto colorFormat = {vk::Format::eB8G8R8A8Srgb};
   constexpr auto depthFormat = vk::Format::eD32Sfloat;
 
   vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo {};
