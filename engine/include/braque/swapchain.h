@@ -7,7 +7,9 @@
 
 #include "frame_stats.h"
 #include "renderer.h"
+#include "braque/engine_context.h"
 #include "window.h"
+#include "braque/image.h"
 
 namespace braque {
 
@@ -15,7 +17,7 @@ constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 class Swapchain {
  public:
-  Swapchain(Window& window, Renderer& renderer);
+  Swapchain(Window& window, EngineContext& context);
   ~Swapchain();
 
   // make sure copy and move are deleted
@@ -29,7 +31,7 @@ class Swapchain {
   }
 
   [[nodiscard]] auto swapchain_image() const -> vk::Image {
-    return swapchainImages[currentImageIndex];
+    return swapchainImages[currentImageIndex].GetImage();
   }
 
   [[nodiscard]] auto getCommandBuffer() const -> vk::CommandBuffer {
@@ -47,7 +49,7 @@ class Swapchain {
   }
 
   [[nodiscard]] auto getImageView() const -> vk::ImageView {
-    return swapchainImageViews[currentImageIndex];
+    return swapchainImages[currentImageIndex].GetImageView();
   }
 
   [[nodiscard]] auto getExtent() const -> vk::Extent2D {
@@ -68,13 +70,13 @@ class Swapchain {
   vk::SwapchainKHR swapchain_;
   vk::SurfaceKHR surface_;
 
-  Renderer& renderer_;
+  EngineContext& context_;
 
   uint32_t imageCount = 2;
   uint32_t currentImageIndex = 0;
   uint32_t currentFrameInFlight = 0;
-  std::vector<vk::Image> swapchainImages;
-  std::vector<vk::ImageView> swapchainImageViews;
+  std::vector<Image> swapchainImages;
+
   vk::Extent2D swapchainExtent;
   vk::Format swapchainFormat;
 
@@ -96,7 +98,7 @@ class Swapchain {
   void createFences();
   void createSwapchainImages();
   void createCommandBuffers();
-  void createImageViews();
+  // void createImageViews();
 };
 
 }  // namespace braque

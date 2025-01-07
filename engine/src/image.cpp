@@ -39,6 +39,11 @@ Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
   spdlog::info("Created image");
 }
 
+Image::Image(EngineContext& engine, vk::Image image, vk::Format format, vk::ImageLayout layout) : engine_(engine), image_(image), format(format), layout_(layout), allocation_(nullptr) {
+  createImageView();
+}
+
+
 Image::~Image() {
   if (image_view_) {
     // destroy image view
@@ -47,7 +52,7 @@ Image::~Image() {
     spdlog::info("Destroyed image view");
   }
 
-  if (image_) {
+  if (image_ != nullptr && allocation_ != nullptr) {
     engine_.getMemoryAllocator().destroyImage(image_, allocation_);
     image_ = nullptr;
     allocation_ = nullptr;

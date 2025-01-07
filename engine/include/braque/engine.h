@@ -52,9 +52,9 @@ class Engine {
  private:
   Window window;
   Renderer renderer;
-  Swapchain swapchain;
   MemoryAllocator memoryAllocator;
   EngineContext context_;
+  Swapchain swapchain;
   Uniforms uniforms_;
   Camera camera_;
   RenderingStage renderingStage;

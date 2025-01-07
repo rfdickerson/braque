@@ -8,14 +8,13 @@
 
 namespace braque
 {
-  Swapchain::Swapchain( Window & window, Renderer & renderer ) : renderer_( renderer ), swapchainFormat( vk::Format::eUndefined )
+  Swapchain::Swapchain( Window & window, EngineContext & context ) : context_( context ), swapchainFormat( vk::Format::eUndefined )
   {
     createSwapchain( window );
     createSemaphores();
     createFences();
     createSwapchainImages();
     createCommandBuffers();
-    createImageViews();
 
     spdlog::info( "Created the swapchain" );
   }
@@ -23,38 +22,32 @@ namespace braque
   Swapchain::~Swapchain()
   {
     // wait for device to be idle
-    renderer_.getDevice().waitIdle();
+    context_.getRenderer().getDevice().waitIdle();
 
     // delete the command pool
-    renderer_.getDevice().destroyCommandPool( commandPool );
-
-    // delete the image views
-    for ( const auto imageView : swapchainImageViews )
-    {
-      renderer_.getDevice().destroyImageView( imageView );
-    }
+    context_.getRenderer().getDevice().destroyCommandPool( commandPool );
 
     // delete the semaphores
     for ( auto semaphore : imageAvailableSemaphores )
     {
-      renderer_.getDevice().destroySemaphore( semaphore );
+      context_.getRenderer().getDevice().destroySemaphore( semaphore );
     }
 
     for ( auto semaphore : renderFinishedSemaphores )
     {
-      renderer_.getDevice().destroySemaphore( semaphore );
+      context_.getRenderer().getDevice().destroySemaphore( semaphore );
     }
 
     // delete the fences
     for ( auto fence : inFlightFences )
     {
-      renderer_.getDevice().destroyFence( fence );
+      context_.getRenderer().getDevice().destroyFence( fence );
     }
 
-    renderer_.getDevice().destroySwapchainKHR( swapchain_ );
+    context_.getRenderer().getDevice().destroySwapchainKHR( swapchain_ );
 
     // delete the surface
-    renderer_.getInstance().destroySurfaceKHR( surface_ );
+    context_.getRenderer().getInstance().destroySurfaceKHR( surface_ );
 
     spdlog::info( "Destroyed the swapchain" );
   }
@@ -62,7 +55,7 @@ namespace braque
   void Swapchain::waitForFrame() const
   {
     const auto fence  = inFlightFences[currentFrameInFlight];
-    auto       result = renderer_.getDevice().waitForFences( 1, &fence, VK_TRUE, UINT64_MAX );
+    auto       result = context_.getRenderer().getDevice().waitForFences( 1, &fence, VK_TRUE, UINT64_MAX );
 
     if ( result != vk::Result::eSuccess )
     {
@@ -77,7 +70,7 @@ namespace braque
 
     if ( imageFence != VK_NULL_HANDLE )
     {
-      auto result = renderer_.getDevice().waitForFences( 1, &imageFence, VK_TRUE, UINT64_MAX );
+      auto result = context_.getRenderer().getDevice().waitForFences( 1, &imageFence, VK_TRUE, UINT64_MAX );
       if ( result != vk::Result::eSuccess )
       {
         spdlog::error( "Failed to wait for image in flight fence" );
@@ -87,7 +80,7 @@ namespace braque
     imagesInFlight[currentImageIndex] = inFlightFences[currentFrameInFlight];
 
     // reset the fence
-    auto resetResult = renderer_.getDevice().resetFences( 1, &inFlightFence );
+    auto resetResult = context_.getRenderer().getDevice().resetFences( 1, &inFlightFence );
 
     if ( resetResult != vk::Result::eSuccess )
     {
@@ -106,7 +99,7 @@ namespace braque
     acquireNextImageInfo.setDeviceMask( 1 );
     ;
 
-    auto result = renderer_.getDevice().acquireNextImage2KHR( acquireNextImageInfo );
+    auto result = context_.getRenderer().getDevice().acquireNextImage2KHR( acquireNextImageInfo );
 
     currentImageIndex = result.value;
   }
@@ -120,7 +113,7 @@ namespace braque
     presentInfo.setWaitSemaphoreCount( 1 );
     presentInfo.setPWaitSemaphores( &renderFinishedSemaphores[currentFrameInFlight] );
 
-    auto result = renderer_.getGraphicsQueue().presentKHR( presentInfo );
+    auto result = context_.getRenderer().getGraphicsQueue().presentKHR( presentInfo );
 
     if ( result != vk::Result::eSuccess )
     {
@@ -132,12 +125,12 @@ namespace braque
 
   void Swapchain::createSwapchain( const Window & window )
   {
-    surface_ = window.CreateSurface( renderer_ );
+    surface_ = window.CreateSurface( context_.getRenderer() );
 
     // get the surface capabilities
-    auto surfaceCapabilities = renderer_.getPhysicalDevice().getSurfaceCapabilitiesKHR( surface_ );
-    auto surfaceFormats      = renderer_.getPhysicalDevice().getSurfaceFormatsKHR( surface_ );
-    auto presentModes        = renderer_.getPhysicalDevice().getSurfacePresentModesKHR( surface_ );
+    auto surfaceCapabilities = context_.getRenderer().getPhysicalDevice().getSurfaceCapabilitiesKHR( surface_ );
+    auto surfaceFormats      = context_.getRenderer().getPhysicalDevice().getSurfaceFormatsKHR( surface_ );
+    auto presentModes        = context_.getRenderer().getPhysicalDevice().getSurfacePresentModesKHR( surface_ );
 
     vk::SurfaceFormatKHR surfaceFormat;
 
@@ -167,12 +160,12 @@ namespace braque
     swapchainCreateInfo.setPQueueFamilyIndices( nullptr );
     swapchainCreateInfo.setPresentMode( presentMode );
 
-    auto result = renderer_.getDevice().createSwapchainKHR( swapchainCreateInfo );
+    auto result = context_.getRenderer().getDevice().createSwapchainKHR( swapchainCreateInfo );
 
     swapchain_ = result;
 
     // get the image count
-    imageCount = renderer_.getDevice().getSwapchainImagesKHR( swapchain_ ).size();
+    imageCount = context_.getRenderer().getDevice().getSwapchainImagesKHR( swapchain_ ).size();
 
     // set the extent
     swapchainExtent = surfaceCapabilities.currentExtent;
@@ -186,8 +179,8 @@ namespace braque
     // semaphores per swapchain image
     for ( uint32_t i = 0; i < imageCount; i++ )
     {
-      imageAvailableSemaphores.push_back( renderer_.getDevice().createSemaphore( semaphoreCreateInfo ) );
-      renderFinishedSemaphores.push_back( renderer_.getDevice().createSemaphore( semaphoreCreateInfo ) );
+      imageAvailableSemaphores.push_back( context_.getRenderer().getDevice().createSemaphore( semaphoreCreateInfo ) );
+      renderFinishedSemaphores.push_back( context_.getRenderer().getDevice().createSemaphore( semaphoreCreateInfo ) );
     }
   }
 
@@ -199,7 +192,7 @@ namespace braque
 
     for ( int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ )
     {
-      const auto fence = renderer_.getDevice().createFence( fenceCreateInfo );
+      const auto fence = context_.getRenderer().getDevice().createFence( fenceCreateInfo );
       inFlightFences.push_back( fence );
     }
 
@@ -208,17 +201,25 @@ namespace braque
 
   void Swapchain::createSwapchainImages()
   {
-    swapchainImages = renderer_.getDevice().getSwapchainImagesKHR( swapchain_ );
+    auto vkImages = context_.getRenderer().getDevice().getSwapchainImagesKHR( swapchain_ );
+    swapchainImages.reserve(vkImages.size());
+
+    for ( const auto& vkImage : vkImages ) {
+      swapchainImages.emplace_back(context_, vkImage, swapchainFormat, vk::ImageLayout::eUndefined);
+    }
+
+    imageCount = static_cast<uint32_t>(swapchainImages.size());
+
   }
 
   void Swapchain::createCommandBuffers()
   {
     // create the command pool
     vk::CommandPoolCreateInfo commandPoolCreateInfo{};
-    commandPoolCreateInfo.setQueueFamilyIndex( renderer_.getGraphicsQueueFamilyIndex() );
+    commandPoolCreateInfo.setQueueFamilyIndex( context_.getRenderer().getGraphicsQueueFamilyIndex() );
     commandPoolCreateInfo.setFlags( vk::CommandPoolCreateFlagBits::eResetCommandBuffer );
 
-    commandPool = renderer_.getDevice().createCommandPool( commandPoolCreateInfo );
+    commandPool = context_.getRenderer().getDevice().createCommandPool( commandPoolCreateInfo );
 
     if ( !commandPool )
     {
@@ -230,7 +231,7 @@ namespace braque
     commandBufferAllocateInfo.setLevel( vk::CommandBufferLevel::ePrimary );
     commandBufferAllocateInfo.setCommandBufferCount( imageCount );
 
-    commandBuffers = renderer_.getDevice().allocateCommandBuffers( commandBufferAllocateInfo );
+    commandBuffers = context_.getRenderer().getDevice().allocateCommandBuffers( commandBufferAllocateInfo );
   }
 
   void Swapchain::submitCommandBuffer()
@@ -258,25 +259,24 @@ namespace braque
     submitInfo.setCommandBufferInfos( commandBufferSubmitInfo );
     submitInfo.setSignalSemaphoreInfos( signalSemaphoreInfo );
 
-    renderer_.getGraphicsQueue().submit2KHR( submitInfo, fence );
+    context_.getRenderer().getGraphicsQueue().submit2KHR( submitInfo, fence );
   }
 
-  void Swapchain::createImageViews()
-  {
-    // for every image, create a swapchain image
-    for ( auto image : swapchainImages )
-    {
-      vk::ImageViewCreateInfo imageViewCreateInfo{};
-      imageViewCreateInfo.setImage( image );
-      imageViewCreateInfo.setViewType( vk::ImageViewType::e2D );
-      imageViewCreateInfo.setFormat( swapchainFormat );
-      imageViewCreateInfo.setComponents( vk::ComponentMapping{} );
-      imageViewCreateInfo.setSubresourceRange( vk::ImageSubresourceRange{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } );
-
-      auto imageView = renderer_.getDevice().createImageView( imageViewCreateInfo );
-
-      swapchainImageViews.push_back( imageView );
-    }
-  }
+  // void Swapchain::createImageViews()
+  // {
+  //   // for every image, create a swapchain image
+  //   for ( const auto& image : swapchainImages )
+  //   {
+  //     vk::ImageViewCreateInfo imageViewCreateInfo{};
+  //     imageViewCreateInfo.setImage( image.GetImage() );
+  //     imageViewCreateInfo.setViewType( vk::ImageViewType::e2D );
+  //     imageViewCreateInfo.setFormat( swapchainFormat );
+  //     imageViewCreateInfo.setComponents( vk::ComponentMapping{} );
+  //     imageViewCreateInfo.setSubresourceRange( vk::ImageSubresourceRange{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } );
+  //
+  //     // TODO: set these settings in the image
+  //
+  //   }
+  // }
 
 }  // namespace braque

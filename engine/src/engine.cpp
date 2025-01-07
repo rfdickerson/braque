@@ -17,9 +17,10 @@
 namespace braque {
 
 Engine::Engine()
-    : swapchain(window, renderer),
+    :
       memoryAllocator(renderer),
-      context_(memoryAllocator, renderer),
+context_(memoryAllocator, renderer),
+      swapchain(window, context_),
       uniforms_(context_, swapchain),
       renderingStage(context_, swapchain,uniforms_),
       debugWindow(*this),

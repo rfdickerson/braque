@@ -25,6 +25,9 @@ class Image {
   Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
         const VmaAllocationCreateInfo& allocInfo);
   Image(EngineContext& engine, vk::Extent3D extent, vk::Format format);
+
+  // Image constructor with existing image
+  Image(EngineContext& engine, vk::Image image, vk::Format format, vk::ImageLayout layout);
   ~Image();
 
   // declare the copy constructor
