@@ -11,245 +11,246 @@
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE;
 
-namespace braque
-{
+namespace braque {
 
-  Renderer::Renderer() : graphicsQueueFamilyIndex( 0 )
-  {
-    spdlog::info( "Creating renderer" );
+Renderer::Renderer()
+    : instance_(createInstance()),
+      m_physicalDevice(createPhysicalDevice(instance_)),
+      m_device(createLogicalDevice(m_physicalDevice)),
+      m_graphicsQueue(createGraphicsQueue(m_device, 0)),
+      command_pool_(CreateCommandPool(m_device, 0)),
+      graphicsQueueFamilyIndex(0) {
+  spdlog::info("Created renderer");
+}
 
-    createInstance();
-    createPhysicalDevice();
-    createLogicalDevice();
-    CreateCommandPool();
+Renderer::~Renderer() {
+
+  // destroy the command pool
+  m_device.destroyCommandPool(command_pool_);
+
+  // destroy the device
+  m_device.destroy();
+
+  spdlog::info("Destroying renderer");
+
+  instance_.destroy();
+}
+
+vk::Instance Renderer::createInstance() {
+  VULKAN_HPP_DEFAULT_DISPATCHER.init();
+
+  vk::ApplicationInfo applicationInfo;
+  applicationInfo.setPApplicationName("Braque");
+  applicationInfo.setApplicationVersion(1);
+  applicationInfo.setPEngineName("Braque");
+  applicationInfo.setEngineVersion(1);
+  applicationInfo.setApiVersion(VK_API_VERSION_1_2);
+
+  const auto extensions = getInstanceExtensions();
+  const auto flags = getInstanceFlags();
+
+  vk::InstanceCreateInfo instanceInfo;
+  instanceInfo.setEnabledExtensionCount(
+      static_cast<uint32_t>(extensions.size()));
+  instanceInfo.setPpEnabledExtensionNames(extensions.data());
+  instanceInfo.setPApplicationInfo(&applicationInfo);
+  instanceInfo.setFlags(flags);
+
+  auto instance = vk::createInstance(instanceInfo);
+
+  if (!instance) {
+    spdlog::error("Failed to create Vulkan instance");
+    throw std::runtime_error("Failed to create Vulkan instance");
   }
 
-  Renderer::~Renderer()
-  {
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 
-    // destroy the command pool
-    m_device.destroyCommandPool( command_pool_ );
+  spdlog::info("Vulkan instance created");
 
-    // destroy the device
-    m_device.destroy();
+  return instance;
+}
 
-    spdlog::info( "Destroying renderer" );
-
-    m_instance.destroy();
+vk::PhysicalDevice Renderer::createPhysicalDevice(vk::Instance instance) {
+  // get the physical device
+  auto physicalDevices = instance.enumeratePhysicalDevices();
+  if (physicalDevices.empty()) {
+    spdlog::error("No physical devices found");
+    throw std::runtime_error("No physical devices found");
   }
 
-  void Renderer::createInstance()
-  {
-    VULKAN_HPP_DEFAULT_DISPATCHER.init();
+  auto physicalDevice = physicalDevices[0];
+  spdlog::info("Physical device found");
 
-    vk::ApplicationInfo applicationInfo;
-    applicationInfo.setPApplicationName( "Braque" );
-    applicationInfo.setApplicationVersion( 1 );
-    applicationInfo.setPEngineName( "Braque" );
-    applicationInfo.setEngineVersion( 1 );
-    applicationInfo.setApiVersion( VK_API_VERSION_1_2 );
+  // print the physical device properties
+  auto properties = physicalDevice.getProperties();
+  spdlog::info("Physical device properties:");
+  spdlog::info("  Name: {}", std::string(properties.deviceName.data()));
+  spdlog::info("  Type: {}", vk::to_string(properties.deviceType));
 
-    const auto extensions = getInstanceExtensions();
-    const auto flags      = getInstanceFlags();
-
-    vk::InstanceCreateInfo instanceInfo;
-    instanceInfo.setEnabledExtensionCount( static_cast<uint32_t>( extensions.size() ) );
-    instanceInfo.setPpEnabledExtensionNames( extensions.data() );
-    instanceInfo.setPApplicationInfo( &applicationInfo );
-    instanceInfo.setFlags( flags );
-
-    m_instance = vk::createInstance( instanceInfo );
-
-    if ( !m_instance )
-    {
-      spdlog::error( "Failed to create Vulkan instance" );
-      throw std::runtime_error( "Failed to create Vulkan instance" );
-    }
-
-    VULKAN_HPP_DEFAULT_DISPATCHER.init( m_instance );
-
-    spdlog::info( "Vulkan instance created" );
+  // double check it supports synchronization 2 and dynamic rendering
+  auto features = physicalDevice.getFeatures2<
+      vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeatures,
+      vk::PhysicalDeviceSynchronization2FeaturesKHR>();
+  if (features.get<vk::PhysicalDeviceDynamicRenderingFeatures>()
+          .dynamicRendering == vk::False) {
+    spdlog::error("Physical device does not support dynamic rendering");
+    throw std::runtime_error(
+        "Physical device does not support dynamic rendering");
   }
 
-  void Renderer::createPhysicalDevice()
-  {
-    // get the physical device
-    auto physicalDevices = m_instance.enumeratePhysicalDevices();
-    if ( physicalDevices.empty() )
-    {
-      spdlog::error( "No physical devices found" );
-      throw std::runtime_error( "No physical devices found" );
-    }
-
-    m_physicalDevice = physicalDevices[0];
-    spdlog::info( "Physical device found" );
-
-    // print the physical device properties
-    auto properties = m_physicalDevice.getProperties();
-    spdlog::info( "Physical device properties:" );
-    spdlog::info( "  Name: {}", std::string( properties.deviceName.data() ) );
-    spdlog::info( "  Type: {}", vk::to_string( properties.deviceType ) );
-
-    // double check it supports synchronization 2 and dynamic rendering
-    auto features =
-      m_physicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2, vk::PhysicalDeviceDynamicRenderingFeatures, vk::PhysicalDeviceSynchronization2FeaturesKHR>();
-    if ( features.get<vk::PhysicalDeviceDynamicRenderingFeatures>().dynamicRendering == vk::False )
-    {
-      spdlog::error( "Physical device does not support dynamic rendering" );
-      throw std::runtime_error( "Physical device does not support dynamic rendering" );
-    }
-
-    if ( features.get<vk::PhysicalDeviceSynchronization2FeaturesKHR>().synchronization2 == vk::False )
-    {
-      spdlog::error( "Physical device does not support synchronization 2" );
-      throw std::runtime_error( "Physical device does not support synchronization 2" );
-    }
+  if (features.get<vk::PhysicalDeviceSynchronization2FeaturesKHR>()
+          .synchronization2 == vk::False) {
+    spdlog::error("Physical device does not support synchronization 2");
+    throw std::runtime_error(
+        "Physical device does not support synchronization 2");
   }
 
-  void Renderer::createLogicalDevice()
-  {
-    // create the logical device
-    vk::DeviceQueueCreateInfo queueCreateInfo;
-    queueCreateInfo.setQueueFamilyIndex( 0 );
-    queueCreateInfo.setQueueCount( 1 );
-    constexpr auto queuePriority = 1.0F;
-    queueCreateInfo.setPQueuePriorities( &queuePriority );
+  return physicalDevice;
+}
 
-    vk::DeviceCreateInfo deviceCreateInfo;
-    deviceCreateInfo.setQueueCreateInfoCount( 1 );
-    deviceCreateInfo.setPQueueCreateInfos( &queueCreateInfo );
+vk::Device Renderer::createLogicalDevice(vk::PhysicalDevice physicalDevice) {
+  // create the logical device
+  vk::DeviceQueueCreateInfo queueCreateInfo;
+  queueCreateInfo.setQueueFamilyIndex(0);
+  queueCreateInfo.setQueueCount(1);
+  constexpr auto queuePriority = 1.0F;
+  queueCreateInfo.setPQueuePriorities(&queuePriority);
 
-    auto deviceExtensions = getDeviceExtensions();
+  vk::DeviceCreateInfo deviceCreateInfo;
+  deviceCreateInfo.setQueueCreateInfoCount(1);
+  deviceCreateInfo.setPQueueCreateInfos(&queueCreateInfo);
 
-    deviceCreateInfo.setEnabledExtensionCount( static_cast<uint32_t>( deviceExtensions.size() ) );
-    deviceCreateInfo.setPpEnabledExtensionNames( deviceExtensions.data() );
+  auto deviceExtensions = getDeviceExtensions();
 
-    vk::PhysicalDeviceFeatures enabledFeatures {};
-    enabledFeatures.setSamplerAnisotropy(true);
-    deviceCreateInfo.setPEnabledFeatures( &enabledFeatures );
+  deviceCreateInfo.setEnabledExtensionCount(
+      static_cast<uint32_t>(deviceExtensions.size()));
+  deviceCreateInfo.setPpEnabledExtensionNames(deviceExtensions.data());
 
-    // dynamic rendering features
-    vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures;
-    dynamicRenderingFeatures.setDynamicRendering( vk::True );
+  vk::PhysicalDeviceFeatures enabledFeatures{};
+  enabledFeatures.setSamplerAnisotropy(true);
+  deviceCreateInfo.setPEnabledFeatures(&enabledFeatures);
 
-    // synchronization 2 features
-    vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features;
-    synchronization2Features.setSynchronization2( vk::True );
-    synchronization2Features.setPNext( &dynamicRenderingFeatures );
+  // dynamic rendering features
+  vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures;
+  dynamicRenderingFeatures.setDynamicRendering(vk::True);
 
-    // float16 int8 features
-    vk::PhysicalDeviceFloat16Int8FeaturesKHR float16Int8Features;
-    float16Int8Features.setShaderFloat16( vk::True );
-    float16Int8Features.setShaderInt8( vk::True );
-    float16Int8Features.setPNext( &synchronization2Features );
+  // synchronization 2 features
+  vk::PhysicalDeviceSynchronization2FeaturesKHR synchronization2Features;
+  synchronization2Features.setSynchronization2(vk::True);
+  synchronization2Features.setPNext(&dynamicRenderingFeatures);
 
-    deviceCreateInfo.setPNext( &float16Int8Features );
+  // float16 int8 features
+  vk::PhysicalDeviceFloat16Int8FeaturesKHR float16Int8Features;
+  float16Int8Features.setShaderFloat16(vk::True);
+  float16Int8Features.setShaderInt8(vk::True);
+  float16Int8Features.setPNext(&synchronization2Features);
 
-    m_device = m_physicalDevice.createDevice( deviceCreateInfo );
+  deviceCreateInfo.setPNext(&float16Int8Features);
 
-    if ( !m_device )
-    {
-      spdlog::error( "Failed to create logical device" );
-      throw std::runtime_error( "Failed to create logical device" );
-    }
+  const auto device = physicalDevice.createDevice(deviceCreateInfo);
 
-    spdlog::info( "Logical device created" );
-
-    // make it not need to look up the dynamic dispatcher each time
-    VULKAN_HPP_DEFAULT_DISPATCHER.init( m_device );
-
-    // set the queue
-    m_graphicsQueue          = m_device.getQueue( 0, 0 );
-    graphicsQueueFamilyIndex = 0;
+  if (!device) {
+    spdlog::error("Failed to create logical device");
+    throw std::runtime_error("Failed to create logical device");
   }
 
-  void Renderer::waitIdle() const
-  {
-    m_device.waitIdle();
-  }
+  spdlog::info("Logical device created");
 
-  auto Renderer::getInstanceExtensions() -> std::vector<char const *>
-  {
-    uint32_t     glfwExtensionCount = 0;
-    auto const * glfwExtensions     = glfwGetRequiredInstanceExtensions( &glfwExtensionCount );
+  // make it not need to look up the dynamic dispatcher each time
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    std::vector extensions( glfwExtensions, glfwExtensions + glfwExtensionCount );
+  return device;
+}
+
+vk::Queue Renderer::createGraphicsQueue(vk::Device device,
+                                        uint32_t graphicsQueueFamilyIndex) {
+  return device.getQueue(graphicsQueueFamilyIndex, 0);
+}
+
+void Renderer::waitIdle() const {
+  m_device.waitIdle();
+}
+
+auto Renderer::getInstanceExtensions() -> std::vector<char const*> {
+  uint32_t glfwExtensionCount = 0;
+  auto const* glfwExtensions =
+      glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
 #if __APPLE__
-    extensions.push_back( vk::KHRPortabilityEnumerationExtensionName );
+  extensions.push_back(vk::KHRPortabilityEnumerationExtensionName);
 #endif
 
-    return extensions;
-  }
+  return extensions;
+}
 
-  auto Renderer::getDeviceExtensions() -> std::vector<const char *>
-  {
-    std::vector deviceExtensions = {
+auto Renderer::getDeviceExtensions() -> std::vector<const char*> {
+  std::vector deviceExtensions = {
       VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
       VK_KHR_SWAPCHAIN_EXTENSION_NAME,
       VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
-    };
+  };
 
 #ifdef __APPLE__
-    deviceExtensions.push_back( "VK_KHR_portability_subset" );
+  deviceExtensions.push_back("VK_KHR_portability_subset");
 #endif
 
-    return deviceExtensions;
-  }
-
-  auto Renderer::getInstanceFlags() -> vk::InstanceCreateFlags
-  {
-    vk::InstanceCreateFlags flags{};
-
-#ifdef __APPLE__
-    flags |= vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
-#endif
-
-    return flags;
-  }
-
-auto Renderer::CreateCommandBuffer() const -> vk::CommandBuffer
-{
-  vk::CommandBufferAllocateInfo allocateInfo;
-  allocateInfo.setCommandPool( command_pool_ );
-  allocateInfo.setLevel( vk::CommandBufferLevel::ePrimary );
-  allocateInfo.setCommandBufferCount( 1 );
-
-  return m_device.allocateCommandBuffers( allocateInfo )[0];
+  return deviceExtensions;
 }
 
-void Renderer::CreateCommandPool()
-{
-  vk::CommandPoolCreateInfo poolInfo;
-  poolInfo.setQueueFamilyIndex( graphicsQueueFamilyIndex );
-  poolInfo.setFlags( vk::CommandPoolCreateFlagBits::eResetCommandBuffer );
+auto Renderer::getInstanceFlags() -> vk::InstanceCreateFlags {
+  vk::InstanceCreateFlags flags{};
 
-  command_pool_ = m_device.createCommandPool( poolInfo );
+#ifdef __APPLE__
+  flags |= vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+#endif
+
+  return flags;
+}
+
+auto Renderer::CreateCommandBuffer() const -> vk::CommandBuffer {
+  vk::CommandBufferAllocateInfo allocateInfo;
+  allocateInfo.setCommandPool(command_pool_);
+  allocateInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+  allocateInfo.setCommandBufferCount(1);
+
+  return m_device.allocateCommandBuffers(allocateInfo)[0];
+}
+
+vk::CommandPool Renderer::CreateCommandPool(vk::Device device,
+                                            uint32_t graphicsQueueFamilyIndex) {
+  vk::CommandPoolCreateInfo poolInfo{};
+  poolInfo.setQueueFamilyIndex(graphicsQueueFamilyIndex);
+  poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+
+  auto command_pool = device.createCommandPool(poolInfo);
+
+  return command_pool;
 }
 
 void Renderer::SubmitAndWait(vk::CommandBuffer cmd) {
-    vk::SubmitInfo submitInfo;
-    submitInfo.setCommandBufferCount(1);
-    submitInfo.setPCommandBuffers(&cmd);
+  vk::SubmitInfo submitInfo;
+  submitInfo.setCommandBufferCount(1);
+  submitInfo.setPCommandBuffers(&cmd);
 
-    vk::FenceCreateInfo fenceInfo;
-    vk::Fence fence = m_device.createFence(fenceInfo);
+  vk::FenceCreateInfo fenceInfo;
+  vk::Fence fence = m_device.createFence(fenceInfo);
 
-    // Submit the command buffer
-    m_graphicsQueue.submit(1, &submitInfo, fence);
+  // Submit the command buffer
+  m_graphicsQueue.submit(1, &submitInfo, fence);
 
-    // Wait for the fence to be signaled
-    vk::Result result = m_device.waitForFences(1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-    if (result != vk::Result::eSuccess)
-    {
-      spdlog::error("Failed to wait for fence");
-      throw std::runtime_error("Failed to wait for fence");
-    }
+  // Wait for the fence to be signaled
+  vk::Result result = m_device.waitForFences(
+      1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+  if (result != vk::Result::eSuccess) {
+    spdlog::error("Failed to wait for fence");
+    throw std::runtime_error("Failed to wait for fence");
+  }
 
-    // Clean up
-    m_device.destroyFence(fence);
+  // Clean up
+  m_device.destroyFence(fence);
 }
-
 
 }  // namespace braque
