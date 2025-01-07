@@ -4,8 +4,8 @@
 
 #include "braque/image.h"
 
-#include "braque/renderer.h"
 #include "braque/memory_allocator.h"
+#include "braque/renderer.h"
 
 #include <spdlog/spdlog.h>
 
@@ -39,10 +39,15 @@ Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
   spdlog::info("Created image");
 }
 
-Image::Image(EngineContext& engine, vk::Image image, vk::Format format, vk::ImageLayout layout) : engine_(engine), image_(image), format(format), layout_(layout), allocation_(nullptr) {
+Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
+             vk::ImageLayout layout)
+    : engine_(engine),
+      image_(image),
+      allocation_(nullptr),
+      format(format),
+      layout_(layout) {
   createImageView();
 }
-
 
 Image::~Image() {
   if (image_view_) {
@@ -79,12 +84,11 @@ Image& Image::operator=(Image&& other) noexcept {
       engine_.getRenderer().getDevice().destroyImageView(image_view_);
       image_view_ = nullptr;
     }
-    if (image_) {
+    if (image_ && allocation_) {
       engine_.getMemoryAllocator().destroyImage(image_, allocation_);
       image_ = nullptr;
       allocation_ = nullptr;
     }
-
   }
   return *this;
 }
