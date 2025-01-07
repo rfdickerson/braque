@@ -5,7 +5,6 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include "vulkan/vulkan.hpp"
 
 namespace braque {
@@ -43,7 +42,7 @@ class Renderer {
 
   [[nodiscard]] auto CreateCommandBuffer() const -> vk::CommandBuffer;
 
-  void SubmitAndWait(vk::CommandBuffer cmd);
+  void SubmitAndWait(vk::CommandBuffer cmd) const;
 
  private:
   vk::Instance instance_;

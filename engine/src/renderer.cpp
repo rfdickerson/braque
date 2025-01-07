@@ -4,8 +4,6 @@
 
 #include "braque/renderer.h"
 
-#include <span>
-
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
@@ -230,8 +228,8 @@ vk::CommandPool Renderer::CreateCommandPool(vk::Device device,
   return command_pool;
 }
 
-void Renderer::SubmitAndWait(vk::CommandBuffer cmd) {
-  vk::SubmitInfo submitInfo;
+void Renderer::SubmitAndWait(vk::CommandBuffer cmd) const {
+  vk::SubmitInfo submitInfo {};
   submitInfo.setCommandBufferCount(1);
   submitInfo.setPCommandBuffers(&cmd);
 
@@ -239,7 +237,12 @@ void Renderer::SubmitAndWait(vk::CommandBuffer cmd) {
   vk::Fence fence = m_device.createFence(fenceInfo);
 
   // Submit the command buffer
-  m_graphicsQueue.submit(1, &submitInfo, fence);
+  auto submit_result = m_graphicsQueue.submit(1, &submitInfo, fence);
+
+  if (submit_result != vk::Result::eSuccess) {
+    spdlog::error("Failed to submit command buffer");
+    throw std::runtime_error("Failed to submit command buffer");
+  }
 
   // Wait for the fence to be signaled
   vk::Result result = m_device.waitForFences(
