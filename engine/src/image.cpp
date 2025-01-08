@@ -14,25 +14,30 @@ namespace braque {
 Image::Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
              const VmaAllocationCreateInfo& allocInfo)
     : engine_(engine),
-      format(vk::Format::eUndefined),
-      layout_(vk::ImageLayout::eUndefined) {
+      format(createInfo.format),
+      layout_(createInfo.initialLayout),
+      mip_levels_(createInfo.mipLevels),
+      image_view_(nullptr),
+      allocation_(nullptr)
+{
 
   auto [image, allocation] =
       engine_.getMemoryAllocator().createImage(createInfo, allocInfo);
 
   allocation_ = allocation;
   image_ = image;
-  format = createInfo.format;
-  mip_levels_ = createInfo.mipLevels;
 
   createImageView();
 }
 
 Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
     : engine_(engine),
+      allocation_(nullptr),
+      image_view_(nullptr),
       extent_(extent),
       format(format),
-      layout_(vk::ImageLayout::eUndefined) {
+      layout_(vk::ImageLayout::eUndefined),
+      mip_levels_(0) {
   allocateImage();
   createImageView();
 
@@ -47,6 +52,57 @@ Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
       format(format),
       layout_(layout) {
   createImageView();
+}
+
+Image::Image(EngineContext& engine, const ImageConfig& config)
+    : engine_(engine), extent_(config.extent), format(config.format) {
+
+  auto imageInfo = CreateImageInfo(config);
+  auto allocInfo = GetAllocationInfo();
+
+  auto [image, allocation] =
+      engine_.getMemoryAllocator().createImage(imageInfo, allocInfo);
+
+  allocation_ = allocation;
+  image_ = image;
+  createImageView();
+}
+
+vk::SampleCountFlagBits Image::GetSampleCount(uint32_t samples) {
+  switch (samples) {
+    case 1:
+      return vk::SampleCountFlagBits::e1;
+    case 2:
+      return vk::SampleCountFlagBits::e2;
+    case 4:
+      return vk::SampleCountFlagBits::e4;
+    case 8:
+      return vk::SampleCountFlagBits::e8;
+    default:
+      return vk::SampleCountFlagBits::e1;
+  }
+}
+
+vk::ImageCreateInfo Image::CreateImageInfo(const ImageConfig& config) {
+  vk::ImageCreateInfo imageInfo{};
+  imageInfo.imageType = config.imageType;
+  imageInfo.extent = config.extent;
+  imageInfo.mipLevels = config.mipLevels;
+  imageInfo.arrayLayers = config.arrayLayers;
+  imageInfo.format = config.format;
+  imageInfo.tiling = vk::ImageTiling::eOptimal;
+  imageInfo.initialLayout = config.layout;
+  imageInfo.usage = config.usage;
+  imageInfo.sharingMode = vk::SharingMode::eExclusive;
+  imageInfo.samples = GetSampleCount(config.samples);
+  return imageInfo;
+}
+
+VmaAllocationCreateInfo Image::GetAllocationInfo() {
+  VmaAllocationCreateInfo allocInfo{};
+
+  allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  return allocInfo;
 }
 
 Image::~Image() {
@@ -94,7 +150,7 @@ Image& Image::operator=(Image&& other) noexcept {
 }
 
 void Image::allocateImage() {
-  vk::ImageCreateInfo createInfo;
+  vk::ImageCreateInfo createInfo {};
   createInfo.setImageType(vk::ImageType::e2D);
   createInfo.setExtent(extent_);
   createInfo.setMipLevels(1);
@@ -113,6 +169,7 @@ void Image::allocateImage() {
   }
 
   createInfo.setSamples(vk::SampleCountFlagBits::e1);
+
   createInfo.setSharingMode(vk::SharingMode::eExclusive);
 
   VmaAllocationCreateInfo allocInfo{};

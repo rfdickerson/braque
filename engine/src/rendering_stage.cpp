@@ -31,8 +31,18 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
                                  uniforms.GetDescriptorSetLayout());
 
+  colorImages.reserve(Swapchain::getFramesInFlightCount());
+
+  auto colorImageConfig = ImageConfig{};
+  colorImageConfig.extent = extent;
+  colorImageConfig.format = vk::Format::eR16G16B16A16Sfloat;
+  colorImageConfig.usage = vk::ImageUsageFlagBits::eTransferSrc;
+
+
   for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount();
        ++i) {
+
+    colorImages.emplace_back(engine, colorImageConfig);
     depthImages.emplace_back(engine, extent, vk::Format::eD32Sfloat);
   }
 }

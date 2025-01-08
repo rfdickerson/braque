@@ -19,6 +19,17 @@ struct SyncBarriers {
   vk::AccessFlags2 dstAccess;
 };
 
+struct ImageConfig {
+  vk::Extent3D extent = vk::Extent3D(0, 0, 0);
+  vk::Format format = vk::Format::eUndefined;
+  vk::ImageLayout layout = vk::ImageLayout::eUndefined;
+  vk::ImageUsageFlags usage;
+  vk::ImageType imageType = vk::ImageType::e2D;
+  uint32_t mipLevels = 1;
+  uint32_t arrayLayers = 1;
+  uint32_t samples = 1;
+};
+
 class Image {
 
  public:
@@ -28,6 +39,9 @@ class Image {
 
   // Image constructor with existing image
   Image(EngineContext& engine, vk::Image image, vk::Format format, vk::ImageLayout layout);
+
+  Image(EngineContext& engine, const ImageConfig& config);
+
   ~Image();
 
   // declare the copy constructor
@@ -67,10 +81,14 @@ class Image {
   vk::Format format;
   vk::ImageLayout layout_;
 
-  uint32_t mip_levels_ = 1;
+  uint32_t mip_levels_;
 
   void allocateImage();
   void createImageView();
+
+  static auto CreateImageInfo(const ImageConfig& config) -> vk::ImageCreateInfo;
+  static auto GetSampleCount(uint32_t samples) -> vk::SampleCountFlagBits;
+  static auto GetAllocationInfo() -> VmaAllocationCreateInfo;
 };
 
 }  // namespace braque
