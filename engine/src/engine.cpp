@@ -69,7 +69,7 @@ void Engine::run() {
     }
 
     // sleep for 1 ms to simulate CPU work
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
     debugWindow.createFrame(frameStats);
 
