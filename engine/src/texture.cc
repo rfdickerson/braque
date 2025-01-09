@@ -87,7 +87,7 @@ void Texture::CreateImage(EngineContext& engine) {
   dependencyInfo.pMemoryBarriers = &memoryBarrier;
 
   cmd.pipelineBarrier2(dependencyInfo);
-  
+
   // Before the loop, let's log the total number of mip levels
   spdlog::info("Total mip levels: {}", texture_.levels());
 

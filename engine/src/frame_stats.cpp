@@ -41,6 +41,10 @@ void FrameStats::Update() {
   auto current_time = std::chrono::high_resolution_clock::now();
   float frame_time = std::chrono::duration<float, std::milli>(current_time - last_frame_time_).count();
 
+  // if (frame_time < 0.1f) {
+  //   return;
+  // }
+
   frame_latencies_[current_frame_latency_index_] = frame_time;
   current_frame_latency_index_ = (current_frame_latency_index_ + 1) % MAX_FRAME_LATENCIES;
 

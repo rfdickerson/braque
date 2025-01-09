@@ -60,11 +60,16 @@ void Engine::run() {
     uint32_t ticksToProcess = frameStats.GetTicksToProcess();
 
     // process fixed timestep updates
-    for (uint32_t i = 0; i < ticksToProcess; i++) {
+    while (ticksToProcess > 0) {
+      uint32_t ticksThisIteration = std::min(ticksToProcess, FrameStats::TICKS_240HZ());
       input_controller_.PollEvents();
+
+      frameStats.ConsumeTime(ticksThisIteration);
+      ticksToProcess -= ticksThisIteration;
     }
 
-    frameStats.ConsumeTime(ticksToProcess);
+    // sleep for 1 ms to simulate CPU work
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
     debugWindow.createFrame(frameStats);
 

@@ -87,19 +87,21 @@ namespace braque
       spdlog::error( "Failed to reset fence" );
     }
 
-    frameStats.Update();
   }
 
   void Swapchain::acquireNextImage()
   {
     vk::AcquireNextImageInfoKHR acquireNextImageInfo{};
     acquireNextImageInfo.setSwapchain( swapchain_ );
-    acquireNextImageInfo.setTimeout( UINT64_MAX );
+    acquireNextImageInfo.setTimeout( 1000000000  ); // 1 second timeout
     acquireNextImageInfo.setSemaphore( imageAvailableSemaphores[currentFrameInFlight] );
     acquireNextImageInfo.setDeviceMask( 1 );
-    ;
 
     auto result = context_.getRenderer().getDevice().acquireNextImage2KHR( acquireNextImageInfo );
+
+    if (result.result == vk::Result::eTimeout) {
+      spdlog::warn("Timed out waiting for next image");
+    }
 
     currentImageIndex = result.value;
   }
