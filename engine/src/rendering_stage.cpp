@@ -37,8 +37,8 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
   colorImageConfig.extent = extent;
   colorImageConfig.format = vk::Format::eR16G16B16A16Sfloat;
   colorImageConfig.usage = vk::ImageUsageFlagBits::eTransferSrc;
-
-
+  colorImageConfig.samples = 4;
+  
   for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount();
        ++i) {
 
