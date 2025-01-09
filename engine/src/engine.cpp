@@ -47,30 +47,31 @@ void Engine::run() {
 
   spdlog::info("Starting the engine loop");
 
-  float accumulatedTime = 0.0f;
-  constexpr float staticTimeStep = 1.0f / 165.0f;
-  constexpr float max_latency = 0.25;
-
   while (running) {
 
     swapchain.waitForFrame();
     swapchain.acquireNextImage();
     swapchain.waitForImageInFlight();
-    // do drawing here
 
-    // update the camera
-    // update the input based on time left
-    auto latency = swapchain.getFrameStats().Latency();
-    latency = std::min<float>(latency, max_latency);
+    auto& frameStats = swapchain.getFrameStats();
+    frameStats.Update();
 
-    accumulatedTime += latency;
+    // get number of ticks to process
+    uint32_t ticksToProcess = frameStats.GetTicksToProcess();
 
-    while (accumulatedTime >= staticTimeStep) {
-      accumulatedTime -= staticTimeStep;
+    // process fixed timestep updates
+    while (ticksToProcess > 0) {
+      uint32_t ticksThisIteration = std::min(ticksToProcess, FrameStats::TICKS_240HZ());
       input_controller_.PollEvents();
+
+      frameStats.ConsumeTime(ticksThisIteration);
+      ticksToProcess -= ticksThisIteration;
     }
 
-    debugWindow.createFrame(swapchain.getFrameStats());
+    // sleep for 1 ms to simulate CPU work
+    // std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+    debugWindow.createFrame(frameStats);
 
     auto extent = swapchain.getExtent();
 
@@ -94,6 +95,9 @@ void Engine::run() {
     RenderingStage::end(commandBuffer);
 
     swapchain.submitCommandBuffer();
+
+
+
     swapchain.presentImage();
   }
 }
