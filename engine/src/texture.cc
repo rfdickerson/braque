@@ -75,6 +75,19 @@ void Texture::CreateImage(EngineContext& engine) {
   texture_image_.TransitionLayout(vk::ImageLayout::eTransferDstOptimal, cmd,
                                   barriers, levels);
 
+  // Add a pipeline barrier here
+  vk::MemoryBarrier2 memoryBarrier{};
+  memoryBarrier.srcStageMask = vk::PipelineStageFlagBits2::eTransfer;
+  memoryBarrier.srcAccessMask = vk::AccessFlagBits2::eMemoryWrite;
+  memoryBarrier.dstStageMask = vk::PipelineStageFlagBits2::eTransfer;
+  memoryBarrier.dstAccessMask = vk::AccessFlagBits2::eMemoryWrite;
+
+  vk::DependencyInfo dependencyInfo{};
+  dependencyInfo.memoryBarrierCount = 1;
+  dependencyInfo.pMemoryBarriers = &memoryBarrier;
+
+  cmd.pipelineBarrier2(dependencyInfo);
+  
   // Before the loop, let's log the total number of mip levels
   spdlog::info("Total mip levels: {}", texture_.levels());
 
@@ -105,6 +118,19 @@ void Texture::CreateImage(EngineContext& engine) {
 
     cmd.copyBufferToImage(staging_buffer.GetBuffer(), texture_image_.GetImage(),
                           vk::ImageLayout::eTransferDstOptimal, region);
+
+    // Add a pipeline barrier here
+    vk::MemoryBarrier2 copyBarrier{};
+    copyBarrier.srcStageMask = vk::PipelineStageFlagBits2::eTransfer;
+    copyBarrier.srcAccessMask = vk::AccessFlagBits2::eTransferWrite;
+    copyBarrier.dstStageMask = vk::PipelineStageFlagBits2::eTransfer;
+    copyBarrier.dstAccessMask = vk::AccessFlagBits2::eTransferWrite;
+
+    vk::DependencyInfo copyDependencyInfo{};
+    copyDependencyInfo.memoryBarrierCount = 1;
+    copyDependencyInfo.pMemoryBarriers = &copyBarrier;
+
+    cmd.pipelineBarrier2(copyDependencyInfo);
 
     offset += mipSize;
   }
