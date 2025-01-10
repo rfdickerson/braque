@@ -51,13 +51,15 @@ Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
       allocation_(nullptr),
       format(format),
       layout_(layout),
-  mip_levels_(1)
+  mip_levels_(1),
+extent_(vk::Extent3D{1280, 720, 1})
 {
   createImageView();
 }
 
 Image::Image(EngineContext& engine, const ImageConfig& config)
-    : engine_(engine), extent_(config.extent), format(config.format), layout_(config.layout), mip_levels_(config.mipLevels) {
+    : engine_(engine),
+extent_(config.extent), format(config.format), layout_(config.layout), mip_levels_(config.mipLevels) {
 
   auto imageInfo = CreateImageInfo(config);
   auto allocInfo = GetAllocationInfo();

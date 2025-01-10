@@ -47,8 +47,8 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
 
   auto postprocessingImageConfig = ImageConfig{};
   postprocessingImageConfig.extent = extent;
-  postprocessingImageConfig.format = vk::Format::eR16G16B16A16Sfloat;;
-  postprocessingImageConfig.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
+  postprocessingImageConfig.format = vk::Format::eR16G16B16A16Sfloat;
+  postprocessingImageConfig.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eColorAttachment;
   postprocessingImageConfig.samples = 1;
   postprocessingImageConfig.mipLevels = 1;
   

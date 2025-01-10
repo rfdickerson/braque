@@ -245,7 +245,7 @@ namespace braque
 
     vk::SemaphoreSubmitInfo waitSemaphoreInfo{};
     waitSemaphoreInfo.setSemaphore( wait );
-    waitSemaphoreInfo.setStageMask( vk::PipelineStageFlagBits2::eColorAttachmentOutput );
+    waitSemaphoreInfo.setStageMask( vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eBottomOfPipe );
 
     vk::SemaphoreSubmitInfo signalSemaphoreInfo{};
     signalSemaphoreInfo.setSemaphore( signal );
@@ -261,22 +261,5 @@ namespace braque
 
     context_.getRenderer().getGraphicsQueue().submit2KHR( submitInfo, fence );
   }
-
-  // void Swapchain::createImageViews()
-  // {
-  //   // for every image, create a swapchain image
-  //   for ( const auto& image : swapchainImages )
-  //   {
-  //     vk::ImageViewCreateInfo imageViewCreateInfo{};
-  //     imageViewCreateInfo.setImage( image.GetImage() );
-  //     imageViewCreateInfo.setViewType( vk::ImageViewType::e2D );
-  //     imageViewCreateInfo.setFormat( swapchainFormat );
-  //     imageViewCreateInfo.setComponents( vk::ComponentMapping{} );
-  //     imageViewCreateInfo.setSubresourceRange( vk::ImageSubresourceRange{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } );
-  //
-  //     // TODO: set these settings in the image
-  //
-  //   }
-  // }
 
 }  // namespace braque

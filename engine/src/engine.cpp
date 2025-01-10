@@ -70,7 +70,7 @@ void Engine::run() {
       input_controller_.PollEvents();
     }
 
-    debugWindow.createFrame(swapchain.getFrameStats());
+    //debugWindow.createFrame(swapchain.getFrameStats());
 
     SyncBarriers barriers;
     auto extent = swapchain.getExtent();
@@ -85,7 +85,7 @@ void Engine::run() {
     // prepare color image for rendering to
 
     barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
-    barriers.srcAccess = vk::AccessFlagBits2::eColorAttachmentWrite;
+    barriers.srcAccess = {};
     barriers.dstStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
     barriers.dstAccess = vk::AccessFlagBits2::eColorAttachmentWrite;
 
@@ -100,8 +100,9 @@ void Engine::run() {
                           {0, 0, static_cast<float>(extent.width),
                            static_cast<float>(extent.height), 0, 1});
     scene_.Draw(commandBuffer);
-    //renderingStage.renderTriangle( commandBuffer );
-    DebugWindow::renderFrame(commandBuffer);
+
+    //DebugWindow::renderFrame(commandBuffer);
+
     RenderingStage::endRenderingPass(commandBuffer);
 
     // transition color image to transfer src
@@ -129,8 +130,8 @@ void Engine::run() {
     currentPostprocessImage.TransitionLayout(vk::ImageLayout::eTransferSrcOptimal, commandBuffer, barriers);
 
     // transition swapchain image to transfer dst
-    barriers.srcStage = vk::PipelineStageFlagBits2::eTopOfPipe;
-    barriers.srcAccess = vk::AccessFlagBits2::eNone;
+    barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eBottomOfPipe;
+    barriers.srcAccess = vk::AccessFlagBits2::eColorAttachmentRead;
     barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
     barriers.dstAccess = vk::AccessFlagBits2::eTransferWrite;
     swapchainImage.TransitionLayout(vk::ImageLayout::eTransferDstOptimal, commandBuffer, barriers);
@@ -141,8 +142,8 @@ void Engine::run() {
     // transition swapchain image to present
     barriers.srcStage = vk::PipelineStageFlagBits2::eTransfer;
     barriers.srcAccess = vk::AccessFlagBits2::eTransferWrite;
-    barriers.dstStage = vk::PipelineStageFlagBits2::eBottomOfPipe;
-    barriers.dstAccess = vk::AccessFlagBits2::eNone;
+    barriers.dstStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barriers.dstAccess = {};
     swapchainImage.TransitionLayout(vk::ImageLayout::ePresentSrcKHR, commandBuffer, barriers);
 
     RenderingStage::end(commandBuffer);

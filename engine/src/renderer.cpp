@@ -103,6 +103,14 @@ vk::PhysicalDevice Renderer::createPhysicalDevice(vk::Instance instance) {
         "Physical device does not support synchronization 2");
   }
 
+  // check for blitting support
+  VkFormatProperties props;
+  vkGetPhysicalDeviceFormatProperties(physicalDevice, VK_FORMAT_R16G16B16A16_SFLOAT, &props);
+  assert(props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
+
+  vkGetPhysicalDeviceFormatProperties(physicalDevice, VK_FORMAT_B8G8R8A8_SRGB, &props);
+  assert(props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
+
   return physicalDevice;
 }
 
