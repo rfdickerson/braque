@@ -57,7 +57,7 @@ Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
 }
 
 Image::Image(EngineContext& engine, const ImageConfig& config)
-    : engine_(engine), extent_(config.extent), format(config.format) {
+    : engine_(engine), extent_(config.extent), format(config.format), layout_(config.layout), mip_levels_(config.mipLevels) {
 
   auto imageInfo = CreateImageInfo(config);
   auto allocInfo = GetAllocationInfo();

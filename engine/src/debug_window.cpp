@@ -22,7 +22,8 @@ namespace braque
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    const auto format = engine.getSwapchain().getFormat();
+    //const auto format = engine.getSwapchain().getFormat();
+    const auto format = vk::Format::eR16G16B16A16Sfloat;
     constexpr auto depthFormat = vk::Format::eD32Sfloat;
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
@@ -45,7 +46,7 @@ namespace braque
     initInfo.Allocator                   = nullptr;
     initInfo.MinImageCount               = 2;
     initInfo.ImageCount                  = engine.getSwapchain().getImageCount();
-    initInfo.MSAASamples                 = VK_SAMPLE_COUNT_1_BIT;
+    initInfo.MSAASamples                 = VK_SAMPLE_COUNT_4_BIT;
     initInfo.CheckVkResultFn             = nullptr;
     initInfo.UseDynamicRendering         = true;
     initInfo.PipelineRenderingCreateInfo = pipelineRenderingCreateInfo;

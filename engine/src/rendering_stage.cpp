@@ -22,8 +22,6 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
 
   const auto extent = vk::Extent3D{swapchain.getExtent(), 1};
 
-  offscreenImage =
-      std::make_unique<Image>(engine, extent, vk::Format::eR16G16B16A16Sfloat);
   shader = std::make_unique<Shader>(engine.getRenderer().getDevice(),
                                     "../assets/shaders/triangle.vert.spv",
                                     "../assets/shaders/triangle.frag.spv");
@@ -36,14 +34,22 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
   auto colorImageConfig = ImageConfig{};
   colorImageConfig.extent = extent;
   colorImageConfig.format = vk::Format::eR16G16B16A16Sfloat;
-  colorImageConfig.usage = vk::ImageUsageFlagBits::eTransferSrc;
+  colorImageConfig.usage = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eColorAttachment;
   colorImageConfig.samples = 4;
+  colorImageConfig.mipLevels = 1;
+
+  auto depthImageConfig = ImageConfig{};
+  depthImageConfig.extent = extent;
+  depthImageConfig.format = vk::Format::eD32Sfloat;
+  depthImageConfig.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+  depthImageConfig.samples = 4;
+  depthImageConfig.mipLevels = 1;
   
   for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount();
        ++i) {
 
     colorImages.emplace_back(engine, colorImageConfig);
-    depthImages.emplace_back(engine, extent, vk::Format::eD32Sfloat);
+    depthImages.emplace_back(engine, depthImageConfig);
   }
 }
 
@@ -71,7 +77,8 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
   renderingAttachmentInfo.setStoreOp(vk::AttachmentStoreOp::eStore);
   renderingAttachmentInfo.setImageLayout(
       vk::ImageLayout::eColorAttachmentOptimal);
-  renderingAttachmentInfo.setImageView(swapchain_.getImageView());
+  // switch to color attachment
+  renderingAttachmentInfo.setImageView(colorImages[curr].GetImageView());
 
   // create the depth attachment
   auto clear_value = vk::ClearValue();

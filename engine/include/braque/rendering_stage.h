@@ -53,9 +53,8 @@ class RenderingStage {
   vk::DescriptorPool descriptorPool;
 
   std::vector<Image> colorImages;
-
-  std::unique_ptr<Image> offscreenImage;
   std::vector<Image> depthImages;
+
   std::unique_ptr<Shader> shader;
   std::unique_ptr<Pipeline> pipeline;
 
