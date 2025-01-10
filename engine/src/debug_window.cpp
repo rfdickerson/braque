@@ -79,7 +79,7 @@ namespace braque
       stats.LatencyData().data(),
       stats.LatencyData().size(),
       stats.LatencyDataOffset(),
-      nullptr, 0.0F, 12.0F, ImVec2( 0, 80 ) );
+      nullptr, 0.0F, 20.0F, ImVec2( 0, 80 ) );
 
     ImGui::Text( "Allocations: %d", report.allocations );
     ImGui::Text( "Total memory: %llu", report.totalMemory );
