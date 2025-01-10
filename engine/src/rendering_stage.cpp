@@ -44,12 +44,20 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
   depthImageConfig.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
   depthImageConfig.samples = 4;
   depthImageConfig.mipLevels = 1;
+
+  auto postprocessingImageConfig = ImageConfig{};
+  postprocessingImageConfig.extent = extent;
+  postprocessingImageConfig.format = vk::Format::eR16G16B16A16Sfloat;;
+  postprocessingImageConfig.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
+  postprocessingImageConfig.samples = 1;
+  postprocessingImageConfig.mipLevels = 1;
   
   for (uint32_t i = 0; i < Swapchain::getFramesInFlightCount();
        ++i) {
 
     colorImages.emplace_back(engine, colorImageConfig);
     depthImages.emplace_back(engine, depthImageConfig);
+    postprocessingImages.emplace_back(engine, postprocessingImageConfig);
   }
 }
 
@@ -108,54 +116,6 @@ void RenderingStage::endRenderingPass(const vk::CommandBuffer buffer) {
 
 void RenderingStage::end(const vk::CommandBuffer buffer) {
   buffer.end();
-}
-
-void RenderingStage::prepareImageForColorAttachment(
-    const vk::CommandBuffer buffer) const {
-  // Define the image memory barrier using synchronization2
-  const vk::ImageMemoryBarrier2 imageBarrier{
-      vk::PipelineStageFlagBits2::eColorAttachmentOutput,  // srcStageMask
-      vk::AccessFlagBits2::eColorAttachmentRead,           // srcAccessMask
-      vk::PipelineStageFlagBits2::eColorAttachmentOutput,  // dstStageMask
-      vk::AccessFlagBits2::eColorAttachmentWrite,          // dstAccessMask
-      vk::ImageLayout::eUndefined,                         // oldLayout
-      vk::ImageLayout::eColorAttachmentOptimal,            // newLayout
-      vk::QueueFamilyIgnored,                        // srcQueueFamilyIndex
-      vk::QueueFamilyIgnored,                        // dstQueueFamilyIndex
-      swapchain_.swapchain_image(),       // image
-      {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}  // subresourceRange
-  };
-
-  // Encapsulate the barrier in a dependency info object
-  vk::DependencyInfo dependencyInfo{};
-  dependencyInfo.setImageMemoryBarriers(imageBarrier);
-
-  // Issue the pipeline barrier with synchronization2
-  buffer.pipelineBarrier2KHR(dependencyInfo);
-}
-
-void RenderingStage::prepareImageForDisplay(
-    const vk::CommandBuffer buffer) const {
-  // Define the image memory barrier using synchronization2
-  const vk::ImageMemoryBarrier2 imageBarrier{
-      vk::PipelineStageFlagBits2::eColorAttachmentOutput,  // srcStageMask
-      vk::AccessFlagBits2::eColorAttachmentWrite,          // srcAccessMask
-      vk::PipelineStageFlagBits2::eColorAttachmentOutput,  // dstStageMask
-      vk::AccessFlagBits2::eNone,                          // dstAccessMask
-      vk::ImageLayout::eColorAttachmentOptimal,            // oldLayout
-      vk::ImageLayout::ePresentSrcKHR,                     // newLayout
-      vk::QueueFamilyIgnored,                        // srcQueueFamilyIndex
-      vk::QueueFamilyIgnored,                        // dstQueueFamilyIndex
-      swapchain_.swapchain_image(),       // image
-      {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}  // subresourceRange
-  };
-
-  // Encapsulate the barrier in a dependency info object
-  vk::DependencyInfo dependencyInfo{};
-  dependencyInfo.setImageMemoryBarriers(imageBarrier);
-
-  // Issue the pipeline barrier with synchronization2
-  buffer.pipelineBarrier2KHR(dependencyInfo);
 }
 
 void RenderingStage::createDescriptorPool() {

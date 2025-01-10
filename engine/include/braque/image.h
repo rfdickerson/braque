@@ -69,6 +69,8 @@ class Image {
                         const SyncBarriers& barriers = {},
                         uint32_t mipLevels = 1);
 
+  void ResolveImage(vk::CommandBuffer buffer, const Image& destImage) const;
+
   void BlitImage(vk::CommandBuffer buffer, const Image& destImage) const;
 
  private:

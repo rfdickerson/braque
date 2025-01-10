@@ -44,6 +44,8 @@ class RenderingStage {
   static void end(vk::CommandBuffer buffer);
 
   std::vector<Image>& GetColorImages() { return colorImages; }
+  std::vector<Image>& GetDepthImages() { return depthImages; }
+  std::vector<Image>& GetPostprocessingImages() { return postprocessingImages; }
 
   //void renderTriangle(vk::CommandBuffer buffer) const;
   // void render();
@@ -56,6 +58,8 @@ class RenderingStage {
 
   std::vector<Image> colorImages;
   std::vector<Image> depthImages;
+
+  std::vector<Image> postprocessingImages;
 
   std::unique_ptr<Shader> shader;
   std::unique_ptr<Pipeline> pipeline;

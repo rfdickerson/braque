@@ -154,7 +154,7 @@ namespace braque
     swapchainCreateInfo.setImageColorSpace( surfaceFormat.colorSpace );
     swapchainCreateInfo.setImageExtent( surfaceCapabilities.currentExtent );
     swapchainCreateInfo.setImageArrayLayers( 1 );
-    swapchainCreateInfo.setImageUsage( vk::ImageUsageFlagBits::eColorAttachment );
+    swapchainCreateInfo.setImageUsage( vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst );
     swapchainCreateInfo.setImageSharingMode( vk::SharingMode::eExclusive );
     swapchainCreateInfo.setQueueFamilyIndexCount( 0 );
     swapchainCreateInfo.setPQueueFamilyIndices( nullptr );

@@ -253,21 +253,12 @@ void Image::BlitImage(const vk::CommandBuffer buffer,
         "Destination image is not in transfer destination optimal layout");
   }
 
-  vk::ImageBlit2KHR regions;
-  regions.srcOffsets[0] = vk::Offset3D{0, 0, 0};
-  regions.dstOffsets[0] = vk::Offset3D{0, 0, 0};
-  regions.srcOffsets[1] = vk::Offset3D{static_cast<int32_t>(extent_.width),
-                                       static_cast<int32_t>(extent_.height), 1};
-  regions.dstOffsets[1] =
-      vk::Offset3D{static_cast<int32_t>(destImage.GetExtent().width),
-                   static_cast<int32_t>(destImage.GetExtent().height), 1};
-  regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
 
   vk::ImageBlit region;
   region.srcOffsets[0] = vk::Offset3D{0, 0, 0};
-  region.dstOffsets[0] = vk::Offset3D{0, 0, 0};
   region.srcOffsets[1] = vk::Offset3D{static_cast<int32_t>(extent_.width),
                                       static_cast<int32_t>(extent_.height), 1};
+  region.dstOffsets[0] = vk::Offset3D{0, 0, 0};
   region.dstOffsets[1] =
       vk::Offset3D{static_cast<int32_t>(destImage.GetExtent().width),
                    static_cast<int32_t>(destImage.GetExtent().height), 1};
@@ -285,5 +276,26 @@ void Image::BlitImage(const vk::CommandBuffer buffer,
       vk::Filter::eLinear                      // filter
   );
 }
+
+void Image::ResolveImage(vk::CommandBuffer buffer,
+                         const Image& destImage) const {
+
+  vk::ImageResolve resolveRegion;
+  resolveRegion.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  resolveRegion.srcOffset = vk::Offset3D{0, 0, 0};
+  resolveRegion.dstSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  resolveRegion.dstOffset = vk::Offset3D{0, 0, 0};
+  resolveRegion.extent = extent_;
+
+  buffer.resolveImage(
+      image_,                                  // srcImage
+      layout_,                                 // srcImageLayout
+      destImage.GetImage(),                    // dstImage
+      destImage.GetLayout(),                   // dstImageLayout
+      1,                                       // regionCount
+      &resolveRegion                           // pRegions
+  );
+}
+
 
 }  // namespace braque
