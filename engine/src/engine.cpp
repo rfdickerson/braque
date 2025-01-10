@@ -70,7 +70,7 @@ void Engine::run() {
       input_controller_.PollEvents();
     }
 
-    //debugWindow.createFrame(swapchain.getFrameStats());
+    debugWindow.createFrame(swapchain.getFrameStats());
 
     SyncBarriers barriers;
     auto extent = swapchain.getExtent();
@@ -128,6 +128,9 @@ void Engine::run() {
     barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
     barriers.dstAccess = vk::AccessFlagBits2::eTransferRead;
     currentPostprocessImage.TransitionLayout(vk::ImageLayout::eTransferSrcOptimal, commandBuffer, barriers);
+
+    // render the debug window
+    debugWindow.BeginRendering(commandBuffer, currentPostprocessImage);
 
     // transition swapchain image to transfer dst
     barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eBottomOfPipe;

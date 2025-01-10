@@ -11,6 +11,7 @@ namespace braque
 {
   class Engine;
   class FrameStats;
+  class Image;
 
   class DebugWindow
   {
@@ -26,6 +27,7 @@ namespace braque
 
     void        createFrame( FrameStats & frameStats ) const;
     static void renderFrame( const vk::CommandBuffer & commandBuffer );
+    void BeginRendering(vk::CommandBuffer buffer, const Image& image) const;
 
   private:
     Engine & engine;
