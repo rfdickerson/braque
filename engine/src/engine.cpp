@@ -125,12 +125,19 @@ void Engine::run() {
     // transition postprocess image to transfer src optimal
     barriers.srcStage = vk::PipelineStageFlagBits2::eResolve;
     barriers.srcAccess = vk::AccessFlagBits2::eTransferWrite;
-    barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
-    barriers.dstAccess = vk::AccessFlagBits2::eTransferRead;
-    currentPostprocessImage.TransitionLayout(vk::ImageLayout::eTransferSrcOptimal, commandBuffer, barriers);
+    barriers.dstStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barriers.dstAccess = vk::AccessFlagBits2::eColorAttachmentRead;
+    currentPostprocessImage.TransitionLayout(vk::ImageLayout::eColorAttachmentOptimal, commandBuffer, barriers);
 
     // render the debug window
     debugWindow.BeginRendering(commandBuffer, currentPostprocessImage);
+
+    // transition post process image to transfer src optimal
+    barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barriers.srcAccess = vk::AccessFlagBits2::eColorAttachmentWrite;
+    barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
+    barriers.dstAccess = vk::AccessFlagBits2::eTransferRead;
+    currentPostprocessImage.TransitionLayout(vk::ImageLayout::eTransferSrcOptimal, commandBuffer, barriers);
 
     // transition swapchain image to transfer dst
     barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput | vk::PipelineStageFlagBits2::eBottomOfPipe;
