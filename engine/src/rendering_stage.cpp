@@ -194,22 +194,5 @@ void RenderingStage::createDescriptorPool() {
       engine.getRenderer().getDevice().createDescriptorPool(poolInfo, nullptr);
 }
 
-void RenderingStage::renderTriangle(const vk::CommandBuffer buffer) const {
-  pipeline->Bind(buffer);
-
-  const auto viewport =
-      vk::Viewport{0.0F,
-                   0.0F,
-                   static_cast<float>(swapchain_.getExtent().width),
-                   static_cast<float>(swapchain_.getExtent().height),
-                   0.0F,
-                   1.0F};
-  Pipeline::SetViewport(buffer, viewport);
-
-  const auto scissor = vk::Rect2D{{0, 0}, swapchain_.getExtent()};
-  Pipeline::SetScissor(buffer, scissor);
-
-  buffer.draw(3, 1, 0, 0);
-}
 
 }  // namespace braque

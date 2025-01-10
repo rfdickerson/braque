@@ -263,15 +263,27 @@ void Image::BlitImage(const vk::CommandBuffer buffer,
                    static_cast<int32_t>(destImage.GetExtent().height), 1};
   regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
 
-  // do the blit
-  vk::BlitImageInfo2KHR blitInfo;
-  blitInfo.setSrcImage(image_);
-  blitInfo.setSrcImageLayout(layout_);
-  blitInfo.setDstImage(destImage.GetImage());
-  blitInfo.setRegions(regions);
-  blitInfo.setFilter(vk::Filter::eLinear);
+  vk::ImageBlit region;
+  region.srcOffsets[0] = vk::Offset3D{0, 0, 0};
+  region.dstOffsets[0] = vk::Offset3D{0, 0, 0};
+  region.srcOffsets[1] = vk::Offset3D{static_cast<int32_t>(extent_.width),
+                                      static_cast<int32_t>(extent_.height), 1};
+  region.dstOffsets[1] =
+      vk::Offset3D{static_cast<int32_t>(destImage.GetExtent().width),
+                   static_cast<int32_t>(destImage.GetExtent().height), 1};
+  region.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  region.dstSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
 
-  buffer.blitImage2KHR(blitInfo);
+  // do the blit
+  buffer.blitImage(
+      image_,                                  // srcImage
+      layout_,                                 // srcImageLayout
+      destImage.GetImage(),                    // dstImage
+      destImage.GetLayout(),                   // dstImageLayout
+      1,                                       // regionCount
+      &region,                                 // pRegions
+      vk::Filter::eLinear                      // filter
+  );
 }
 
 }  // namespace braque

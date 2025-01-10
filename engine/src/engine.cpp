@@ -73,6 +73,8 @@ void Engine::run() {
     debugWindow.createFrame(swapchain.getFrameStats());
 
     auto extent = swapchain.getExtent();
+    auto& swapchainImage = swapchain.GetSwapchainImage();
+    auto& currentColorImage = renderingStage.GetColorImages()[swapchain.CurrentFrameIndex()];
 
     auto commandBuffer = swapchain.getCommandBuffer();
     RenderingStage::begin(commandBuffer);
@@ -90,6 +92,25 @@ void Engine::run() {
     //renderingStage.renderTriangle( commandBuffer );
     DebugWindow::renderFrame(commandBuffer);
     RenderingStage::endRenderingPass(commandBuffer);
+
+    // transition color image to transfer src
+    SyncBarriers barriers;
+    barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barriers.srcAccess = vk::AccessFlagBits2::eColorAttachmentWrite;
+    barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
+    barriers.dstAccess = vk::AccessFlagBits2::eTransferRead;
+
+    currentColorImage.TransitionLayout(vk::ImageLayout::eTransferSrcOptimal, commandBuffer, barriers);
+
+    // transition swapchain image to transfer dst
+    barriers.srcStage = vk::PipelineStageFlagBits2::eColorAttachmentOutput;
+    barriers.srcAccess = vk::AccessFlagBits2::eColorAttachmentWrite;
+    barriers.dstStage = vk::PipelineStageFlagBits2::eTransfer;
+    swapchainImage.TransitionLayout(vk::ImageLayout::eTransferDstOptimal, commandBuffer, barriers);
+
+    // Blit image
+    currentColorImage.BlitImage(commandBuffer, swapchainImage);
+
     renderingStage.prepareImageForDisplay(commandBuffer);
     RenderingStage::end(commandBuffer);
 
@@ -98,4 +119,4 @@ void Engine::run() {
   }
 }
 
-}  // namespace braque 
+}  // namespace braque

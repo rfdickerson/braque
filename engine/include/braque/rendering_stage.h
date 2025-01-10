@@ -43,7 +43,9 @@ class RenderingStage {
   static void endRenderingPass(vk::CommandBuffer buffer);
   static void end(vk::CommandBuffer buffer);
 
-  void renderTriangle(vk::CommandBuffer buffer) const;
+  std::vector<Image>& GetColorImages() { return colorImages; }
+
+  //void renderTriangle(vk::CommandBuffer buffer) const;
   // void render();
 
  private:

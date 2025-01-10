@@ -34,6 +34,10 @@ class Swapchain {
     return swapchainImages[currentImageIndex].GetImage();
   }
 
+  [[nodiscard]] auto GetSwapchainImage() -> Image& {
+    return swapchainImages[currentImageIndex];
+  }
+
   [[nodiscard]] auto getCommandBuffer() const -> vk::CommandBuffer {
     return commandBuffers[currentImageIndex];
   }
