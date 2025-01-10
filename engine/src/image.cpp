@@ -37,7 +37,7 @@ Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
       extent_(extent),
       format(format),
       layout_(vk::ImageLayout::eUndefined),
-      mip_levels_(0) {
+      mip_levels_(1) {
   allocateImage();
   createImageView();
 
@@ -50,7 +50,9 @@ Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
       image_(image),
       allocation_(nullptr),
       format(format),
-      layout_(layout) {
+      layout_(layout),
+  mip_levels_(1)
+{
   createImageView();
 }
 
