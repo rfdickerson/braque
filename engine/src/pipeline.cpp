@@ -76,7 +76,7 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
 
   vk::PipelineMultisampleStateCreateInfo multisampling{};
   multisampling.setSampleShadingEnable(vk::False);
-  multisampling.setRasterizationSamples(vk::SampleCountFlagBits::e1);
+  multisampling.setRasterizationSamples(vk::SampleCountFlagBits::e4);
 
   vk::PipelineColorBlendAttachmentState colorBlendAttachment{};
   colorBlendAttachment.setColorWriteMask(
@@ -103,7 +103,7 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   depthStencil.setDepthBoundsTestEnable(vk::False);
   depthStencil.setStencilTestEnable(vk::False);
 
-  auto colorFormat = {vk::Format::eB8G8R8A8Srgb};
+  auto colorFormat = {vk::Format::eR16G16B16A16Sfloat};
   constexpr auto depthFormat = vk::Format::eD32Sfloat;
 
   vk::PipelineRenderingCreateInfo pipelineRenderingCreateInfo {};

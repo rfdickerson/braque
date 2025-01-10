@@ -22,13 +22,14 @@ namespace braque
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    const auto format = engine.getSwapchain().getFormat();
+    //const auto format = engine.getSwapchain().getFormat();
+    constexpr auto format = vk::Format::eR16G16B16A16Sfloat;
     constexpr auto depthFormat = vk::Format::eD32Sfloat;
 
     vk::PipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
 
     pipelineRenderingCreateInfo.setColorAttachmentFormats({format});
-    pipelineRenderingCreateInfo.setDepthAttachmentFormat(depthFormat);
+    //pipelineRenderingCreateInfo.setDepthAttachmentFormat(depthFormat);
 
     ImGui_ImplGlfw_InitForVulkan( engine.getWindow().GetNativeWindow(), true );
 
@@ -98,5 +99,36 @@ namespace braque
   {
     ImGui_ImplVulkan_CreateFontsTexture();
   }
+
+void DebugWindow::BeginRendering(vk::CommandBuffer buffer, const Image& image) const {
+
+    constexpr vk::ClearColorValue clearColor{0.0F, 0.0F, 0.0F, 0.0F};
+
+    vk::RenderingAttachmentInfo renderingAttachmentInfo{};
+    renderingAttachmentInfo.setClearValue(clearColor);
+    renderingAttachmentInfo.setLoadOp(vk::AttachmentLoadOp::eLoad);
+    renderingAttachmentInfo.setStoreOp(vk::AttachmentStoreOp::eStore);
+    renderingAttachmentInfo.setImageLayout(
+        vk::ImageLayout::eColorAttachmentOptimal);
+    renderingAttachmentInfo.setImageView(image.GetImageView());
+
+    auto extent = image.GetExtent();
+    const auto renderArea = vk::Rect2D{{0, 0}, {extent.width, extent.height}};
+
+    vk::RenderingInfo renderingInfo{};
+    renderingInfo.setFlags(vk::RenderingFlags());
+    renderingInfo.setLayerCount(1);
+    renderingInfo.setColorAttachments(renderingAttachmentInfo);
+    renderingInfo.setRenderArea(renderArea);
+
+    buffer.beginRenderingKHR(renderingInfo);
+
+    ImGui::Render();
+    ImGui_ImplVulkan_RenderDrawData( ImGui::GetDrawData(), buffer );
+
+    buffer.endRendering();
+
+
+}
 
 }  // namespace braque

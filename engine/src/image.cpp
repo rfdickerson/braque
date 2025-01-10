@@ -14,25 +14,30 @@ namespace braque {
 Image::Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
              const VmaAllocationCreateInfo& allocInfo)
     : engine_(engine),
-      format(vk::Format::eUndefined),
-      layout_(vk::ImageLayout::eUndefined) {
+      format(createInfo.format),
+      layout_(createInfo.initialLayout),
+      mip_levels_(createInfo.mipLevels),
+      image_view_(nullptr),
+      allocation_(nullptr)
+{
 
   auto [image, allocation] =
       engine_.getMemoryAllocator().createImage(createInfo, allocInfo);
 
   allocation_ = allocation;
   image_ = image;
-  format = createInfo.format;
-  mip_levels_ = createInfo.mipLevels;
 
   createImageView();
 }
 
 Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
     : engine_(engine),
+      allocation_(nullptr),
+      image_view_(nullptr),
       extent_(extent),
       format(format),
-      layout_(vk::ImageLayout::eUndefined) {
+      layout_(vk::ImageLayout::eUndefined),
+      mip_levels_(1) {
   allocateImage();
   createImageView();
 
@@ -45,8 +50,63 @@ Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
       image_(image),
       allocation_(nullptr),
       format(format),
-      layout_(layout) {
+      layout_(layout),
+  mip_levels_(1),
+extent_(vk::Extent3D{1280, 720, 1})
+{
   createImageView();
+}
+
+Image::Image(EngineContext& engine, const ImageConfig& config)
+    : engine_(engine),
+extent_(config.extent), format(config.format), layout_(config.layout), mip_levels_(config.mipLevels) {
+
+  auto imageInfo = CreateImageInfo(config);
+  auto allocInfo = GetAllocationInfo();
+
+  auto [image, allocation] =
+      engine_.getMemoryAllocator().createImage(imageInfo, allocInfo);
+
+  allocation_ = allocation;
+  image_ = image;
+  createImageView();
+}
+
+vk::SampleCountFlagBits Image::GetSampleCount(uint32_t samples) {
+  switch (samples) {
+    case 1:
+      return vk::SampleCountFlagBits::e1;
+    case 2:
+      return vk::SampleCountFlagBits::e2;
+    case 4:
+      return vk::SampleCountFlagBits::e4;
+    case 8:
+      return vk::SampleCountFlagBits::e8;
+    default:
+      return vk::SampleCountFlagBits::e1;
+  }
+}
+
+vk::ImageCreateInfo Image::CreateImageInfo(const ImageConfig& config) {
+  vk::ImageCreateInfo imageInfo{};
+  imageInfo.imageType = config.imageType;
+  imageInfo.extent = config.extent;
+  imageInfo.mipLevels = config.mipLevels;
+  imageInfo.arrayLayers = config.arrayLayers;
+  imageInfo.format = config.format;
+  imageInfo.tiling = vk::ImageTiling::eOptimal;
+  imageInfo.initialLayout = config.layout;
+  imageInfo.usage = config.usage;
+  imageInfo.sharingMode = vk::SharingMode::eExclusive;
+  imageInfo.samples = GetSampleCount(config.samples);
+  return imageInfo;
+}
+
+VmaAllocationCreateInfo Image::GetAllocationInfo() {
+  VmaAllocationCreateInfo allocInfo{};
+
+  allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+  return allocInfo;
 }
 
 Image::~Image() {
@@ -94,7 +154,7 @@ Image& Image::operator=(Image&& other) noexcept {
 }
 
 void Image::allocateImage() {
-  vk::ImageCreateInfo createInfo;
+  vk::ImageCreateInfo createInfo {};
   createInfo.setImageType(vk::ImageType::e2D);
   createInfo.setExtent(extent_);
   createInfo.setMipLevels(1);
@@ -113,6 +173,7 @@ void Image::allocateImage() {
   }
 
   createInfo.setSamples(vk::SampleCountFlagBits::e1);
+
   createInfo.setSharingMode(vk::SharingMode::eExclusive);
 
   VmaAllocationCreateInfo allocInfo{};
@@ -194,25 +255,49 @@ void Image::BlitImage(const vk::CommandBuffer buffer,
         "Destination image is not in transfer destination optimal layout");
   }
 
-  vk::ImageBlit2KHR regions;
-  regions.srcOffsets[0] = vk::Offset3D{0, 0, 0};
-  regions.dstOffsets[0] = vk::Offset3D{0, 0, 0};
-  regions.srcOffsets[1] = vk::Offset3D{static_cast<int32_t>(extent_.width),
-                                       static_cast<int32_t>(extent_.height), 1};
-  regions.dstOffsets[1] =
+
+  vk::ImageBlit region;
+  region.srcOffsets[0] = vk::Offset3D{0, 0, 0};
+  region.srcOffsets[1] = vk::Offset3D{static_cast<int32_t>(extent_.width),
+                                      static_cast<int32_t>(extent_.height), 1};
+  region.dstOffsets[0] = vk::Offset3D{0, 0, 0};
+  region.dstOffsets[1] =
       vk::Offset3D{static_cast<int32_t>(destImage.GetExtent().width),
                    static_cast<int32_t>(destImage.GetExtent().height), 1};
-  regions.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  region.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  region.dstSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
 
   // do the blit
-  vk::BlitImageInfo2KHR blitInfo;
-  blitInfo.setSrcImage(image_);
-  blitInfo.setSrcImageLayout(layout_);
-  blitInfo.setDstImage(destImage.GetImage());
-  blitInfo.setRegions(regions);
-  blitInfo.setFilter(vk::Filter::eLinear);
-
-  buffer.blitImage2KHR(blitInfo);
+  buffer.blitImage(
+      image_,                                  // srcImage
+      layout_,                                 // srcImageLayout
+      destImage.GetImage(),                    // dstImage
+      destImage.GetLayout(),                   // dstImageLayout
+      1,                                       // regionCount
+      &region,                                 // pRegions
+      vk::Filter::eLinear                      // filter
+  );
 }
+
+void Image::ResolveImage(vk::CommandBuffer buffer,
+                         const Image& destImage) const {
+
+  vk::ImageResolve resolveRegion;
+  resolveRegion.srcSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  resolveRegion.srcOffset = vk::Offset3D{0, 0, 0};
+  resolveRegion.dstSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
+  resolveRegion.dstOffset = vk::Offset3D{0, 0, 0};
+  resolveRegion.extent = extent_;
+
+  buffer.resolveImage(
+      image_,                                  // srcImage
+      layout_,                                 // srcImageLayout
+      destImage.GetImage(),                    // dstImage
+      destImage.GetLayout(),                   // dstImageLayout
+      1,                                       // regionCount
+      &resolveRegion                           // pRegions
+  );
+}
+
 
 }  // namespace braque
