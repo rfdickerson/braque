@@ -61,3 +61,11 @@ target_link_libraries(braque
         GPUOpen::VulkanMemoryAllocator
         gli
 )
+
+target_precompile_headers(braque PRIVATE
+        <glm/glm.hpp>
+        <gli/gli.hpp>
+        <vulkan/vulkan.hpp>
+        <vk_mem_alloc.h>
+        <spdlog/spdlog.h>
+)

@@ -14,12 +14,11 @@ namespace braque {
 Image::Image(EngineContext& engine, const vk::ImageCreateInfo& createInfo,
              const VmaAllocationCreateInfo& allocInfo)
     : engine_(engine),
+      allocation_(nullptr),
+      image_view_(nullptr),
       format(createInfo.format),
       layout_(createInfo.initialLayout),
-      mip_levels_(createInfo.mipLevels),
-      image_view_(nullptr),
-      allocation_(nullptr)
-{
+      mip_levels_(createInfo.mipLevels) {
 
   auto [image, allocation] =
       engine_.getMemoryAllocator().createImage(createInfo, allocInfo);
@@ -49,17 +48,19 @@ Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
     : engine_(engine),
       image_(image),
       allocation_(nullptr),
+      extent_(vk::Extent3D{1280, 720, 1}),
       format(format),
       layout_(layout),
-  mip_levels_(1),
-extent_(vk::Extent3D{1280, 720, 1})
-{
+      mip_levels_(1) {
   createImageView();
 }
 
 Image::Image(EngineContext& engine, const ImageConfig& config)
     : engine_(engine),
-extent_(config.extent), format(config.format), layout_(config.layout), mip_levels_(config.mipLevels) {
+      extent_(config.extent),
+      format(config.format),
+      layout_(config.layout),
+      mip_levels_(config.mipLevels) {
 
   auto imageInfo = CreateImageInfo(config);
   auto allocInfo = GetAllocationInfo();
@@ -154,7 +155,7 @@ Image& Image::operator=(Image&& other) noexcept {
 }
 
 void Image::allocateImage() {
-  vk::ImageCreateInfo createInfo {};
+  vk::ImageCreateInfo createInfo{};
   createInfo.setImageType(vk::ImageType::e2D);
   createInfo.setExtent(extent_);
   createInfo.setMipLevels(1);
@@ -255,7 +256,6 @@ void Image::BlitImage(const vk::CommandBuffer buffer,
         "Destination image is not in transfer destination optimal layout");
   }
 
-
   vk::ImageBlit region;
   region.srcOffsets[0] = vk::Offset3D{0, 0, 0};
   region.srcOffsets[1] = vk::Offset3D{static_cast<int32_t>(extent_.width),
@@ -268,14 +268,13 @@ void Image::BlitImage(const vk::CommandBuffer buffer,
   region.dstSubresource = {vk::ImageAspectFlagBits::eColor, 0, 0, 1};
 
   // do the blit
-  buffer.blitImage(
-      image_,                                  // srcImage
-      layout_,                                 // srcImageLayout
-      destImage.GetImage(),                    // dstImage
-      destImage.GetLayout(),                   // dstImageLayout
-      1,                                       // regionCount
-      &region,                                 // pRegions
-      vk::Filter::eLinear                      // filter
+  buffer.blitImage(image_,                 // srcImage
+                   layout_,                // srcImageLayout
+                   destImage.GetImage(),   // dstImage
+                   destImage.GetLayout(),  // dstImageLayout
+                   1,                      // regionCount
+                   &region,                // pRegions
+                   vk::Filter::eLinear     // filter
   );
 }
 
@@ -289,15 +288,13 @@ void Image::ResolveImage(vk::CommandBuffer buffer,
   resolveRegion.dstOffset = vk::Offset3D{0, 0, 0};
   resolveRegion.extent = extent_;
 
-  buffer.resolveImage(
-      image_,                                  // srcImage
-      layout_,                                 // srcImageLayout
-      destImage.GetImage(),                    // dstImage
-      destImage.GetLayout(),                   // dstImageLayout
-      1,                                       // regionCount
-      &resolveRegion                           // pRegions
+  buffer.resolveImage(image_,                 // srcImage
+                      layout_,                // srcImageLayout
+                      destImage.GetImage(),   // dstImage
+                      destImage.GetLayout(),  // dstImageLayout
+                      1,                      // regionCount
+                      &resolveRegion          // pRegions
   );
 }
-
 
 }  // namespace braque
