@@ -6,5 +6,6 @@
 #define BRAQUE_H
 
 #include "engine.h"
+#include "braque/asset_loader.h"
 
 #endif //BRAQUE_H

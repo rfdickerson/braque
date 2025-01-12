@@ -4,7 +4,7 @@ find_program(GLSLC glslc HINTS Vulkan::glslc)
 # Function to compile shaders
 function(compile_shader TARGET SHADER)
     get_filename_component(SHADER_NAME ${SHADER} NAME)
-    set(SPIRV "${CMAKE_CURRENT_BINARY_DIR}/assets/shaders/${SHADER_NAME}.spv")
+    set(SPIRV "${PROJECT_SOURCE_DIR}/assets/shaders/${SHADER_NAME}.spv")
     add_custom_command(
             OUTPUT ${SPIRV}
             COMMAND ${GLSLC} -o ${SPIRV} -g --target-env=vulkan1.2 ${SHADER}

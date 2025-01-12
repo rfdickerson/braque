@@ -4,6 +4,7 @@ find_package(GTest CONFIG REQUIRED)
 
 add_executable(my_tests
         test_renderer.cpp
+        test_loader.cc
         # ... other test files
 )
 
