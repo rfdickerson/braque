@@ -49,6 +49,7 @@ struct GAAFCatalogEntry {
 };
 
 struct AssetCatalogEntry {
+    uint64_t hash;            // Hash of the asset name
     uint64_t offset;          // Offset to asset data
     uint64_t compressedSize;  // Size of compressed data
     uint64_t originalSize;    // Original uncompressed size
@@ -90,6 +91,17 @@ private:
     bool writeCatalog();
     std::vector<uint8_t> compressData(const std::vector<uint8_t>& data);
     std::vector<uint8_t> decompressData(const std::vector<uint8_t>& data, size_t originalSize);
+
+    static uint64_t fnv1aHash(const std::string& input) {
+        const uint64_t fnvOffsetBasis = 14695981039346656037ULL;
+        const uint64_t fnvPrime = 1099511628211ULL;
+        uint64_t hash = fnvOffsetBasis;
+        for (char c : input) {
+            hash ^= static_cast<uint64_t>(c);
+            hash *= fnvPrime;
+        }
+        return hash;
+    }
 };
 
 } // namespace braque

@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "braque/pipeline.h"
+#include "braque/asset_loader.h"
 
 namespace braque {
 // Forward declarations
@@ -20,7 +21,7 @@ class Swapchain;
 
 class RenderingStage {
  public:
-  explicit RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms);
+  explicit RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms, AssetLoader& assetLoader);
   ~RenderingStage();
 
   // make sure copy and move are deleted
@@ -53,6 +54,7 @@ class RenderingStage {
  private:
   EngineContext& engine;
   Swapchain & swapchain_;
+  AssetLoader & assetLoader_;
 
   vk::DescriptorPool descriptorPool;
 

@@ -15,16 +15,20 @@
 
 namespace braque {
 
-RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms) : engine(engine), swapchain_(swapchain) {
+RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms, AssetLoader& assetLoader) : engine(engine), swapchain_(swapchain), assetLoader_(assetLoader) {
   spdlog::info("Creating rendering stage");
 
   createDescriptorPool();
 
   const auto extent = vk::Extent3D{swapchain.getExtent(), 1};
 
+  assetLoader_.openArchive("../../../../test.gaff");
+
+  auto vertShaderData = assetLoader_.loadAsset("triangle.vert.spv");
+  auto fragShaderData = assetLoader_.loadAsset("triangle.frag.spv");
+
   shader = std::make_unique<Shader>(engine.getRenderer().getDevice(),
-                                    "../assets/shaders/triangle.vert.spv",
-                                    "../assets/shaders/triangle.frag.spv");
+                                    vertShaderData, fragShaderData);
   pipeline =
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
                                  uniforms.GetDescriptorSetLayout());

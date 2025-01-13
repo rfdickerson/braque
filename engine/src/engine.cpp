@@ -9,10 +9,10 @@
 #include "braque/renderer.h"
 #include "braque/rendering_stage.h"
 #include "braque/swapchain.h"
+#include "braque/asset_loader.h"
 
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
 
 namespace braque {
 
@@ -22,7 +22,7 @@ Engine::Engine()
 context_(memoryAllocator, renderer),
       swapchain(window, context_),
       uniforms_(context_, swapchain),
-      renderingStage(context_, swapchain,uniforms_),
+      renderingStage(context_, swapchain,uniforms_, assetLoader_),
       debugWindow(*this),
       scene_(context_, uniforms_) {
   // Any other initialization after all members are constructed

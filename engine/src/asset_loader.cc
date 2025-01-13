@@ -5,6 +5,7 @@
 #include "braque/asset_loader.h"
 #include <snappy.h>
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -68,27 +69,31 @@ bool AssetLoader::addAsset(const std::string& name, AssetType type,
   if (exists(name))
     return false;
 
+  AssetCatalogEntry entry;
+  entry.hash = fnv1aHash(name);
+  strncpy(entry.name, name.c_str(), sizeof(entry.name) - 1);
+  entry.name[sizeof(entry.name) - 1] = '\0';
+  entry.assetType = static_cast<uint32_t>(type);
+  entry.originalSize = data.size();
+
   // Compress the data
   auto compressed = compressData(data);
+  entry.compressedSize = compressed.size();
 
   long currentPosition = ftell(file_.get());
 
-  // Create catalog entry
-  AssetCatalogEntry entry;
-  entry.offset = currentPosition;
-  entry.compressedSize = compressed.size();
-  entry.originalSize = data.size();
-  entry.assetType = static_cast<uint32_t>(type);
-  strncpy(entry.name, name.c_str(), sizeof(entry.name) - 1);
-  entry.name[sizeof(entry.name) - 1] = '\0';
+  // Seek to end for new data
+  fseek(file_.get(), 0, SEEK_END);
+  entry.offset = ftell(file_.get());
 
-  // Write compressed data
-  fwrite(compressed.data(), 1, compressed.size(), file_.get());
+  // Write the compressed data
+  if (fwrite(compressed.data(), 1, compressed.size(), file_.get()) != compressed.size())
+    return false;
 
   // Add to catalog
   catalog_[name] = entry;
 
-  // Update catalog on disk
+  // Update the catalog on disk
   return writeCatalog();
 }
 
@@ -98,6 +103,10 @@ std::vector<uint8_t> AssetLoader::loadAsset(const std::string& name) {
     return {};
 
   const auto& entry = it->second;
+  if (entry.hash != fnv1aHash(name)) {
+    // Hash collision detected
+    return {};
+  }
 
   // Read compressed data
   std::vector<uint8_t> compressed(entry.compressedSize);
@@ -187,9 +196,10 @@ std::vector<uint8_t> AssetLoader::decompressData(
 
 void AssetLoader::SaveDirectory(const std::string& directory) {
   namespace fs = std::filesystem;
+  std::vector<std::tuple<std::string, AssetType, fs::path>> assetRecords;
+  std::unordered_map<std::string, AssetCatalogEntry> tempCatalog;
 
-  std::unordered_map<std::string, int> fileTypeCount;
-
+  // First pass: Build the catalog
   try {
     for (const auto& entry : fs::recursive_directory_iterator(directory)) {
       if (fs::is_regular_file(entry)) {
@@ -199,9 +209,6 @@ void AssetLoader::SaveDirectory(const std::string& directory) {
         // Convert extension to lowercase for consistency
         std::transform(extension.begin(), extension.end(), extension.begin(),
                        [](unsigned char c) { return std::tolower(c); });
-
-        // Count file types
-        fileTypeCount[extension]++;
 
         // Determine AssetType based on extension
         AssetType assetType;
@@ -214,32 +221,82 @@ void AssetLoader::SaveDirectory(const std::string& directory) {
         } else if (extension == ".spv") {
           assetType = AssetType::SHADER;
         } else {
-          // Skip files that don't match known types
           continue;
         }
 
-        // Read file content
-        std::ifstream file(entry.path(), std::ios::binary | std::ios::ate);
-        if (!file) {
-          std::cerr << "Failed to open file: " << filename << std::endl;
-          continue;
-        }
-
-        std::streamsize size = file.tellg();
-        file.seekg(0, std::ios::beg);
-
-        std::vector<uint8_t> data(size);
-        if (!file.read(reinterpret_cast<char*>(data.data()), size)) {
-          std::cerr << "Failed to read file: " << filename << std::endl;
-          continue;
-        }
-
-        // Add asset to the archive
-        if (!addAsset(filename, assetType, data)) {
-          std::cerr << "Failed to add asset: " << filename << std::endl;
-        }
+        // Store the record for second pass
+        assetRecords.emplace_back(filename, assetType, entry.path());
+        
+        // Create catalog entry (without offset/size info yet)
+        AssetCatalogEntry entry;
+        entry.hash = fnv1aHash(filename);
+        strncpy(entry.name, filename.c_str(), sizeof(entry.name) - 1);
+        entry.name[sizeof(entry.name) - 1] = '\0';
+        entry.assetType = static_cast<uint32_t>(assetType);
+        
+        tempCatalog[filename] = entry;
       }
     }
+
+    // Write initial header (will update later)
+    GAAFHeader header;
+    std::memcpy(header.magic, "GAAF", 4);
+    header.version = 1;
+    header.compression = static_cast<uint16_t>(CompressionType::SNAPPY);
+    header.catalogOffset = sizeof(GAAFHeader);  // Initial catalog position
+    header.catalogSize = 0;  // Will update later
+    std::memset(header.reserved, 0, sizeof(header.reserved));
+
+    fseek(file_.get(), 0, SEEK_SET);
+    fwrite(&header, sizeof(header), 1, file_.get());
+
+    // Second pass: Process files and write data
+    uint64_t currentOffset = sizeof(GAAFHeader) + (tempCatalog.size() * sizeof(AssetCatalogEntry));
+    
+    for (const auto& [filename, assetType, filepath] : assetRecords) {
+      // Read file content
+      std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+      if (!file) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        continue;
+      }
+
+      std::streamsize size = file.tellg();
+      file.seekg(0, std::ios::beg);
+
+      std::vector<uint8_t> data(size);
+      if (!file.read(reinterpret_cast<char*>(data.data()), size)) {
+        std::cerr << "Failed to read file: " << filename << std::endl;
+        continue;
+      }
+
+      // Compress the data
+      auto compressed = compressData(data);
+      
+      // Update catalog entry with size and offset information
+      auto& catalogEntry = tempCatalog[filename];
+      catalogEntry.offset = currentOffset;
+      catalogEntry.compressedSize = compressed.size();
+      catalogEntry.originalSize = data.size();
+
+      // Write data at the current offset
+      fseek(file_.get(), currentOffset, SEEK_SET);
+      fwrite(compressed.data(), 1, compressed.size(), file_.get());
+      
+      currentOffset += compressed.size();
+    }
+
+    // Write catalog after header
+    fseek(file_.get(), sizeof(GAAFHeader), SEEK_SET);
+    for (const auto& [name, entry] : tempCatalog) {
+      fwrite(&entry, sizeof(AssetCatalogEntry), 1, file_.get());
+      catalog_[name] = entry;  // Update in-memory catalog
+    }
+
+    // Update header with final catalog size
+    header.catalogSize = tempCatalog.size() * sizeof(AssetCatalogEntry);
+    fseek(file_.get(), 0, SEEK_SET);
+    fwrite(&header, sizeof(header), 1, file_.get());
 
   } catch (const fs::filesystem_error& e) {
     std::cerr << "Filesystem error: " << e.what() << std::endl;
