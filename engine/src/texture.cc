@@ -9,14 +9,29 @@
 namespace braque {
 
 Texture::Texture(EngineContext& engine, std::string name,
-                 TextureType texture_type, std::string path)
-    : name_(name),
+                 TextureType texture_type, const std::string& path)
+    : name_(std::move(name)),
       texture_type_(texture_type),
-      path_(path),
       texture_{gli::load_dds(path)},
       texture_image_(engine, CreateImageInfo(texture_),
                      CreateAllocationInfo()) {
-  spdlog::info("Loaded texture: {}", path);
+  spdlog::info("Loaded texture from file: {}", path);
+  spdlog::info("Texture size: {} x {} x {}", texture_.extent().x,
+               texture_.extent().y, texture_.extent().z);
+  spdlog::info("Texture mipmaps: {}", texture_.levels());
+}
+
+Texture::Texture(EngineContext& engine, std::string name,
+                 TextureType texture_type, const std::vector<uint8_t>& data)
+    : name_(std::move(name)),
+      texture_type_(texture_type),
+      texture_{gli::load_dds(reinterpret_cast<char const*>(data.data()), data.size())},
+      texture_image_(engine, CreateImageInfo(texture_),
+                     CreateAllocationInfo()) {
+  if (texture_.empty()) {
+    throw std::runtime_error("Failed to load texture from memory data");
+  }
+  spdlog::info("Loaded texture from memory: {}", name_);
   spdlog::info("Texture size: {} x {} x {}", texture_.extent().x,
                texture_.extent().y, texture_.extent().z);
   spdlog::info("Texture mipmaps: {}", texture_.levels());
@@ -25,29 +40,22 @@ Texture::Texture(EngineContext& engine, std::string name,
 Texture::Texture(Texture&& other) noexcept
     : name_(std::move(other.name_)),
       texture_type_(other.texture_type_),
-      path_(std::move(other.path_)),
       texture_(std::move(other.texture_)),
       texture_image_(std::move(other.texture_image_)) {
   // Clear the moved-from object
   other.texture_type_ = TextureType::eUnknown;
-
-  // If there are any other member variables that need to be moved or reset, do it here
-
   spdlog::debug("Texture moved: {}", name_);
 }
 
 Texture& Texture::operator=(Texture&& other) noexcept {
   if (this != &other) {
     name_ = std::move(other.name_);
-    texture_ = std::move(other.texture_);
     texture_type_ = other.texture_type_;
-    path_ = std::move(other.path_);
+    texture_ = std::move(other.texture_);
     texture_image_ = std::move(other.texture_image_);
 
     // Reset the moved-from object
     other.texture_type_ = TextureType::eUnknown;
-    // If there are any other member variables that need to be reset, do it here
-
     spdlog::debug("Texture move assigned: {}", name_);
   }
   return *this;

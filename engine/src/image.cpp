@@ -44,11 +44,11 @@ Image::Image(EngineContext& engine, vk::Extent3D extent, vk::Format format)
 }
 
 Image::Image(EngineContext& engine, vk::Image image, vk::Format format,
-             vk::ImageLayout layout)
+             vk::ImageLayout layout, vk::Extent3D extent)
     : engine_(engine),
       image_(image),
       allocation_(nullptr),
-      extent_(vk::Extent3D{1280, 720, 1}),
+      extent_(extent),
       format(format),
       layout_(layout),
       mip_levels_(1) {

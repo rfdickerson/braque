@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "buffer.h"
+#include "asset_loader.h"
 
 namespace braque {
 
@@ -17,6 +18,7 @@ namespace braque {
 class EngineContext;
 class Texture;
 class Uniforms;
+class AssetLoader;
 
 constexpr vk::DeviceSize kVertexBufferSize = 32000;
 
@@ -36,7 +38,7 @@ struct Vertex {
 
 class Scene {
 public:
-  explicit Scene(EngineContext& engine, Uniforms& uniforms);
+  Scene(EngineContext& engine, Uniforms& uniforms, AssetLoader& assetLoader);
   ~Scene();
 
   void UploadSceneData();
@@ -46,6 +48,7 @@ public:
 private:
 
   EngineContext& engine_;
+  AssetLoader& assetLoader_;
 
   Buffer vertex_buffer_;
   Buffer index_buffer_;

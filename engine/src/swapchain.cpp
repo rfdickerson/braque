@@ -207,11 +207,10 @@ namespace braque
     swapchainImages.reserve(vkImages.size());
 
     for ( const auto& vkImage : vkImages ) {
-      swapchainImages.emplace_back(context_, vkImage, swapchainFormat, vk::ImageLayout::eUndefined);
+      swapchainImages.emplace_back(context_, vkImage, swapchainFormat, vk::ImageLayout::eUndefined, vk::Extent3D{swapchainExtent.width, swapchainExtent.height, 1});
     }
 
     imageCount = static_cast<uint32_t>(swapchainImages.size());
-
   }
 
   void Swapchain::createCommandBuffers()

@@ -38,7 +38,7 @@ class Image {
   Image(EngineContext& engine, vk::Extent3D extent, vk::Format format);
 
   // Image constructor with existing image
-  Image(EngineContext& engine, vk::Image image, vk::Format format, vk::ImageLayout layout);
+  Image(EngineContext& engine, vk::Image image, vk::Format format, vk::ImageLayout layout, vk::Extent3D extent);
 
   Image(EngineContext& engine, const ImageConfig& config);
 

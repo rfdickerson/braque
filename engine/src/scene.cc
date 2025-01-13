@@ -6,10 +6,12 @@
 
 #include "braque/engine.h"
 #include "braque/texture.h"
+#include "braque/asset_loader.h"
 
 namespace braque {
-Scene::Scene(EngineContext& engine, Uniforms& uniforms)
+Scene::Scene(EngineContext& engine, Uniforms& uniforms, AssetLoader& assetLoader)
     : engine_(engine),
+      assetLoader_(assetLoader),
       vertex_buffer_(engine, BufferType::vertex, kVertexBufferSize),
       index_buffer_(engine, BufferType::index, kVertexBufferSize),
       vertex_staging_buffer_(engine, BufferType::staging, kVertexBufferSize),
@@ -19,7 +21,13 @@ Scene::Scene(EngineContext& engine, Uniforms& uniforms)
   AddCube();
   UploadSceneData();
 
-  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, R"(../../../../assets/textures/brick_d.dds)");
+  // Load texture data from asset loader
+  auto textureData = assetLoader_.loadAsset("brick_d.dds");
+  if (textureData.empty()) {
+    throw std::runtime_error("Failed to load brick texture from asset archive");
+  }
+
+  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, textureData);
   texture_->CreateImage(engine);
 
   CreateTextureSampler();
