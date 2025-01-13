@@ -7,6 +7,8 @@
 #include <memory>
 #include <iostream>
 #include <cstring>
+#include <optional>
+#include <iomanip>
 
 namespace braque {
 
@@ -25,36 +27,18 @@ struct GAAFHeader {
   char reserved[16];        // Reserved for future use
 };
 
-struct GAAFCatalogEntry {
-  uint64_t hash;            // Hash of the asset name
-  char assetName[256];      // Asset name (for reference/debugging)
-  uint64_t offset;          // Offset to asset data
-  uint64_t compressedSize;  // Compressed size
-  uint64_t uncompressedSize;// Uncompressed size
-  uint16_t compression;     // Compression type
-  uint32_t checksum;        // CRC32 checksum
-
-  std::string getAssetName() const {
-    return std::string(assetName);
-  }
-
-  void print() const {
-    std::cout << "Asset Name: " << getAssetName() << "\n"
-              << "  Offset: " << offset << "\n"
-              << "  Compressed Size: " << compressedSize << "\n"
-              << "  Uncompressed Size: " << uncompressedSize << "\n"
-              << "  Compression: " << compression << "\n"
-              << "  Checksum: " << checksum << "\n";
-  }
-};
-
 struct AssetCatalogEntry {
     uint64_t hash;            // Hash of the asset name
     uint64_t offset;          // Offset to asset data
     uint64_t compressedSize;  // Size of compressed data
     uint64_t originalSize;    // Original uncompressed size
     uint32_t assetType;       // Type of asset (shader, texture, etc.)
+    uint32_t checksum;        // CRC32 checksum
     char name[256];           // Asset name/path
+
+    std::string getAssetName() const {
+        return std::string(name);
+    }
 };
 
 class AssetLoader {
@@ -80,6 +64,7 @@ public:
     // Utility functions
     bool exists(const std::string& name) const;
     std::vector<std::string> listAssets() const;
+    std::optional<AssetCatalogEntry> getAssetInfo(const std::string& name) const;
 
     void SaveDirectory(const std::string& directory);
 
@@ -90,7 +75,8 @@ private:
     bool readCatalog();
     bool writeCatalog();
     std::vector<uint8_t> compressData(const std::vector<uint8_t>& data);
-    std::vector<uint8_t> decompressData(const std::vector<uint8_t>& data, size_t originalSize);
+    std::vector<uint8_t> decompressData(const std::vector<uint8_t>& data, size_t originalSize, uint32_t expectedChecksum);
+    uint32_t calculateCRC32(const std::vector<uint8_t>& data);
 
     static uint64_t fnv1aHash(const std::string& input) {
         const uint64_t fnvOffsetBasis = 14695981039346656037ULL;

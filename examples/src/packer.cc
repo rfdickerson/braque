@@ -48,13 +48,12 @@ auto main() -> int {
       // Print asset information
       std::cout << "  Size: " << data.size() << " bytes\n";
       
-      // Calculate and print a simple checksum
-      uint32_t checksum = 0;
-      for (uint8_t byte : data) {
-        checksum = (checksum << 1) ^ byte;
+      // Get the catalog entry for this asset to display its checksum
+      auto entry = loader.getAssetInfo(asset);
+      if (entry) {
+        std::cout << "  Checksum: 0x" << std::hex << std::setw(8) 
+                  << std::setfill('0') << entry->checksum << std::dec << "\n";
       }
-      std::cout << "  Checksum: 0x" << std::hex << std::setw(8) 
-                << std::setfill('0') << checksum << std::dec << "\n";
     }
   }
 
