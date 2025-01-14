@@ -1,7 +1,10 @@
 #include <braque/texture.h>
 
+#include <gli/load_dds.hpp>
 #include <spdlog/spdlog.h>
-#include <gli/gli.hpp>
+#include <stdexcept>
+#include <string>
+#include <vulkan/vulkan.hpp>
 
 #include <braque/buffer.h>
 #include <braque/renderer.h>
