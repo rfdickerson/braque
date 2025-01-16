@@ -48,6 +48,8 @@ class RenderingStage {
   std::vector<Image>& GetDepthImages() { return depthImages; }
   std::vector<Image>& GetPostprocessingImages() { return postprocessingImages; }
 
+  [[nodiscard]] auto GetSkyPipeline() const -> Pipeline& { return *sky_pipeline_; };
+
   //void renderTriangle(vk::CommandBuffer buffer) const;
   // void render();
 
@@ -66,6 +68,7 @@ class RenderingStage {
   std::unique_ptr<Shader> shader;
   std::unique_ptr<Pipeline> pipeline;
 
+  std::unique_ptr<Pipeline> sky_pipeline_;
   std::unique_ptr<Shader> sky_shader_;
 
   void createDescriptorPool();

@@ -92,9 +92,19 @@ void Engine::run() {
 
     currentColorImage.TransitionLayout(vk::ImageLayout::eColorAttachmentOptimal, commandBuffer, barriers);
 
+    // Actual rendering
     renderingStage.beginRenderingPass(commandBuffer);
-    uniforms_.Bind(commandBuffer, renderingStage.GetPipeline().VulkanLayout());
+
+
+    // render sky
+    renderingStage.GetSkyPipeline().Bind(commandBuffer);
+    uniforms_.Bind(commandBuffer, renderingStage.GetSkyPipeline().VulkanLayout());
+    Pipeline::SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {extent.width, extent.height}});
+    Pipeline::SetViewport(commandBuffer, {0, 0, static_cast<float>(extent.width), static_cast<float>(extent.height), 1.0, 0.0});
+    commandBuffer.draw(4, 1, 0, 0);
+
     renderingStage.GetPipeline().Bind(commandBuffer);
+    uniforms_.Bind(commandBuffer, renderingStage.GetPipeline().VulkanLayout());
     Pipeline::SetScissor(commandBuffer,
                          vk::Rect2D{{0, 0}, {extent.width, extent.height}});
     Pipeline::SetViewport(commandBuffer,

@@ -27,11 +27,8 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
 
   assetLoader_.openArchive("../../../../test.gaff");
 
-  auto vertShaderData = assetLoader_.loadAsset("triangle.vert.spv");
-  auto fragShaderData = assetLoader_.loadAsset("triangle.frag.spv");
-
   shader = std::make_unique<Shader>(engine.getRenderer().getDevice(),
-                                    vertShaderData, fragShaderData);
+                                    "../../../../assets/shaders/triangle.vert.spv", "../../../../assets/shaders/triangle.frag.spv");
 
   // load sky shader
   sky_shader_ = std::make_unique<Shader>(engine.getRenderer().getDevice(), "../../../../assets/shaders/sky.vert.spv", "../../../../assets/shaders/sky.frag.spv");
@@ -39,6 +36,8 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
   pipeline =
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
                                  uniforms.GetDescriptorSetLayout());
+
+  sky_pipeline_ = std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *sky_shader_, uniforms.GetDescriptorSetLayout(), true);
 
   colorImages.reserve(Swapchain::getFramesInFlightCount());
 

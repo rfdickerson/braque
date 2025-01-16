@@ -45,7 +45,7 @@ void Uniforms::createDescriptorSetLayout() {
   cameraBinding.setBinding(CAMERA_BINDING);
   cameraBinding.setDescriptorType(vk::DescriptorType::eUniformBuffer);
   cameraBinding.setDescriptorCount(1);
-  cameraBinding.setStageFlags(vk::ShaderStageFlagBits::eVertex);
+  cameraBinding.setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
   vk::DescriptorSetLayoutBinding samplerBinding{};
   samplerBinding.binding = 1;
@@ -143,17 +143,10 @@ void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) {
 
   auto& cameraBuffer = camera_buffers_[frame];
 
-  //auto& cameraUbo = *static_cast<CameraUbo*>(cameraBuffer.);
-  //auto camera_ubo = cameraBuffer.GetPointer<CameraUbo>();
   CameraUbo camera_ubo;
 
   camera_ubo.view = camera.ViewMatrix();
   camera_ubo.proj = camera.ProjectionMatrix();
-
-  //std::memcpy(cameraBuffer.mappedData, &cameraUbo, sizeof(CameraUbo));
-
-  //   const auto& allocator = engine_.getMemoryAllocator();
-  // allocator.WriteData(buffer, cameraBuffer, &camera_ubo, sizeof(CameraUbo));
 
   cameraBuffer.CopyData(buffer, &camera_ubo, sizeof(CameraUbo));
 }

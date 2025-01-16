@@ -13,7 +13,7 @@ class Shader;
 
 class Pipeline {
 public:
-  explicit Pipeline(vk::Device device, Shader& shader, vk::DescriptorSetLayout descriptor_set_layout);
+  explicit Pipeline(vk::Device device, Shader& shader, vk::DescriptorSetLayout descriptor_set_layout, bool is_sky_pipeline=false);
   ~Pipeline();
 
   Pipeline(const Pipeline& other) = delete;
@@ -29,9 +29,13 @@ public:
   [[nodiscard]] vk::PipelineLayout VulkanLayout() const;
 
 private:
+  void createPipeline(bool is_sky_pipeline);
+
   vk::Device device;
   vk::PipelineLayout layout_;
   vk::Pipeline pipeline;
+  vk::DescriptorSetLayout descriptor_set_layout_;
+  Shader& shader_;
 };
 
 } // namespace braque
