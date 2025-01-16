@@ -66,6 +66,8 @@ class RenderingStage {
   std::unique_ptr<Shader> shader;
   std::unique_ptr<Pipeline> pipeline;
 
+  std::unique_ptr<Shader> sky_shader_;
+
   void createDescriptorPool();
 };
 
