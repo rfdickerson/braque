@@ -99,9 +99,12 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   vk::PipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.setDepthTestEnable(vk::True);
   depthStencil.setDepthWriteEnable(vk::True);
-  depthStencil.setDepthCompareOp(vk::CompareOp::eLess);
+  depthStencil.setDepthCompareOp(vk::CompareOp::eGreater);
   depthStencil.setDepthBoundsTestEnable(vk::False);
   depthStencil.setStencilTestEnable(vk::False);
+  depthStencil.setMinDepthBounds(0.0F);
+  depthStencil.setMaxDepthBounds(1.0F);
+
 
   auto colorFormat = {vk::Format::eR16G16B16A16Sfloat};
   constexpr auto depthFormat = vk::Format::eD32Sfloat;

@@ -99,7 +99,7 @@ void Engine::run() {
                          vk::Rect2D{{0, 0}, {extent.width, extent.height}});
     Pipeline::SetViewport(commandBuffer,
                           {0, 0, static_cast<float>(extent.width),
-                           static_cast<float>(extent.height), 0, 1});
+                           static_cast<float>(extent.height), 1.0, 0.0});
     scene_.Draw(commandBuffer);
 
     //DebugWindow::renderFrame(commandBuffer);

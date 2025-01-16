@@ -4,6 +4,8 @@
 
 #include "braque/rendering_stage.h"
 
+#include <vulkan/vulkan.hpp>
+
 #include "braque/image.h"
 #include "braque/pipeline.h"
 #include "braque/renderer.h"
@@ -12,6 +14,7 @@
 #include "braque/uniforms.h"
 
 #include <spdlog/spdlog.h>
+#include <memory>
 
 namespace braque {
 
@@ -29,6 +32,10 @@ RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Unif
 
   shader = std::make_unique<Shader>(engine.getRenderer().getDevice(),
                                     vertShaderData, fragShaderData);
+
+  // load sky shader
+  sky_shader_ = std::make_unique<Shader>(engine.getRenderer().getDevice(), "../../../../assets/shaders/sky.vert.spv", "../../../../assets/shaders/sky.frag.spv");
+
   pipeline =
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
                                  uniforms.GetDescriptorSetLayout());
@@ -94,7 +101,7 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
 
   // create the depth attachment
   auto clear_value = vk::ClearValue();
-  clear_value.setDepthStencil({1.0F, 0});
+  clear_value.setDepthStencil({0.0F, 0});
 
   vk::RenderingAttachmentInfo depthAttachmentInfo{};
   depthAttachmentInfo.setImageView(depthImages[curr].GetImageView());

@@ -40,7 +40,7 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     auto Camera::ProjectionMatrix() const -> glm::mat4
     {
-      return glm::perspective( glm::radians( fov_ ), aspectRatio_, nearPlane_, farPlane_ );
+      return glm::perspective( glm::radians( fov_ ), aspectRatio_, farPlane_, nearPlane_ );
     }
 
 } // namespace braque
