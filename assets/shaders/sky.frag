@@ -5,8 +5,18 @@ layout(location = 0) in vec3 inViewDir;
 layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 0) uniform CameraUbo {
-    mat4 view;
-    mat4 proj;
+    mat4 viewMatrix;
+    mat4 projectionMatrix;
+    mat4 viewProjectionMatrix;
+    mat4 inverseViewMatrix;
+    mat4 inverseProjectionMatrix;
+    vec3 cameraPosition;
+    vec3 viewDir;
+    vec3 upVector;
+    vec3 rightVector;
+    vec2 nearFarPlanes;
+    float aspectRatio;
+    float fov;
 } camera;
 
 const vec3 sunDirection = normalize(vec3(0.0, 0.5, -1.0));
@@ -18,13 +28,14 @@ const float MIE_SCATTERING = 21.0e-2;
 const float MIE_DIRECTIONAL_G = 0.90; // Controls the directional bias of Mie scattering
 
 void main() {
-    // hard code the sky
-
     vec3 viewDir = normalize(inViewDir);
     vec4 adjustedViewDir = vec4(viewDir, 0.0);
 
-    adjustedViewDir.x *= camera.proj[1][1] / camera.proj[0][0]; // Scale X by aspect ratio
-    vec3 worldDir = normalize((inverse(camera.view) * adjustedViewDir).xyz);
+    // Adjust view direction based on aspect ratio
+    adjustedViewDir.x *= camera.aspectRatio;
+
+    // Transform to world space
+    vec3 worldDir = normalize((camera.inverseViewMatrix * adjustedViewDir).xyz);
     vec3 sunDir = normalize(sunDirection);
 
     // Rayleigh scattering

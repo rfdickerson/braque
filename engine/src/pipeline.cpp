@@ -90,7 +90,7 @@ void Pipeline::createPipeline(bool is_sky_pipeline) {
     rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
   }
 
-  rasterizer.setFrontFace(vk::FrontFace::eCounterClockwise);
+  rasterizer.setFrontFace(vk::FrontFace::eClockwise);
   rasterizer.setDepthBiasEnable(vk::False);
 
   vk::PipelineMultisampleStateCreateInfo multisampling{};

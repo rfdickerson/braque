@@ -8,8 +8,22 @@ namespace braque {
 constexpr uint32_t CAMERA_BINDING = 0;
 
 struct CameraUbo {
-  glm::mat4 view;
-  glm::mat4 proj;
+  glm::mat4 viewMatrix;
+  glm::mat4 projectionMatrix;
+  glm::mat4 viewProjectionMatrix;
+  glm::mat4 inverseViewMatrix;
+  glm::mat4 inverseProjectionMatrix;
+  glm::vec3 cameraPosition;
+  float padding1;  // Add padding to ensure alignment
+  glm::vec3 viewDir;
+  float padding2;
+  glm::vec3 upVector;
+  float padding3;
+  glm::vec3 rightVector;
+  float padding4;
+  glm::vec2 nearFarPlanes;
+  float aspectRatio;
+  float fov;
 };
 
 Uniforms::Uniforms(EngineContext& engine, Swapchain& swapchain) : engine_(engine), swapchain_(swapchain) {
@@ -140,14 +154,24 @@ void Uniforms::SetTextureData( const Texture& texture, vk::Sampler sampler) {
 void Uniforms::SetCameraData(vk::CommandBuffer buffer, const Camera& camera) {
 
   const auto& frame = swapchain_.CurrentFrameIndex();
-
   auto& cameraBuffer = camera_buffers_[frame];
 
+  // populate the CameraUbo structure
   CameraUbo camera_ubo;
+  camera_ubo.viewMatrix = camera.ViewMatrix();
+  camera_ubo.projectionMatrix = camera.ProjectionMatrix();
+  camera_ubo.viewProjectionMatrix = camera.ViewMatrix() * camera.ProjectionMatrix();
+  camera_ubo.inverseViewMatrix = inverse(camera.ViewMatrix());
+  camera_ubo.inverseProjectionMatrix = inverse(camera.ProjectionMatrix());
+  camera_ubo.cameraPosition = camera.position_;
+  camera_ubo.viewDir = camera.front_;
+  camera_ubo.upVector = camera.up_;
+  camera_ubo.rightVector = camera.right_;
+  camera_ubo.nearFarPlanes = glm::vec2(camera.nearPlane_, camera.farPlane_);
+  camera_ubo.aspectRatio = camera.aspectRatio_;
+  camera_ubo.fov = camera.fov_;
 
-  camera_ubo.view = camera.ViewMatrix();
-  camera_ubo.proj = camera.ProjectionMatrix();
-
+  // Copy data into the uniform buffer
   cameraBuffer.CopyData(buffer, &camera_ubo, sizeof(CameraUbo));
 }
 

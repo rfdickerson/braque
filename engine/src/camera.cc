@@ -11,7 +11,7 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
         up_( up ),
         yaw_( yaw ),
         pitch_( pitch ),
-        fov_( 45.0f ),
+        fov_( 65.0f ),
         aspectRatio_( 800.0f / 600.0f ),
         nearPlane_( 0.1f ),
         farPlane_( 100.0f )
@@ -40,7 +40,9 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     auto Camera::ProjectionMatrix() const -> glm::mat4
     {
-      return glm::perspective( glm::radians( fov_ ), aspectRatio_, farPlane_, nearPlane_ );
+      auto projection =  glm::perspective( glm::radians( fov_ ), aspectRatio_, farPlane_, nearPlane_ );
+    projection[1][1] *= -1; // Flip Y-axis
+      return projection;
     }
 
 } // namespace braque
