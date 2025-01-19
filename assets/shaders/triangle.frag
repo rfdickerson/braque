@@ -10,7 +10,7 @@ layout (location = 0) out vec4 outColor;
 layout (binding = 1) uniform sampler2D texSampler;
 
 // Directional light properties
-const vec3 lightDir = normalize(vec3(1.0, -3.0, -2.0)); // Direction towards the light
+const vec3 lightDir = normalize(vec3(1.0, -0.9, 1)); // Direction towards the light
 const vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
 const float ambientStrength = 0.1;
 

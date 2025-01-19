@@ -22,7 +22,7 @@ layout(set = 0, binding = 0) uniform CameraUbo {
 const vec3 RAYLEIGH_SCATTERING = vec3(5.5e-4, 13.0e-4, 40.4e-4);
 const float MIE_SCATTERING = 1.0e-3;
 const float MIE_DIRECTIONAL_G = 0.8;
-const vec3 SUN_DIRECTION = normalize(vec3(0.0, 1.00, 0.0));
+const vec3 SUN_DIRECTION = normalize(vec3(0.0, 0.90, -1.0));
 const vec3 SUN_COLOR = vec3(1.0, 0.98, 0.95);
 const float EXPOSURE = 5000.0;
 
