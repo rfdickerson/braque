@@ -49,17 +49,11 @@ void Engine::run() {
 
   while (running) {
 
-    swapchain.waitForFrame();
-    swapchain.acquireNextImage();
-    swapchain.waitForImageInFlight();
-
     auto& frameStats = swapchain.getFrameStats();
     frameStats.Update();
 
     // get number of ticks to process
     uint32_t ticksToProcess = frameStats.GetTicksToProcess();
-
-    // process fixed timestep updates
     while (ticksToProcess > 0) {
       uint32_t ticksThisIteration = std::min(ticksToProcess, FrameStats::TICKS_240HZ());
       input_controller_.PollEvents();
@@ -67,6 +61,10 @@ void Engine::run() {
       frameStats.ConsumeTime(ticksThisIteration);
       ticksToProcess -= ticksThisIteration;
     }
+
+    swapchain.waitForFrame();
+    swapchain.acquireNextImage();
+    swapchain.waitForImageInFlight();
 
     // sleep for 1 ms to simulate CPU work
     // std::this_thread::sleep_for(std::chrono::milliseconds(2));
