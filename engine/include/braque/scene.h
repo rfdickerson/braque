@@ -20,7 +20,7 @@ class Texture;
 class Uniforms;
 class AssetLoader;
 
-constexpr vk::DeviceSize kVertexBufferSize = 32000;
+constexpr vk::DeviceSize kVertexBufferSize = 500000;
 
 struct Mesh {
   std::string name;

@@ -35,13 +35,17 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     auto Camera::ViewMatrix() const -> glm::mat4
     {
-      return lookAt( position_, position_ + front_, up_ );
+      return lookAt( position_, position_ - front_, up_ );
     }
 
     auto Camera::ProjectionMatrix() const -> glm::mat4
     {
       // For reversed depth, we use near=1.0 and far=0.0
       auto projection = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
+      //
+      // // Reverse the z-direction (modify the depth mapping)
+      projection[2][2] *= -1.0f; // Flip the sign of the z-term
+      projection[2][3] *= -1.0f; // Flip the sign of the translation in z
 
       projection[1][1] *= -1; // Flip Y-axis for Vulkan
 

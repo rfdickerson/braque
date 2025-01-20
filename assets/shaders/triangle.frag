@@ -9,10 +9,12 @@ layout (location = 0) out vec4 outColor;
 
 layout (binding = 1) uniform sampler2D texSampler;
 
+#include "camera_ubo.glsl"
+
 // Directional light properties
-const vec3 lightDir = normalize(vec3(1.0, -0.9, 1)); // Direction towards the light
+const vec3 lightDir = normalize(vec3(1.0, -0.7, 1)); // Direction towards the light
 const vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
-const float ambientStrength = 0.1;
+const float ambientStrength = 0.2;
 
 void main () {
     // Normalize the fragment normal
@@ -32,4 +34,5 @@ void main () {
     vec3 result = (ambient + diffuse) * texColor;
 
     outColor = vec4(result, 1.0);
+    
 }
