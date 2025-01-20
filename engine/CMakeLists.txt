@@ -21,6 +21,7 @@ set (braque-headers
         include/braque/buffer.h
         include/braque/texture.h
         include/braque/engine_context.h
+        include/braque/asset_loader.h
 )
 
 add_library(braque STATIC
@@ -44,6 +45,7 @@ add_library(braque STATIC
         src/scene.cc
         src/buffer.cc
         src/texture.cc
+        src/asset_loader.cc
 )
 
 target_include_directories(braque PUBLIC
@@ -60,6 +62,7 @@ target_link_libraries(braque
         imgui::imgui
         GPUOpen::VulkanMemoryAllocator
         gli
+        Snappy::snappy
 )
 
 target_precompile_headers(braque PRIVATE

@@ -11,10 +11,10 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
         up_( up ),
         yaw_( yaw ),
         pitch_( pitch ),
-        fov_( 45.0f ),
+        fov_( 65.0f ),
         aspectRatio_( 800.0f / 600.0f ),
         nearPlane_( 0.1f ),
-        farPlane_( 100.0f )
+        farPlane_( 10000.0f )
   {
     UpdateCameraVectors();
   }
@@ -35,12 +35,25 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     auto Camera::ViewMatrix() const -> glm::mat4
     {
-      return lookAt( position_, position_ + front_, up_ );
+      //return lookAt( position_, position_ - front_, up_ );
+
+      return glm::lookAtRH(position_, position_ + front_, up_);
     }
 
     auto Camera::ProjectionMatrix() const -> glm::mat4
     {
-      return glm::perspective( glm::radians( fov_ ), aspectRatio_, nearPlane_, farPlane_ );
+      // For reversed depth, we use near=1.0 and far=0.0
+      // auto projection = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
+      //
+      // // Reverse the z-direction (modify the depth mapping)
+      // projection[2][2] *= -1.0f; // Flip the sign of the z-term
+      // projection[2][3] *= -1.0f; // Flip the sign of the translation in z
+      //
+      // projection[1][1] *= -1; // Flip Y-axis for Vulkan
+
+    auto projection = glm::infinitePerspectiveRH_ZO(glm::radians(fov_), aspectRatio_, nearPlane_);
+
+      return projection;
     }
 
 } // namespace braque

@@ -9,10 +9,10 @@
 #include "braque/renderer.h"
 #include "braque/rendering_stage.h"
 #include "braque/swapchain.h"
+#include "braque/asset_loader.h"
 
 #include <spdlog/spdlog.h>
 
-#include <algorithm>
 
 namespace braque {
 
@@ -22,9 +22,9 @@ Engine::Engine()
 context_(memoryAllocator, renderer),
       swapchain(window, context_),
       uniforms_(context_, swapchain),
-      renderingStage(context_, swapchain,uniforms_),
+      renderingStage(context_, swapchain,uniforms_, assetLoader_),
       debugWindow(*this),
-      scene_(context_, uniforms_) {
+      scene_(context_, uniforms_, assetLoader_) {
   // Any other initialization after all members are constructed
   spdlog::info("Engine created");
   input_controller_.RegisterWindow(&window);
@@ -49,17 +49,11 @@ void Engine::run() {
 
   while (running) {
 
-    swapchain.waitForFrame();
-    swapchain.acquireNextImage();
-    swapchain.waitForImageInFlight();
-
     auto& frameStats = swapchain.getFrameStats();
     frameStats.Update();
 
     // get number of ticks to process
     uint32_t ticksToProcess = frameStats.GetTicksToProcess();
-
-    // process fixed timestep updates
     while (ticksToProcess > 0) {
       uint32_t ticksThisIteration = std::min(ticksToProcess, FrameStats::TICKS_240HZ());
       input_controller_.PollEvents();
@@ -67,6 +61,10 @@ void Engine::run() {
       frameStats.ConsumeTime(ticksThisIteration);
       ticksToProcess -= ticksThisIteration;
     }
+
+    swapchain.waitForFrame();
+    swapchain.acquireNextImage();
+    swapchain.waitForImageInFlight();
 
     // sleep for 1 ms to simulate CPU work
     // std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -92,14 +90,24 @@ void Engine::run() {
 
     currentColorImage.TransitionLayout(vk::ImageLayout::eColorAttachmentOptimal, commandBuffer, barriers);
 
+    // Actual rendering
     renderingStage.beginRenderingPass(commandBuffer);
-    uniforms_.Bind(commandBuffer, renderingStage.GetPipeline().VulkanLayout());
+
+
+    // render sky
+    renderingStage.GetSkyPipeline().Bind(commandBuffer);
+    uniforms_.Bind(commandBuffer, renderingStage.GetSkyPipeline().VulkanLayout());
+    Pipeline::SetScissor(commandBuffer, vk::Rect2D{{0, 0}, {extent.width, extent.height}});
+    Pipeline::SetViewport(commandBuffer, {0, 0, static_cast<float>(extent.width), static_cast<float>(extent.height), 1.0, 0.0});
+    commandBuffer.draw(4, 1, 0, 0);
+
     renderingStage.GetPipeline().Bind(commandBuffer);
+    uniforms_.Bind(commandBuffer, renderingStage.GetPipeline().VulkanLayout());
     Pipeline::SetScissor(commandBuffer,
                          vk::Rect2D{{0, 0}, {extent.width, extent.height}});
     Pipeline::SetViewport(commandBuffer,
                           {0, 0, static_cast<float>(extent.width),
-                           static_cast<float>(extent.height), 0, 1});
+                           static_cast<float>(extent.height), 1.0, 0.0});
     scene_.Draw(commandBuffer);
 
     //DebugWindow::renderFrame(commandBuffer);

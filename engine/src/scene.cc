@@ -6,20 +6,30 @@
 
 #include "braque/engine.h"
 #include "braque/texture.h"
+#include "braque/asset_loader.h"
 
 namespace braque {
-Scene::Scene(EngineContext& engine, Uniforms& uniforms)
+Scene::Scene(EngineContext& engine, Uniforms& uniforms, AssetLoader& assetLoader)
     : engine_(engine),
+      assetLoader_(assetLoader),
       vertex_buffer_(engine, BufferType::vertex, kVertexBufferSize),
       index_buffer_(engine, BufferType::index, kVertexBufferSize),
       vertex_staging_buffer_(engine, BufferType::staging, kVertexBufferSize),
       index_staging_buffer_(engine, BufferType::staging, kVertexBufferSize) {
 
   // add a cube to vertex and index staging buffers
-  AddCube();
+  //AddCube();
+  
+  AddTerrain();
   UploadSceneData();
 
-  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, R"(../../../../assets/textures/brick_d.dds)");
+  // Load texture data from asset loader
+  auto textureData = assetLoader_.loadAsset("brick_d.dds");
+  if (textureData.empty()) {
+    throw std::runtime_error("Failed to load brick texture from asset archive");
+  }
+
+  texture_ = new Texture(engine, "cobblestone", TextureType::eAlbedo, textureData);
   texture_->CreateImage(engine);
 
   CreateTextureSampler();
@@ -167,6 +177,130 @@ std::vector<Vertex> vertices = {
 
   meshes_.push_back(cube);
 }
+
+void Scene::AddTerrain()
+{
+    // Create a 100x100 grid centered at (0,0)
+    const int   grid_size    = 100;
+    const float half_size    = grid_size * 0.5f;
+    const float cell_size    = 1.0f;
+
+    // Wave parameters:
+    // Increase frequency (0.1f -> 0.2f) and height scale (2.0f -> 5.0f) for more visible variation
+    const float frequency    = 0.2f;
+    const float height_scale = 5.0f;
+
+    std::vector<Vertex>   vertices;
+    std::vector<uint32_t> indices;
+    vertices.reserve((grid_size + 1) * (grid_size + 1));
+    indices.reserve(grid_size * grid_size * 6);
+
+    // 1) Generate vertices (X and Z range: -50..+50)
+    for (int z = 0; z <= grid_size; ++z)
+    {
+        for (int x = 0; x <= grid_size; ++x)
+        {
+            // Center the plane so it goes from -50..+50 in both X and Z
+            float xPos = (x - half_size) * cell_size;  // e.g. -50 .. +50
+            float zPos = (z - half_size) * cell_size;  // e.g. -50 .. +50
+
+            // Simple height function with a bit higher frequency and amplitude
+            float height = height_scale * sinf(xPos * frequency) * cosf(zPos * frequency);
+
+            Vertex v;
+            v.position = glm::vec3(xPos, height, zPos);
+
+            // UV from 0..1 across the grid
+            v.uv = glm::vec2(
+                static_cast<float>(x) / grid_size,
+                static_cast<float>(z) / grid_size
+            );
+
+            // We'll accumulate normals; start at (0,0,0)
+            v.normal = glm::vec3(0.0f);
+
+            // Example color: map height to the red channel
+            float baseGreen = 0.5f;
+            v.color = glm::vec3(
+                0.5f + height / (2.0f * height_scale),
+                baseGreen,
+                0.3f
+            );
+
+            vertices.push_back(v);
+        }
+    }
+
+    // 2) Generate indices in CCW order and accumulate face normals
+    for (int z = 0; z < grid_size; ++z)
+    {
+        for (int x = 0; x < grid_size; ++x)
+        {
+            uint32_t topLeft     =  z    * (grid_size + 1) + x;
+            uint32_t topRight    =  z    * (grid_size + 1) + (x + 1);
+            uint32_t bottomLeft  = (z+1) * (grid_size + 1) + x;
+            uint32_t bottomRight = (z+1) * (grid_size + 1) + (x + 1);
+
+            // Tri 1 (topLeft -> topRight -> bottomLeft)
+            indices.push_back(topLeft);
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+
+            // Tri 2 (topRight -> bottomRight -> bottomLeft)
+            indices.push_back(topRight);
+            indices.push_back(bottomRight);
+            indices.push_back(bottomLeft);
+
+            // --- Face normals ---
+            glm::vec3& vTL = vertices[topLeft].position;
+            glm::vec3& vTR = vertices[topRight].position;
+            glm::vec3& vBL = vertices[bottomLeft].position;
+            glm::vec3& vBR = vertices[bottomRight].position;
+
+            // First triangle normal
+            {
+                glm::vec3 e1 = vTR - vTL;
+                glm::vec3 e2 = vBL - vTL;
+                glm::vec3 n  = glm::cross(e1, e2);
+                vertices[topLeft].normal    += n;
+                vertices[topRight].normal   += n;
+                vertices[bottomLeft].normal += n;
+            }
+
+            // Second triangle normal
+            {
+                glm::vec3 e1 = vBR - vTR;
+                glm::vec3 e2 = vBL - vTR;
+                glm::vec3 n  = glm::cross(e1, e2);
+                vertices[topRight].normal    += n;
+                vertices[bottomRight].normal += n;
+                vertices[bottomLeft].normal  += n;
+            }
+        }
+    }
+
+    // 3) Normalize all vertex normals
+    for (auto& v : vertices)
+    {
+        v.normal = glm::normalize(v.normal);
+    }
+
+    // 4) Copy data to your staging buffers (implementation-dependent)
+    vertex_staging_buffer_.CopyData(vertices.data(),
+                                    vertices.size() * sizeof(Vertex));
+    index_staging_buffer_.CopyData(indices.data(),
+                                   indices.size() * sizeof(uint32_t));
+
+    // 5) Create mesh metadata
+    Mesh terrain;
+    terrain.name          = "terrain";
+    terrain.vertex_offset = 0;
+    terrain.index_offset  = 0;
+    terrain.index_count   = static_cast<uint32_t>(indices.size());
+    meshes_.push_back(terrain);
+}
+
+
 
 void Scene::CreateTextureSampler() {
   vk::SamplerCreateInfo samplerInfo{};

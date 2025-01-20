@@ -18,6 +18,7 @@
 #include "swapchain.h"
 #include "uniforms.h"
 #include "window.h"
+#include "asset_loader.h"
 
 namespace braque {
 
@@ -55,6 +56,7 @@ class Engine {
   MemoryAllocator memoryAllocator;
   EngineContext context_;
   Swapchain swapchain;
+  AssetLoader assetLoader_;
   Uniforms uniforms_;
   Camera camera_;
   RenderingStage renderingStage;

@@ -2,6 +2,7 @@
 #define IMAGE_LOADER_H
 
 #include <string>
+#include <vector>
 
 #include <braque/image.h>
 #include <gli/gli.hpp>
@@ -21,8 +22,13 @@ enum class TextureType : uint8_t {
 
 class Texture {
  public:
+  // Constructor from file path
   Texture(EngineContext& engine, std::string name, TextureType texture_type,
-          std::string path);
+          const std::string& path);
+
+  // Constructor from raw data
+  Texture(EngineContext& engine, std::string name, TextureType texture_type,
+          const std::vector<uint8_t>& data);
 
   ~Texture() = default;
 
@@ -43,10 +49,7 @@ class Texture {
  private:
   std::string name_;
   TextureType texture_type_;
-  std::string path_;
-
   gli::texture texture_;
-
   Image texture_image_;
 
   // helpers

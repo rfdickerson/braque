@@ -9,6 +9,7 @@
     "spdlog",
     "gtest",
     "gli",
+    "snappy",
     {
       "name": "imgui",
       "features": [

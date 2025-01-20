@@ -12,7 +12,10 @@ namespace braque {
 class Shader {
 public:
     Shader(vk::Device device, const std::string &vertShaderFilename, const std::string &fragShaderFilename);
-    ~Shader();
+
+  Shader(vk::Device device, const std::vector<uint8_t> &vertShaderData, const std::vector<uint8_t> &fragShaderData);
+
+  ~Shader();
 
     // remove copy and move
     Shader(const Shader &) = delete;
@@ -27,7 +30,7 @@ private:
     vk::ShaderModule vertexModule;
     vk::ShaderModule fragmentModule;
 
-    auto createShaderModule(const std::vector<char> &code) const -> vk::ShaderModule;
+    auto createShaderModule(const std::vector<uint8_t> &code) const -> vk::ShaderModule;
 };
 
 } // namespace braque

@@ -4,6 +4,8 @@
 
 #include "braque/rendering_stage.h"
 
+#include <vulkan/vulkan.hpp>
+
 #include "braque/image.h"
 #include "braque/pipeline.h"
 #include "braque/renderer.h"
@@ -12,22 +14,30 @@
 #include "braque/uniforms.h"
 
 #include <spdlog/spdlog.h>
+#include <memory>
 
 namespace braque {
 
-RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms) : engine(engine), swapchain_(swapchain) {
+RenderingStage::RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms, AssetLoader& assetLoader) : engine(engine), swapchain_(swapchain), assetLoader_(assetLoader) {
   spdlog::info("Creating rendering stage");
 
   createDescriptorPool();
 
   const auto extent = vk::Extent3D{swapchain.getExtent(), 1};
 
+  assetLoader_.openArchive("../../../../test.gaff");
+
   shader = std::make_unique<Shader>(engine.getRenderer().getDevice(),
-                                    "../assets/shaders/triangle.vert.spv",
-                                    "../assets/shaders/triangle.frag.spv");
+                                    "../../../../assets/shaders/triangle.vert.spv", "../../../../assets/shaders/triangle.frag.spv");
+
+  // load sky shader
+  sky_shader_ = std::make_unique<Shader>(engine.getRenderer().getDevice(), "../../../../assets/shaders/sky.vert.spv", "../../../../assets/shaders/sky.frag.spv");
+
   pipeline =
       std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *shader,
                                  uniforms.GetDescriptorSetLayout());
+
+  sky_pipeline_ = std::make_unique<Pipeline>(engine.getRenderer().getDevice(), *sky_shader_, uniforms.GetDescriptorSetLayout(), true);
 
   colorImages.reserve(Swapchain::getFramesInFlightCount());
 
@@ -90,7 +100,7 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
 
   // create the depth attachment
   auto clear_value = vk::ClearValue();
-  clear_value.setDepthStencil({1.0F, 0});
+  clear_value.setDepthStencil({0.0F, 0});
 
   vk::RenderingAttachmentInfo depthAttachmentInfo{};
   depthAttachmentInfo.setImageView(depthImages[curr].GetImageView());

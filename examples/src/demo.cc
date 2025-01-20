@@ -1,6 +1,6 @@
 #include "braque/braque.h"
 
-int main() {
+auto main() -> int {
     braque::Engine engine;
     engine.run();
     return 0;

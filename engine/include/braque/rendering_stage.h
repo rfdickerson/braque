@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "braque/pipeline.h"
+#include "braque/asset_loader.h"
 
 namespace braque {
 // Forward declarations
@@ -20,7 +21,7 @@ class Swapchain;
 
 class RenderingStage {
  public:
-  explicit RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms);
+  explicit RenderingStage(EngineContext& engine, Swapchain& swapchain, Uniforms& uniforms, AssetLoader& assetLoader);
   ~RenderingStage();
 
   // make sure copy and move are deleted
@@ -47,12 +48,15 @@ class RenderingStage {
   std::vector<Image>& GetDepthImages() { return depthImages; }
   std::vector<Image>& GetPostprocessingImages() { return postprocessingImages; }
 
+  [[nodiscard]] auto GetSkyPipeline() const -> Pipeline& { return *sky_pipeline_; };
+
   //void renderTriangle(vk::CommandBuffer buffer) const;
   // void render();
 
  private:
   EngineContext& engine;
   Swapchain & swapchain_;
+  AssetLoader & assetLoader_;
 
   vk::DescriptorPool descriptorPool;
 
@@ -63,6 +67,9 @@ class RenderingStage {
 
   std::unique_ptr<Shader> shader;
   std::unique_ptr<Pipeline> pipeline;
+
+  std::unique_ptr<Pipeline> sky_pipeline_;
+  std::unique_ptr<Shader> sky_shader_;
 
   void createDescriptorPool();
 };

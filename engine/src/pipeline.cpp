@@ -11,18 +11,22 @@
 namespace braque {
 
 Pipeline::Pipeline(vk::Device device, Shader& shader,
-                   vk::DescriptorSetLayout descriptor_set_layout)
-    : device(device) {
+                   vk::DescriptorSetLayout descriptor_set_layout, bool is_sky_pipeline)
+    : device(device), descriptor_set_layout_(descriptor_set_layout), shader_(shader) {
 
-  constexpr uint32_t width = 800;
+  createPipeline(is_sky_pipeline);
+}
+
+void Pipeline::createPipeline(bool is_sky_pipeline) {
+    constexpr uint32_t width = 800;
   constexpr uint32_t height = 600;
 
   vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
-  pipelineLayoutInfo.setSetLayouts(descriptor_set_layout);
+  pipelineLayoutInfo.setSetLayouts(descriptor_set_layout_);
 
   layout_ = device.createPipelineLayout(pipelineLayoutInfo);
 
-  auto shaderStages = shader.getPipelineShaderStageCreateInfos();
+  auto shaderStages = shader_.getPipelineShaderStageCreateInfos();
 
   vk::VertexInputBindingDescription bindingDescription{};
   bindingDescription.setBinding(0);
@@ -51,14 +55,23 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   attributeDescription[3].setOffset(sizeof(float) * 9);
 
   vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
-  vertexInputInfo.setVertexBindingDescriptions(bindingDescription);
-  vertexInputInfo.setVertexAttributeDescriptions(attributeDescription);
+
+  if (is_sky_pipeline) {
+  } else {
+    vertexInputInfo.setVertexBindingDescriptions(bindingDescription);
+    vertexInputInfo.setVertexAttributeDescriptions(attributeDescription);
+
+  }
 
   vk::PipelineInputAssemblyStateCreateInfo inputAssembly{};
-  inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleList);
+  if (is_sky_pipeline) {
+    inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleStrip);
+  } else {
+    inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleList);
+  }
   inputAssembly.setPrimitiveRestartEnable(vk::False);
 
-  vk::Viewport viewport{0, 0, width, height, 0, 1};
+  vk::Viewport viewport{0, 0, width, height, 0, 1};  // Changed depth range to [0,1]
   vk::Rect2D scissor{{0, 0}, {width, height}};
 
   vk::PipelineViewportStateCreateInfo viewportState{};
@@ -70,8 +83,14 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   rasterizer.setRasterizerDiscardEnable(vk::False);
   rasterizer.setPolygonMode(vk::PolygonMode::eFill);
   rasterizer.setLineWidth(1.0F);
-  rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
-  rasterizer.setFrontFace(vk::FrontFace::eCounterClockwise);
+
+  if (is_sky_pipeline) {
+    rasterizer.setCullMode(vk::CullModeFlagBits::eNone);
+  } else {
+    rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
+  }
+
+  rasterizer.setFrontFace(vk::FrontFace::eClockwise);
   rasterizer.setDepthBiasEnable(vk::False);
 
   vk::PipelineMultisampleStateCreateInfo multisampling{};
@@ -96,12 +115,15 @@ Pipeline::Pipeline(vk::Device device, Shader& shader,
   vk::PipelineDynamicStateCreateInfo dynamicState{};
   dynamicState.setDynamicStates(dynamicStates);
 
+  // Depth state
   vk::PipelineDepthStencilStateCreateInfo depthStencil{};
-  depthStencil.setDepthTestEnable(vk::True);
-  depthStencil.setDepthWriteEnable(vk::True);
-  depthStencil.setDepthCompareOp(vk::CompareOp::eLess);
+  depthStencil.setDepthTestEnable(!is_sky_pipeline);
+  depthStencil.setDepthWriteEnable(!is_sky_pipeline);
+  depthStencil.setDepthCompareOp(vk::CompareOp::eGreater);
   depthStencil.setDepthBoundsTestEnable(vk::False);
   depthStencil.setStencilTestEnable(vk::False);
+  depthStencil.setMinDepthBounds(0.0F);  // Far plane
+  depthStencil.setMaxDepthBounds(1.0F);  // Near plane
 
   auto colorFormat = {vk::Format::eR16G16B16A16Sfloat};
   constexpr auto depthFormat = vk::Format::eD32Sfloat;

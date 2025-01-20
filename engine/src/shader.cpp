@@ -10,7 +10,7 @@ namespace braque
 {
 
   // read file helper function
-  std::vector<char> ReadFile( const std::string & filename )
+  std::vector<uint8_t> ReadFile( const std::string & filename )
   {
     // Open the file in binary mode
     std::ifstream file( filename, std::ios::ate | std::ios::binary );
@@ -22,11 +22,11 @@ namespace braque
 
     // Get the size of the file and allocate a buffer
     size_t            fileSize = (size_t)file.tellg();
-    std::vector<char> buffer( fileSize );
+    std::vector<uint8_t> buffer( fileSize );
 
     // Read the file into the buffer
     file.seekg( 0 );
-    file.read( buffer.data(), fileSize );
+    file.read( reinterpret_cast<std::istream::char_type*>(buffer.data()), fileSize );
 
     // Close the file
     file.close();
@@ -41,6 +41,13 @@ namespace braque
     fragmentModule = createShaderModule( ReadFile( fragShaderFilename ) );
   }
 
+Shader::Shader( vk::Device device, const std::vector<uint8_t> & vertexShaderData, const std::vector<uint8_t> & fragShaderData ) : device( device )
+  {
+    // Load the shader code from the file
+    vertexModule   = createShaderModule( vertexShaderData );
+    fragmentModule = createShaderModule( fragShaderData );
+  }
+
   Shader::~Shader()
   {
     // Destroy the shader modules
@@ -50,7 +57,7 @@ namespace braque
     spdlog::info( "Destroying shader" );
   }
 
-  auto Shader::createShaderModule( const std::vector<char> & code ) const -> vk::ShaderModule
+  auto Shader::createShaderModule( const std::vector<uint8_t> & code ) const -> vk::ShaderModule
   {
     // Create the shader module
     vk::ShaderModuleCreateInfo createInfo{};

@@ -19,7 +19,10 @@ layout (location = 3) out vec2 fragUV;
 
 void main ()
 {
-    gl_Position = camera.proj * camera.view * vec4 (inPosition, 1.0);
+    vec4 pos = camera.proj * camera.view * vec4(inPosition, 1.0);
+    gl_Position = pos;
+    // For reversed depth in Vulkan, we don't need to modify Z
+    // The projection matrix already handles this
     fragColor = inColor;
     fragNormal = inNormal;
     fragPosition = inPosition;

@@ -1,5 +1,7 @@
 #version 450
 
+#include "tonemapping.glsl"
+
 layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragNormal;
 layout (location = 2) in vec3 fragPosition;
@@ -9,10 +11,12 @@ layout (location = 0) out vec4 outColor;
 
 layout (binding = 1) uniform sampler2D texSampler;
 
+#include "camera_ubo.glsl"
+
 // Directional light properties
-const vec3 lightDir = normalize(vec3(1.0, 3.0, -2.0)); // Direction towards the light
+const vec3 lightDir = normalize(vec3(1.0, -0.7, 1)); // Direction towards the light
 const vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
-const float ambientStrength = 0.1;
+const float ambientStrength = 0.2;
 
 void main () {
     // Normalize the fragment normal
@@ -31,5 +35,9 @@ void main () {
     // Combine lighting with texture and vertex color
     vec3 result = (ambient + diffuse) * texColor;
 
+    // Apply tone mapping
+    result = toneMapFilmic(result);
+    
     outColor = vec4(result, 1.0);
+    
 }
