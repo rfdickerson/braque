@@ -14,7 +14,7 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
         fov_( 65.0f ),
         aspectRatio_( 800.0f / 600.0f ),
         nearPlane_( 0.1f ),
-        farPlane_( 100.0f )
+        farPlane_( 10000.0f )
   {
     UpdateCameraVectors();
   }
@@ -40,8 +40,11 @@ constexpr glm::vec3 kWorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     auto Camera::ProjectionMatrix() const -> glm::mat4
     {
-      auto projection =  glm::perspective( glm::radians( fov_ ), aspectRatio_, farPlane_, nearPlane_ );
-    projection[1][1] *= -1; // Flip Y-axis
+      // For reversed depth, we use near=1.0 and far=0.0
+      auto projection = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
+
+      projection[1][1] *= -1; // Flip Y-axis for Vulkan
+
       return projection;
     }
 

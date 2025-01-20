@@ -44,6 +44,7 @@ public:
   void UploadSceneData();
   void Draw(vk::CommandBuffer buffer);
   void AddCube();
+  void AddTerrain();
 
 private:
 

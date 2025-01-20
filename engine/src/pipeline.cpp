@@ -71,7 +71,7 @@ void Pipeline::createPipeline(bool is_sky_pipeline) {
   }
   inputAssembly.setPrimitiveRestartEnable(vk::False);
 
-  vk::Viewport viewport{0, 0, width, height, 0, 1};
+  vk::Viewport viewport{0, 0, width, height, 0, 1};  // Changed depth range to [0,1]
   vk::Rect2D scissor{{0, 0}, {width, height}};
 
   vk::PipelineViewportStateCreateInfo viewportState{};
@@ -90,7 +90,7 @@ void Pipeline::createPipeline(bool is_sky_pipeline) {
     rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
   }
 
-  rasterizer.setFrontFace(vk::FrontFace::eClockwise);
+  rasterizer.setFrontFace(vk::FrontFace::eCounterClockwise);
   rasterizer.setDepthBiasEnable(vk::False);
 
   vk::PipelineMultisampleStateCreateInfo multisampling{};
@@ -119,12 +119,11 @@ void Pipeline::createPipeline(bool is_sky_pipeline) {
   vk::PipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.setDepthTestEnable(!is_sky_pipeline);
   depthStencil.setDepthWriteEnable(!is_sky_pipeline);
-  depthStencil.setDepthCompareOp(vk::CompareOp::eGreater);
+  depthStencil.setDepthCompareOp(vk::CompareOp::eGreaterOrEqual);
   depthStencil.setDepthBoundsTestEnable(vk::False);
   depthStencil.setStencilTestEnable(vk::False);
-  depthStencil.setMinDepthBounds(0.0F);
-  depthStencil.setMaxDepthBounds(1.0F);
-
+  depthStencil.setMinDepthBounds(0.0F);  // Far plane
+  depthStencil.setMaxDepthBounds(1.0F);  // Near plane
 
   auto colorFormat = {vk::Format::eR16G16B16A16Sfloat};
   constexpr auto depthFormat = vk::Format::eD32Sfloat;

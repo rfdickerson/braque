@@ -18,7 +18,9 @@ Scene::Scene(EngineContext& engine, Uniforms& uniforms, AssetLoader& assetLoader
       index_staging_buffer_(engine, BufferType::staging, kVertexBufferSize) {
 
   // add a cube to vertex and index staging buffers
-  AddCube();
+  //AddCube();
+  
+  AddTerrain();
   UploadSceneData();
 
   // Load texture data from asset loader
@@ -174,6 +176,76 @@ std::vector<Vertex> vertices = {
   cube.index_count = 36;
 
   meshes_.push_back(cube);
+}
+
+void Scene::AddTerrain() {
+    // Create a simple terrain grid (10x10)
+    const int grid_size = 10;
+    const float cell_size = 1.0f;
+    const float height_scale = 0.5f;
+
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    // Generate vertices
+    for (int z = 0; z < grid_size; z++) {
+        for (int x = 0; x < grid_size; x++) {
+            float xPos = (x - grid_size/2.0f) * cell_size;
+            float zPos = (z - grid_size/2.0f) * cell_size;
+            // Simple height function (can be replaced with more complex terrain generation)
+            float height = height_scale * sinf(xPos) * cosf(zPos);
+
+            Vertex v;
+            v.position = {xPos, height, zPos};
+            // Calculate normal (simplified - just pointing up for now)
+            v.normal = {0.0f, 1.0f, 0.0f};
+            // UV coordinates for texturing
+            v.uv = {static_cast<float>(x) / (grid_size - 1),
+                   static_cast<float>(z) / (grid_size - 1)};
+            // Terrain color (can be modified based on height)
+            v.color = {0.5f, 0.5f, 0.3f};
+
+            vertices.push_back(v);
+        }
+    }
+
+    // Generate indices for triangle strips
+    for (int z = 0; z < grid_size - 1; z++) {
+        for (int x = 0; x < grid_size - 1; x++) {
+            uint32_t topLeft = z * grid_size + x;
+            uint32_t topRight = topLeft + 1;
+            uint32_t bottomLeft = (z + 1) * grid_size + x;
+            uint32_t bottomRight = bottomLeft + 1;
+
+            // First triangle
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
+
+            // Second triangle
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
+        }
+    }
+
+    // Copy vertex data to staging buffer
+    size_t vertex_offset = vertex_staging_buffer_.GetSize();
+    vertex_staging_buffer_.CopyData(vertices.data(),
+                                  vertices.size() * sizeof(Vertex));
+
+    // Copy index data to staging buffer
+    size_t index_offset = index_staging_buffer_.GetSize();
+    index_staging_buffer_.CopyData(indices.data(),
+                                 indices.size() * sizeof(uint32_t));
+
+    // Add mesh to the scene
+    Mesh terrain_mesh;
+    terrain_mesh.name = "terrain";
+    terrain_mesh.vertex_offset = 0;
+    terrain_mesh.index_offset = 0;
+    terrain_mesh.index_count = indices.size();
+    meshes_.push_back(terrain_mesh);
 }
 
 void Scene::CreateTextureSampler() {
