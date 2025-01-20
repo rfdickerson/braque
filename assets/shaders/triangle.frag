@@ -1,5 +1,7 @@
 #version 450
 
+#include "tonemapping.glsl"
+
 layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragNormal;
 layout (location = 2) in vec3 fragPosition;
@@ -33,6 +35,9 @@ void main () {
     // Combine lighting with texture and vertex color
     vec3 result = (ambient + diffuse) * texColor;
 
+    // Apply tone mapping
+    result = toneMapFilmic(result);
+    
     outColor = vec4(result, 1.0);
     
 }

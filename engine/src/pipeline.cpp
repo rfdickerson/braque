@@ -90,7 +90,7 @@ void Pipeline::createPipeline(bool is_sky_pipeline) {
     rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
   }
 
-  rasterizer.setFrontFace(vk::FrontFace::eCounterClockwise);
+  rasterizer.setFrontFace(vk::FrontFace::eClockwise);
   rasterizer.setDepthBiasEnable(vk::False);
 
   vk::PipelineMultisampleStateCreateInfo multisampling{};
@@ -119,7 +119,7 @@ void Pipeline::createPipeline(bool is_sky_pipeline) {
   vk::PipelineDepthStencilStateCreateInfo depthStencil{};
   depthStencil.setDepthTestEnable(!is_sky_pipeline);
   depthStencil.setDepthWriteEnable(!is_sky_pipeline);
-  depthStencil.setDepthCompareOp(vk::CompareOp::eGreaterOrEqual);
+  depthStencil.setDepthCompareOp(vk::CompareOp::eGreater);
   depthStencil.setDepthBoundsTestEnable(vk::False);
   depthStencil.setStencilTestEnable(vk::False);
   depthStencil.setMinDepthBounds(0.0F);  // Far plane

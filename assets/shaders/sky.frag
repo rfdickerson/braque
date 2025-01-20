@@ -1,6 +1,8 @@
 // sky.frag
 #version 450
 
+#include "tonemapping.glsl"
+
 layout(location = 0) in vec3 inViewDir;
 layout(location = 0) out vec4 outColor;
 
@@ -26,10 +28,6 @@ const vec3 SUN_DIRECTION = normalize(vec3(0.0, 0.90, -1.0));
 const vec3 SUN_COLOR = vec3(1.0, 0.98, 0.95);
 const float EXPOSURE = 5000.0;
 
-vec3 toneMapFilmic(vec3 color) {
-    color = max(vec3(0.0), color - vec3(0.004)); // Adjust black level
-    return (color * (6.2 * color + 0.5)) / (color * (6.2 * color + 1.7) + 0.06);
-}
 
 float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);

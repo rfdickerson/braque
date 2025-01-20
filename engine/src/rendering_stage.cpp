@@ -100,7 +100,7 @@ void RenderingStage::beginRenderingPass(const vk::CommandBuffer buffer) const {
 
   // create the depth attachment
   auto clear_value = vk::ClearValue();
-  clear_value.setDepthStencil({0.0F, 0}); 
+  clear_value.setDepthStencil({0.0F, 0});
 
   vk::RenderingAttachmentInfo depthAttachmentInfo{};
   depthAttachmentInfo.setImageView(depthImages[curr].GetImageView());
